@@ -330,7 +330,7 @@ const brandOptions = [
   "SnackTime",
   "Organic Valley",
 ];
-const unitOptions = ["kg", "g", "L", "mL", "pcs", "box", "pack"];
+const unitOptions = ["kg", "g", "gm", "L", "mL", "pcs", "box", "pack"];
 
 export const ProductForm = ({
   initialData,

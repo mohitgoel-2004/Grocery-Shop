@@ -32,13 +32,13 @@ exports.createCategory = asyncHandler(async (req, res) => {
 exports.updateCategory = asyncHandler(async (req, res) => {
 
     const category = await Category.findByIdAndUpdate(
-        req.params.id,
-        req.body,
-        {
-            new: true,
-            runValidators: true,
-        }
-    );
+    req.params.id,
+    req.body,
+    {
+        returnDocument: "after",
+        runValidators: true,
+    }
+);
 
     if (!category) {
         throw new ApiError(404, "Category not found");

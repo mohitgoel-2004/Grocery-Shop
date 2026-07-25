@@ -52,6 +52,10 @@ const getCart = async (userId) => {
 };
 
 const addToCart = async (userId, productId, quantity = 1) => {
+   console.log("========== ADD TO CART ==========");
+  console.log("UserId:", userId);
+  console.log("ProductId:", productId);
+  console.log("Quantity:", quantity);
   const product = await Product.findById(productId);
 
   if (!product) {
@@ -59,6 +63,7 @@ const addToCart = async (userId, productId, quantity = 1) => {
   }
 
   const cart = await getOrCreateCart(userId);
+    console.log("CART BEFORE:", cart);
 const existingItem = cart.items.find(
   (item) => getProductId(item.product) === String(productId)
 );
@@ -76,7 +81,14 @@ const existingItem = cart.items.find(
     });
   }
 
-  return syncCartTotals(cart);
+ console.log("CART AFTER:", cart);
+
+  try {
+    return await syncCartTotals(cart);
+  } catch (err) {
+    console.log("SAVE ERROR:", err);
+    throw err;
+  }
 };
 
 const updateCartItem = async (userId, productId, quantity) => {

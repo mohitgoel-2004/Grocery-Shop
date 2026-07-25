@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { FiChevronRight } from "react-icons/fi";
 import { fetchCategories } from "../services/api";
 
 const CategoryList = () => {
@@ -20,19 +19,36 @@ const CategoryList = () => {
   }, []);
 
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-5">
+    <div className="flex gap-5 overflow-x-auto pb-2 scrollbar-hide">
       {categories.map((cat) => (
         <div
           key={cat._id}
-          className="group rounded-[24px] border border-[#eef0eb] bg-white p-4 text-center shadow-[0_10px_24px_rgba(15,23,42,0.05)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_34px_rgba(15,23,42,0.08)]"
+          className="flex min-w-[72px] flex-col items-center cursor-pointer group"
         >
-          <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-linear-to-br from-green-100 to-emerald-100 text-2xl shadow-inner">
-            <span>{cat.icon || "🛒"}</span>
+          {/* Circle */}
+          <div className="h-16 w-16 rounded-full bg-[#F2F8F3] shadow-sm overflow-hidden border border-green-100 transition-all duration-300 group-hover:scale-105 group-hover:shadow-md">
+            {cat.image ? (
+              <img
+                src={cat.image}
+                alt={cat.name}
+                className="h-full w-full object-cover"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src =
+                    "https://placehold.co/100x100/png?text=No";
+                }}
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center text-2xl">
+                {cat.icon || "🛒"}
+              </div>
+            )}
           </div>
-          <p className="mt-3 text-sm font-semibold text-gray-900">{cat.name}</p>
-          <div className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-gray-400">
-            Explore <FiChevronRight className="text-[10px]" />
-          </div>
+
+          {/* Name */}
+          <p className="mt-2 text-[12px] font-medium text-gray-700 text-center line-clamp-2">
+            {cat.name}
+          </p>
         </div>
       ))}
     </div>

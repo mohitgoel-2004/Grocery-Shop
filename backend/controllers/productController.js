@@ -106,22 +106,28 @@ const createProduct = asyncHandler(async (req, res) => {
       throw new ApiError(400, "Product already exists");
     }
 
-    const product = await Product.create({
-      name,
-      slug,
-      category,
-      brand,
-      description,
-      price,
-      discount: discount || 0,
-      stock: stock || 0,
-      sku,
-      weight: weight || 0,
-      unit: unit || "pcs",
-      images: images || [],
-      status: status || "active",
-      image: images?.length ? images[0] : "",
-    });
+   const productData = {
+  name,
+  slug,
+  category,
+  brand,
+  description,
+  price,
+  discount: discount || 0,
+  stock: stock || 0,
+  weight: weight || 0,
+  unit: unit || "pcs",
+  images: images || [],
+  status: status || "active",
+  image: images?.length ? images[0] : "",
+};
+
+// SKU sirf tab add karo jab value ho
+if (sku && sku.trim() !== "") {
+  productData.sku = sku.trim();
+}
+
+const product = await Product.create(productData);
 
     res.status(201).json(
       ApiResponse.success(
@@ -152,7 +158,7 @@ const updateProduct = asyncHandler(async (req, res) => {
     req.params.id,
     body,
     {
-      new: true,
+      returnDocument: "after",
       runValidators: true,
     }
   ).populate("category");
@@ -297,7 +303,7 @@ const updateCategory = asyncHandler(async (req, res) => {
     req.params.id,
     body,
     {
-      new: true,
+     returnDocument: "after",
       runValidators: true,
     }
   );

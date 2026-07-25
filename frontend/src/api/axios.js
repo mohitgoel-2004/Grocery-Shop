@@ -29,6 +29,7 @@ api.interceptors.request.use((config) => {
   console.log("REQUEST URL:", config.url);
   console.log("TOKEN:", token);
   console.log("AUTH HEADER:", token ? `Bearer ${token}` : "NO TOKEN");
+  console.log("FINAL CONFIG:", config);
 
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
