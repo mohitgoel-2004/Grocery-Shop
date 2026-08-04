@@ -163,7 +163,7 @@ useEffect(() => {
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,#ffffff_0%,#f4f7f4_42%,#e9efe9_100%)] px-0 py-0 md:px-4 md:py-4 lg:px-6">
       <div className="mx-auto flex min-h-screen w-full max-w-107.5 flex-col overflow-hidden bg-white shadow-[0_28px_80px_rgba(15,23,42,0.16)] md:min-h-[calc(100vh-2rem)] md:rounded-[36px] md:border md:border-white/60 lg:max-w-120">
-        <div className="shrink-0 bg-white/95 px-4 pt-4 pb-4 backdrop-blur-sm">
+        <div className="shrink-0 border-b border-[#eef0eb] bg-white/95 px-4 pt-4 pb-4 backdrop-blur-sm">
           <div className="flex items-center justify-between gap-3">
             <button
               onClick={() => navigate(-1)}
@@ -191,13 +191,13 @@ useEffect(() => {
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-4 pb-6 pt-2">
+        <div className="flex-1 overflow-y-auto px-4 pb-[calc(7rem+env(safe-area-inset-bottom))] pt-2">
           {isLoading ? (
             <div className="py-10 text-center text-gray-500">
               Loading profile...
             </div>
           ) : (
-            <div className="mt-6 space-y-5 pb-24">
+            <div className="mt-6 space-y-5 pb-6">
               <section className="rounded-[28px] border border-[#eef0eb] bg-white p-4 shadow-[0_10px_28px_rgba(15,23,42,0.06)]">
                 <div className="mb-4 flex items-center gap-2">
                   <div className="grid h-8 w-8 place-items-center rounded-full bg-green-100 text-green-700">

@@ -114,22 +114,22 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col justify-center items-center h-screen bg-gray-50">
+      <div className="flex h-screen flex-col items-center justify-center bg-slate-50">
         <div className="w-16 h-16 border-4 border-emerald-400 border-t-transparent rounded-full animate-spin"></div>
-        <p className="mt-4 text-gray-500 font-medium">Loading your dashboard...</p>
+        <p className="mt-4 font-medium text-slate-500">Loading your dashboard...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex flex-col justify-center items-center h-screen bg-gray-50">
-        <div className="bg-red-50 text-red-600 px-6 py-4 rounded-2xl shadow-sm border border-red-200 max-w-md text-center">
+      <div className="flex h-screen flex-col items-center justify-center bg-slate-50">
+        <div className="max-w-md rounded-2xl border border-red-200 bg-red-50 px-6 py-4 text-center text-red-600 shadow-sm">
           <h2 className="text-lg font-bold">Oops!</h2>
           <p className="mt-1">{error}</p>
           <button
             onClick={refreshDashboard}
-            className="mt-4 px-6 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition"
+            className="mt-4 rounded-xl bg-red-600 px-6 py-2 text-white transition hover:bg-red-700"
           >
             Retry
           </button>
@@ -139,7 +139,7 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50/40 via-white to-blue-50/30 font-['Inter',sans-serif]">
+    <div className="min-h-screen bg-linear-to-br from-emerald-50/40 via-white to-sky-50/40 font-['Inter',sans-serif]">
       {/* ===== MOBILE HEADER ===== */}
       {/* <header className="sticky top-0 z-40 bg-white/70 backdrop-blur-md border-b border-gray-200/60 px-4 py-3 flex items-center justify-between lg:px-8">
         <div className="flex items-center gap-2">
@@ -162,29 +162,29 @@ const Dashboard = () => {
       </header> */}
 
       {/* ===== DASHBOARD BODY ===== */}
-      <main className="max-w-7xl mx-auto px-4 py-6 lg:px-8 space-y-6">
+      <main className="mx-auto max-w-7xl space-y-6 px-4 py-6 lg:px-8">
         {/* ===== WELCOME SECTION ===== */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
+          className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
         >
           <div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-800 tracking-tight flex items-center gap-2">
+            <h1 className="flex items-center gap-2 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
               Dashboard
-              <span className="text-xs font-medium bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full">
+              <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-700">
                 <FaLeaf className="inline mr-1" size={12} />
                 Fresh
               </span>
             </h1>
-            <p className="text-gray-500 text-sm mt-1">
+            <p className="mt-1 text-sm text-slate-500">
               Welcome back 👋 Here's your grocery store snapshot.
             </p>
           </div>
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.97 }}
-            className="flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-5 py-2.5 rounded-xl font-semibold shadow-md shadow-emerald-200/60 hover:shadow-lg hover:from-emerald-600 hover:to-emerald-700 transition-all"
+            className="flex items-center justify-center gap-2 rounded-xl bg-linear-to-r from-emerald-500 to-emerald-600 px-5 py-2.5 font-semibold text-white shadow-md shadow-emerald-200/60 transition-all hover:from-emerald-600 hover:to-emerald-700 hover:shadow-lg"
           >
             <FiBarChart2 size={18} />
             <span className="hidden sm:inline">Generate Report</span>
@@ -193,7 +193,7 @@ const Dashboard = () => {
         </motion.div>
 
         {/* ===== STATS CARDS ===== */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {stats.map((item, index) => (
             <motion.div
               key={index}
@@ -202,16 +202,16 @@ const Dashboard = () => {
               transition={{ delay: index * 0.07, type: "spring", stiffness: 300 }}
               onMouseEnter={() => setHoveredStat(index)}
               onMouseLeave={() => setHoveredStat(null)}
-              className={`relative bg-white rounded-2xl p-5 shadow-sm border border-gray-100/80 transition-all duration-300 ${
-                hoveredStat === index ? "shadow-xl -translate-y-1 border-emerald-200/60" : ""
+              className={`relative rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition-all duration-300 ${
+                hoveredStat === index ? "-translate-y-1 border-emerald-200/60 shadow-xl" : ""
               }`}
             >
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-gray-400 text-xs font-medium uppercase tracking-wider">
+                  <p className="text-xs font-medium uppercase tracking-wider text-slate-400">
                     {item.title}
                   </p>
-                  <h3 className="text-2xl font-extrabold text-gray-800 mt-1">
+                  <h3 className="mt-1 text-2xl font-extrabold text-slate-900">
                     {item.value}
                   </h3>
                   <div className="flex items-center mt-2 gap-1">
@@ -227,23 +227,23 @@ const Dashboard = () => {
                     >
                       {item.change}
                     </span>
-                    <span className="text-gray-400 text-xs ml-0.5">vs last month</span>
+                    <span className="ml-0.5 text-xs text-slate-400">vs last month</span>
                   </div>
                 </div>
                 <div
-                  className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${item.color} flex items-center justify-center text-white shadow-lg`}
+                  className={`w-12 h-12 rounded-2xl bg-linear-to-br ${item.color} flex items-center justify-center text-white shadow-lg`}
                   style={{ boxShadow: `0 6px 16px -4px ${item.color.split(" ")[1]}80` }}
                 >
                   {item.icon}
                 </div>
               </div>
               {/* subtle progress bar */}
-              <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-100/80 rounded-b-2xl overflow-hidden">
+              <div className="absolute bottom-0 left-0 right-0 h-1 overflow-hidden rounded-b-2xl bg-slate-100/80">
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: item.positive ? "70%" : "30%" }}
                   transition={{ delay: 0.3 + index * 0.1, duration: 1, ease: "easeOut" }}
-                  className={`h-full bg-gradient-to-r ${item.color}`}
+                  className={`h-full bg-linear-to-r ${item.color}`}
                 />
               </div>
             </motion.div>
@@ -257,17 +257,17 @@ const Dashboard = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100/80 p-5"
+            className="lg:col-span-2 rounded-2xl border border-slate-100 bg-white p-5 shadow-sm"
           >
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                <h2 className="flex items-center gap-2 text-lg font-bold text-slate-900">
                   <FiClock className="text-emerald-500" />
                   Today
                 </h2>
-                <p className="text-xs text-gray-400">Performance snapshot</p>
+                <p className="text-xs text-slate-400">Performance snapshot</p>
               </div>
-              <span className="text-xs font-medium text-gray-400 bg-gray-50 px-3 py-1 rounded-full border border-gray-100">
+              <span className="rounded-full border border-slate-100 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-400">
                 {new Date().toLocaleDateString("en-IN", {
                   weekday: "short",
                   day: "numeric",
@@ -280,24 +280,24 @@ const Dashboard = () => {
                 <motion.div
                   key={index}
                   whileHover={{ scale: 1.03 }}
-                  className="bg-gray-50/80 rounded-xl p-3 hover:bg-emerald-50/40 transition-colors"
+                  className="rounded-xl bg-slate-50/80 p-3 transition-colors hover:bg-emerald-50/40"
                 >
                   <div className="flex items-center gap-2.5">
                     <div className={`w-8 h-8 rounded-lg ${item.bg} flex items-center justify-center`}>
                       {item.icon}
                     </div>
                     <div>
-                      <p className="text-[10px] text-gray-400 font-medium uppercase tracking-wider">
+                      <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">
                         {item.title}
                       </p>
-                      <p className="text-lg font-extrabold text-gray-800">{item.value}</p>
+                      <p className="text-lg font-extrabold text-slate-900">{item.value}</p>
                     </div>
                   </div>
                 </motion.div>
               ))}
             </div>
             {/* Fresh tip */}
-            <div className="mt-4 p-3 rounded-xl bg-gradient-to-r from-emerald-50/80 to-emerald-100/40 border border-emerald-100/50 flex items-center gap-3">
+            <div className="mt-4 flex items-center gap-3 rounded-xl border border-emerald-100/50 bg-linear-to-r from-emerald-50/80 to-emerald-100/40 p-3">
               <FaSeedling className="text-emerald-600 text-lg" />
               <div>
                 <p className="text-xs font-semibold text-emerald-700">Stock alert</p>
@@ -311,44 +311,44 @@ const Dashboard = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="lg:col-span-3 bg-white rounded-2xl shadow-sm border border-gray-100/80 p-5"
+            className="lg:col-span-3 rounded-2xl border border-slate-100 bg-white p-5 shadow-sm"
           >
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                <h2 className="flex items-center gap-2 text-lg font-bold text-slate-900">
                   <FiList className="text-emerald-500" />
                   Recent Orders
                 </h2>
-                <p className="text-xs text-gray-400">Latest transactions</p>
+                <p className="text-xs text-slate-400">Latest transactions</p>
               </div>
-              <button className="text-sm font-medium text-emerald-600 hover:text-emerald-700 flex items-center gap-1 transition">
+              <button className="flex items-center gap-1 text-sm font-medium text-emerald-600 transition hover:text-emerald-700">
                 View all
                 <FiArrowUpRight size={14} />
               </button>
             </div>
 
             {/* Mobile: Cards, Desktop: Table */}
-            <div className="block lg:hidden space-y-3">
+            <div className="block space-y-3 lg:hidden">
               {recentOrders.map((order, idx) => (
                 <motion.div
                   key={idx}
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.5 + idx * 0.05 }}
-                  className="bg-gray-50/70 rounded-xl p-3 border border-gray-100/60"
+                  className="rounded-xl border border-slate-100/60 bg-slate-50/70 p-3"
                 >
                   <div className="flex justify-between items-start">
                     <div>
-                      <p className="text-xs font-semibold text-gray-700">
+                      <p className="text-xs font-semibold text-slate-700">
                         #{order?._id?.slice(-6) || "------"}
                       </p>
-                      <p className="text-sm font-medium text-gray-800">
+                      <p className="text-sm font-medium text-slate-900">
                         {order.user?.name || order.customer?.name || order.customerName || "Guest"}
                       </p>
-                      <p className="text-xs text-gray-500">{order.items?.length || 0} items</p>
+                      <p className="text-xs text-slate-500">{order.items?.length || 0} items</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-bold text-gray-800">₹{order.total || order.totalPrice}</p>
+                      <p className="text-sm font-bold text-slate-900">₹{order.total || order.totalPrice}</p>
                       <span
                         className={`text-[10px] font-medium px-2 py-0.5 rounded-full inline-block mt-1 ${
                           order.status === "Delivered"
@@ -366,10 +366,10 @@ const Dashboard = () => {
               ))}
             </div>
 
-            <div className="hidden lg:block overflow-x-auto">
+            <div className="hidden overflow-x-auto lg:block">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="text-left text-gray-400 text-xs font-medium uppercase tracking-wider border-b border-gray-100">
+                  <tr className="border-b border-slate-100 text-left text-xs font-medium uppercase tracking-wider text-slate-400">
                     <th className="pb-2 pr-4">Order</th>
                     <th className="pb-2 pr-4">Customer</th>
                     <th className="pb-2 pr-4 hidden sm:table-cell">Items</th>
@@ -384,18 +384,18 @@ const Dashboard = () => {
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.5 + idx * 0.05 }}
-                      className="border-t border-gray-50/80 hover:bg-emerald-50/20 transition"
+                      className="border-t border-slate-50/80 transition hover:bg-emerald-50/20"
                     >
-                      <td className="py-3 pr-4 font-semibold text-gray-700 text-xs">
+                      <td className="py-3 pr-4 text-xs font-semibold text-slate-700">
                         #{order?._id?.slice(-6) || "------"}
                       </td>
-                      <td className="py-3 pr-4 text-gray-700 font-medium">
+                      <td className="py-3 pr-4 font-medium text-slate-700">
                         {order.user?.name || order.customer?.name || order.customerName || "Guest"}
                       </td>
-                      <td className="py-3 pr-4 text-gray-500 text-xs hidden sm:table-cell">
+                      <td className="hidden py-3 pr-4 text-xs text-slate-500 sm:table-cell">
                         {order.items?.length || 0} Items
                       </td>
-                      <td className="py-3 pr-4 font-bold text-gray-800">
+                      <td className="py-3 pr-4 font-bold text-slate-900">
                         ₹{order.total || order.totalPrice}
                       </td>
                       <td className="py-3">
@@ -426,11 +426,11 @@ const Dashboard = () => {
           transition={{ delay: 0.5 }}
         >
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+            <h2 className="flex items-center gap-2 text-lg font-bold text-slate-900">
               <FiGrid className="text-emerald-500" />
               Quick Actions
             </h2>
-            <span className="text-xs text-gray-400 bg-white px-3 py-1 rounded-full border border-gray-100 shadow-sm">
+            <span className="rounded-full border border-slate-100 bg-white px-3 py-1 text-xs text-slate-400 shadow-sm">
               🛒 Ops
             </span>
           </div>
@@ -448,19 +448,19 @@ const Dashboard = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.55 + index * 0.06 }}
-                className="bg-white rounded-2xl shadow-sm border border-gray-100/80 p-4 text-left hover:shadow-lg transition-all duration-200 group"
+                className="group rounded-2xl border border-slate-100 bg-white p-4 text-left shadow-sm transition-all duration-200 hover:shadow-lg"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
-                    <div className={`w-9 h-9 rounded-xl ${action.iconBg} flex items-center justify-center group-hover:scale-110 transition`}>
+                    <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${action.iconBg} transition group-hover:scale-110`}>
                       {action.icon}
                     </div>
-                    <h3 className="font-semibold text-gray-700 text-sm">{action.label}</h3>
+                    <h3 className="text-sm font-semibold text-slate-700">{action.label}</h3>
                   </div>
-                  <FiArrowUpRight className="text-gray-300 group-hover:text-emerald-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" size={16} />
+                  <FiArrowUpRight className="text-slate-300 transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-emerald-500" size={16} />
                 </div>
-                <div className="mt-2 h-1 w-full rounded-full bg-gray-100/60 overflow-hidden">
-                  <div className={`h-full w-0 group-hover:w-full bg-gradient-to-r ${action.color} transition-all duration-700`} />
+                <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-slate-100/60">
+                  <div className={`h-full w-0 group-hover:w-full bg-linear-to-r ${action.color} transition-all duration-700`} />
                 </div>
               </motion.button>
             ))}
@@ -468,10 +468,10 @@ const Dashboard = () => {
         </motion.div>
 
         {/* ===== FOOTER ===== */}
-        <div className="pt-6 pb-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-gray-400 border-t border-gray-200/60">
+        <div className="flex flex-col items-center justify-between gap-2 border-t border-slate-200/60 pt-6 pb-4 text-xs text-slate-400 sm:flex-row">
           <div className="flex items-center gap-4">
             <span>© 2026 GroceryHub</span>
-            <span className="w-1 h-1 rounded-full bg-gray-300" />
+            <span className="h-1 w-1 rounded-full bg-slate-300" />
             <span className="flex items-center gap-1">
               <FaLeaf className="text-emerald-400" size={12} />
               Fresh & Organic

@@ -51,6 +51,8 @@ import CustomersPage, {
   EditCustomerPage,
 } from "./pages/admin/Customer";
 
+import Settings from "./pages/admin/Setting/Settings";
+
 import AdminNotifications from "./pages/admin/Notification";
 import AdminProfile from "./pages/admin/Profile";
 
@@ -128,11 +130,13 @@ function App() {
 
 <Route path="customers/premium" element={<PremiumCustomersPage />} />
 
+<Route path="settings" element={<Settings />} />
+
 {/* ✅ ADD THIS ROUTE */}
 <Route
    path="customers/deleted"
-   element={<DeletedCustomersPage />}
-/>
+   element={<DeletedCustomersPage />} />
+
 
 {/* KEEP THIS ALWAYS LAST */}
 <Route path="customers/:id" element={<CustomerDetailsPage />} />

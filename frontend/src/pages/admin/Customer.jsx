@@ -96,9 +96,9 @@ const filtered =
           <Link to="/admin/customers" className="text-gray-600 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400">
             <FiArrowLeft size={20} />
           </Link>
-          <h1 className="text-2xl font-extrabold text-gray-800 dark:text-white flex items-center gap-2">
+          <h3 className="flex items-center gap-2 text-2xl font-extrabold text-slate-900">
             {icon} {title}
-          </h1>
+          </h3>
           <span className="text-sm text-gray-500 dark:text-gray-400">({filtered.length} customers)</span>
         </div>
 
@@ -255,10 +255,10 @@ const confirmDelete = async () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold text-gray-800 dark:text-white flex items-center gap-2">
+          <h3 className="flex items-center gap-2 text-2xl font-extrabold text-slate-900">
             <FiUsers className="text-emerald-500" />
             Customer Management
-          </h1>
+          </h3>
           <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
             Manage your customer base, view profiles, and track activity.
           </p>
@@ -276,80 +276,100 @@ const confirmDelete = async () => {
     <CustomerStats stats={stats} />
 
       {/* Tabs */}
-      <div className="flex flex-wrap gap-2 bg-white dark:bg-gray-800 rounded-2xl p-2 border border-gray-100/80 dark:border-gray-700/80">
-        {tabs.map((tab) => (
-          <Link
-            key={tab.value}
-            to={tab.path}
-            className={`px-4 py-2 rounded-xl text-sm font-medium transition ${
-              (tab.value === 'all' && window.location.pathname === '/admin/customers') ||
-              window.location.pathname === tab.path
-                ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
-                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
-            }`}
-          >
-            {tab.label}
-          </Link>
-        ))}
+     <div className="flex flex-wrap gap-2 bg-white rounded-2xl p-2 border border-gray-100/80 w-full overflow-x-hidden">
+  {tabs.map((tab) => (
+    <Link
+      key={tab.value}
+      to={tab.path}
+      className={`px-4 py-2 rounded-xl text-sm font-medium transition ${
+        (tab.value === 'all' &&
+          window.location.pathname === '/admin/customers') ||
+        window.location.pathname === tab.path
+          ? 'bg-emerald-100 text-emerald-700'
+          : 'text-gray-600 hover:bg-gray-100'
+      }`}
+    >
+      {tab.label}
+    </Link>
+  ))}
+</div>
+
+     {/* Search & Filters */}
+<div className="bg-white rounded-3xl shadow-sm border border-gray-100/80 p-3 sm:p-5 w-full overflow-hidden">
+  <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+
+    {/* Search */}
+    <div className="w-full lg:flex-1 min-w-0">
+      <CustomerSearch
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+      />
+    </div>
+
+    {/* Filters + Actions */}
+    <div className="flex flex-col sm:flex-row sm:flex-wrap lg:flex-nowrap gap-3 w-full lg:w-auto lg:items-center">
+
+      <div className="w-full sm:w-auto">
+        <CustomerFilters
+          filterStatus={filterStatus}
+          setFilterStatus={setFilterStatus}
+          filterSort={filterSort}
+          setFilterSort={setFilterSort}
+          resetFilters={resetFilters}
+        />
       </div>
 
-      {/* Search & Filters */}
-      <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-100/80 dark:border-gray-700/80 p-4 sm:p-6">
-        <div className="flex flex-col md:flex-row gap-4">
-          <CustomerSearch searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-          <div className="flex flex-wrap gap-3">
-            <CustomerFilters
-              filterStatus={filterStatus}
-              setFilterStatus={setFilterStatus}
-              filterSort={filterSort}
-              setFilterSort={setFilterSort}
-              resetFilters={resetFilters}
-            />
-            {/* Toggle deleted view - only for main page */}
-            {!showDeleted && (
-              <button
-                onClick={() => setShowDeleted(true)}
-                className="px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/70 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-600 transition text-gray-600 dark:text-gray-300 flex items-center gap-2"
-              >
-                <FiTrash2 size={16} />
-                View Deleted
-              </button>
-            )}
-            {showDeleted && (
-              <button
-                onClick={() => setShowDeleted(false)}
-                className="px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/70 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-600 transition text-gray-600 dark:text-gray-300 flex items-center gap-2"
-              >
-                <FiUserCheck size={16} />
-                Hide Deleted
-              </button>
-            )}
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setViewMode('grid')}
-                className={`p-2.5 rounded-xl border ${
-                  viewMode === 'grid'
-                    ? 'bg-emerald-100 border-emerald-300 dark:bg-emerald-900/30'
-                    : 'border-gray-200 dark:border-gray-700'
-                } hover:bg-gray-100 dark:hover:bg-gray-700 transition`}
-              >
-                <FiGrid size={18} />
-              </button>
-              <button
-                onClick={() => setViewMode('table')}
-                className={`p-2.5 rounded-xl border ${
-                  viewMode === 'table'
-                    ? 'bg-emerald-100 border-emerald-300 dark:bg-emerald-900/30'
-                    : 'border-gray-200 dark:border-gray-700'
-                } hover:bg-gray-100 dark:hover:bg-gray-700 transition`}
-              >
-                <FiList size={18} />
-              </button>
-            </div>
-          </div>
-        </div>
+      {/* Toggle deleted view - only for main page */}
+      {!showDeleted && (
+        <button
+          onClick={() => setShowDeleted(true)}
+          className="w-full sm:w-auto min-h-10 px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/70 hover:bg-gray-100 transition text-gray-600 flex items-center justify-center gap-2 whitespace-nowrap"
+        >
+          <FiTrash2 size={16} />
+          View Deleted
+        </button>
+      )}
+
+      {showDeleted && (
+        <button
+          onClick={() => setShowDeleted(false)}
+          className="w-full sm:w-auto min-h-10 px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/70 hover:bg-gray-100 transition text-gray-600 flex items-center justify-center gap-2 whitespace-nowrap"
+        >
+          <FiUserCheck size={16} />
+          Hide Deleted
+        </button>
+      )}
+
+      {/* Grid / Table */}
+      <div className="flex items-center gap-2 self-start sm:self-auto">
+        <button
+          onClick={() => setViewMode('grid')}
+          aria-label="Grid view"
+          className={`p-2.5 min-w-10 min-h-10 rounded-xl border ${
+            viewMode === 'grid'
+              ? 'bg-emerald-100 border-emerald-300'
+              : 'border-gray-200'
+          } hover:bg-gray-100 transition flex items-center justify-center`}
+        >
+          <FiGrid size={18} />
+        </button>
+
+        <button
+          onClick={() => setViewMode('table')}
+          aria-label="Table view"
+          className={`p-2.5 min-w-10 min-h-10 rounded-xl border ${
+            viewMode === 'table'
+              ? 'bg-emerald-100 border-emerald-300'
+              : 'border-gray-200'
+          } hover:bg-gray-100 transition flex items-center justify-center`}
+        >
+          <FiList size={18} />
+        </button>
       </div>
 
+    </div>
+  </div>
+</div>
       {/* Customer List */}
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">

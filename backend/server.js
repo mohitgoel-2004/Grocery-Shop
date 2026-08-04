@@ -27,6 +27,8 @@ const adminProductRoutes = require("./routes/adminProductRoutes");
 const adminOrderRoutes = require("./routes/adminOrderRoutes");
 const adminCustomerRoutes = require("./routes/adminCustomerRoutes");
 const adminProfileRoutes = require("./routes/adminProfileRoutes");
+const deliverySettingsRoutes = require("./routes/deliverySettingsRoutes");
+
 
 // Middleware
 const {
@@ -103,9 +105,14 @@ app.use("/api/admin/orders", adminOrderRoutes);
 
 app.use("/api/admin/customers", adminCustomerRoutes);
 
+app.use("/api/admin/delivery-settings", deliverySettingsRoutes);
+
 app.use("/api/admin/profile", adminProfileRoutes);
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+
+
 
 /* ===========================
    Error Handler

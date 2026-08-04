@@ -15,6 +15,20 @@ import {
 
 const formatPrice = (value) => `₹${Number(value || 0).toFixed(2)}`;
 
+const formatWeight = (weight, unit) => {
+  if (weight === undefined || weight === null || weight === "") {
+    return "";
+  }
+
+  const weightText = String(weight).trim();
+
+  if (/[a-zA-Z]/.test(weightText)) {
+    return weightText;
+  }
+
+  return unit ? `${weightText} ${unit}` : weightText;
+};
+
 const getCategoryLabel = (product) => {
   const categoryName =
     product.category?.name || product.category?.slug || product.category || "";
@@ -125,6 +139,10 @@ const ProductDetails = () => {
   const detailDescription =
     selectedProduct?.description ||
     "Freshly curated product with reliable delivery and quality assurance.";
+
+  const selectedWeightLabel = selectedProduct
+    ? formatWeight(selectedProduct.weight, selectedProduct.unit)
+    : "";
      
     const searchRef = useRef(null);
 const [highlightSearch, setHighlightSearch] = useState(false);
@@ -133,7 +151,7 @@ const [highlightSearch, setHighlightSearch] = useState(false);
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,#ffffff_0%,#f4f7f4_45%,#e9efe9_100%)] px-0 py-0 md:px-4 md:py-4 lg:px-6">
       <div className="mx-auto flex min-h-screen w-full max-w-107.5 flex-col overflow-hidden bg-white shadow-[0_28px_80px_rgba(15,23,42,0.16)] md:min-h-[calc(100vh-2rem)] md:rounded-[36px] md:border md:border-white/60 lg:max-w-120">
-        <div className="shrink-0 bg-white/95 px-4 pt-4 pb-3 backdrop-blur-sm">
+        <div className="shrink-0 border-b border-[#eef0eb] bg-white/95 px-4 pt-4 pb-3 backdrop-blur-sm">
           <div className="flex items-center justify-between gap-3">
             <button
               onClick={
@@ -164,7 +182,7 @@ const [highlightSearch, setHighlightSearch] = useState(false);
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-4 pb-6 pt-2 space-y-4">
+        <div className="flex-1 space-y-4 overflow-y-auto px-4 pb-[calc(7rem+env(safe-area-inset-bottom))] pt-2">
           {!selectedProduct ? (
             <>
               <div className="relative">
@@ -191,7 +209,7 @@ const [highlightSearch, setHighlightSearch] = useState(false);
                 </button>
               </div>
 
-              <div className="flex gap-3 overflow-x-auto pb-1 pt-1">
+              <div className="flex gap-3 overflow-x-auto pb-1 pt-1 scrollbar-hide">
                 {categories.map((cat) => {
                   const categoryLabel =
                     typeof cat === "string" ? cat : cat.name;
@@ -221,7 +239,7 @@ const [highlightSearch, setHighlightSearch] = useState(false);
                   Loading products...
                 </div>
               ) : (
-                <div className="grid grid-cols-2 gap-4 pb-16">
+                <div className="grid grid-cols-2 gap-3 pb-16 sm:gap-4">
                   {filteredProducts.length > 0 ? (
                     filteredProducts.map((product) => (
                       <div
@@ -248,9 +266,11 @@ const [highlightSearch, setHighlightSearch] = useState(false);
                         <h4 className="mt-3 line-clamp-2 text-sm font-semibold leading-snug text-gray-900">
                           {product.name}
                         </h4>
-                        <p className="mt-1 text-xs text-gray-500">
-                          {product.weight}
-                        </p>
+                        {formatWeight(product.weight, product.unit) ? (
+                          <p className="mt-1 text-xs text-gray-500">
+                            {formatWeight(product.weight, product.unit)}
+                          </p>
+                        ) : null}
                         <div className="mt-3 flex items-center justify-between gap-2">
                           <div>
                             <p className="text-xs uppercase tracking-wide text-gray-400">
@@ -313,9 +333,11 @@ const [highlightSearch, setHighlightSearch] = useState(false);
                   <h2 className="mt-2 text-2xl font-semibold leading-tight text-gray-900">
                     {selectedProduct.name}
                   </h2>
-                  <p className="mt-1 text-sm text-gray-500">
-                    {selectedProduct.weight}
-                  </p>
+                  {selectedWeightLabel ? (
+                    <p className="mt-1 text-sm text-gray-500">
+                      {selectedWeightLabel}
+                    </p>
+                  ) : null}
                 </div>
 
                 <div className="flex items-center justify-between gap-3 rounded-[26px] border border-[#eef0eb] bg-[#fafafa] px-4 py-4">
@@ -379,7 +401,7 @@ const [highlightSearch, setHighlightSearch] = useState(false);
                 </p>
               </div>
 
-              <div className="sticky bottom-0 -mx-4 bg-linear-to-t from-white via-white to-white/0 px-4 pb-2 pt-4">
+                <div className="sticky bottom-0 -mx-4 bg-linear-to-t from-white via-white to-white/0 px-4 pb-[calc(0.5rem+env(safe-area-inset-bottom))] pt-4">
                 <button
                   onClick={handleAddToCart}
                   className="flex w-full items-center justify-center gap-3 rounded-3xl bg-[#111827] py-4 font-semibold text-white shadow-[0_18px_30px_rgba(17,24,39,0.22)] transition hover:scale-[1.01]"

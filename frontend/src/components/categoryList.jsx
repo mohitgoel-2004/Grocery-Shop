@@ -19,14 +19,14 @@ const CategoryList = () => {
   }, []);
 
   return (
-    <div className="flex gap-5 overflow-x-auto pb-2 scrollbar-hide">
+    <div className="flex gap-4 overflow-x-auto pb-2 pr-1 scrollbar-hide snap-x snap-mandatory">
       {categories.map((cat) => (
         <div
           key={cat._id}
-          className="flex min-w-[72px] flex-col items-center cursor-pointer group"
+          className="group flex min-w-18 snap-start cursor-pointer flex-col items-center sm:min-w-19.5"
         >
           {/* Circle */}
-          <div className="h-16 w-16 rounded-full bg-[#F2F8F3] shadow-sm overflow-hidden border border-green-100 transition-all duration-300 group-hover:scale-105 group-hover:shadow-md">
+          <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full border border-emerald-100 bg-[#F2F8F3] shadow-sm transition-all duration-300 group-hover:scale-105 group-hover:shadow-md sm:h-17 sm:w-17">
             {cat.image ? (
               <img
                 src={cat.image}
@@ -46,7 +46,7 @@ const CategoryList = () => {
           </div>
 
           {/* Name */}
-          <p className="mt-2 text-[12px] font-medium text-gray-700 text-center line-clamp-2">
+          <p className="mt-2 line-clamp-2 text-center text-[12px] font-medium text-gray-700">
             {cat.name}
           </p>
         </div>

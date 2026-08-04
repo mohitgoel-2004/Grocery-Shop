@@ -99,7 +99,7 @@ const updateOrderStatus = asyncHandler(async (req, res) => {
     const order = await Order.findByIdAndUpdate(
         req.params.id,
         { status },
-        { new: true }
+       { returnDocument: "after" }
     );
 
     if (!order) {

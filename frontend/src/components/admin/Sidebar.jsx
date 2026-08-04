@@ -51,7 +51,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             onClick={() => setSidebarOpen(false)}
-            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 lg:hidden"
+            className="fixed inset-0 z-40 bg-slate-900/20 backdrop-blur-sm lg:hidden"
           />
         )}
       </AnimatePresence>
@@ -68,32 +68,32 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
         : -300,
   }}
   transition={{ duration: 0.25 }}
-  className="fixed top-0 left-0 z-50 h-screen w-[250px] bg-white dark:bg-gray-900 shadow-2xl border-r border-gray-200 dark:border-gray-800 flex flex-col"
+  className="fixed top-0 left-0 z-50 flex h-screen w-[250px] flex-col border-r border-slate-200 bg-white shadow-[0_20px_60px_rgba(15,23,42,0.12)]"
 >
         {/* Header / Brand */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100/80 dark:border-gray-800/80">
+        <div className="flex items-center justify-between border-b border-slate-100 px-6 py-5">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white shadow-lg shadow-emerald-200/50 dark:shadow-emerald-900/30">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-linear-to-br from-emerald-400 to-emerald-600 text-white shadow-lg shadow-emerald-200/50">
               <FaAppleAlt size={20} />
             </div>
             <div>
-              <h2 className="text-xl font-extrabold text-gray-800 dark:text-white tracking-tight">
+              <h2 className="text-xl font-extrabold tracking-tight text-slate-900">
                 Grocery<span className="text-emerald-500">Hub</span>
               </h2>
-              <p className="text-[11px] font-medium text-gray-400 dark:text-gray-500 tracking-wider uppercase">
+              <p className="text-[11px] font-medium uppercase tracking-wider text-slate-400">
                 Admin Panel
               </p>
             </div>
           </div>
           <button
-            className="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+            className="rounded-lg p-2 transition hover:bg-slate-100 lg:hidden"
            onClick={() => {
   if (window.innerWidth < 1024) {
     setSidebarOpen(false);
   }
 }}
           >
-            <FiX size={22} className="text-gray-600 dark:text-gray-300" />
+            <FiX size={22} className="text-slate-600" />
           </button>
         </div>
 
@@ -115,7 +115,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
         </div> */}
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto px-4 py-5 space-y-1.5 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700">
+        <nav className="flex-1 space-y-1.5 overflow-y-auto px-4 py-5 scrollbar-thin scrollbar-thumb-gray-300">
           {menuItems.map((item, index) => (
             <NavLink
               key={item.title}
@@ -124,8 +124,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
               className={({ isActive }) =>
                 `group flex items-center gap-4 px-4 py-3 rounded-xl font-medium transition-all duration-200 relative ${
                   isActive
-                    ? "bg-gradient-to-r from-emerald-50 to-emerald-100/60 dark:from-emerald-900/30 dark:to-emerald-800/20 text-emerald-700 dark:text-emerald-300 shadow-sm shadow-emerald-100/30 dark:shadow-emerald-900/20"
-                    : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 hover:text-gray-900 dark:hover:text-gray-200"
+                    ? "bg-emerald-50 text-emerald-700 shadow-sm shadow-emerald-100/40"
+                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                 }`
               }
             >
@@ -134,8 +134,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                   <span
                     className={`transition-colors duration-200 ${
                       isActive
-                        ? "text-emerald-600 dark:text-emerald-400"
-                        : "text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300"
+                        ? "text-emerald-600"
+                        : "text-slate-400 group-hover:text-slate-600"
                     }`}
                   >
                     {item.icon}
@@ -144,7 +144,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                   {isActive && (
                     <motion.span
                       layoutId="activeIndicator"
-                      className="w-1.5 h-6 rounded-full bg-emerald-500 shadow-md shadow-emerald-200/50 dark:shadow-emerald-900/30"
+                      className="h-6 w-1.5 rounded-full bg-emerald-500 shadow-md shadow-emerald-200/50"
                       transition={{ type: "spring", stiffness: 300, damping: 30 }}
                     />
                   )}
@@ -155,12 +155,12 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
         </nav>
 
         {/* Logout button */}
-        <div className="px-5 pb-6 pt-2 border-t border-gray-100/80 dark:border-gray-800/80">
+        <div className="border-t border-slate-100 px-5 pb-6 pt-2">
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.97 }}
             onClick={logout}
-            className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-rose-500 to-red-500 hover:from-rose-600 hover:to-red-600 text-white py-3.5 rounded-2xl font-semibold transition-all duration-200 shadow-lg shadow-rose-200/50 dark:shadow-rose-900/30"
+            className="flex w-full items-center justify-center gap-3 rounded-2xl bg-linear-to-r from-rose-500 to-red-500 py-3.5 font-semibold text-white shadow-lg shadow-rose-200/50 transition-all duration-200 hover:from-rose-600 hover:to-red-600"
           >
             <FiLogOut size={18} />
             Logout

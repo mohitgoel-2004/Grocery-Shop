@@ -11,6 +11,22 @@ const ProductCard = ({ product }) => {
   const image = product.image || product.img || "https://via.placeholder.com/150";
   const price = Number(product.price || 0);
 
+  const formatWeight = (weight, unit) => {
+    if (weight === undefined || weight === null || weight === "") {
+      return "";
+    }
+
+    const weightText = String(weight).trim();
+
+    if (/[a-zA-Z]/.test(weightText)) {
+      return weightText;
+    }
+
+    return unit ? `${weightText} ${unit}` : weightText;
+  };
+
+  const weightLabel = formatWeight(product.weight, product.unit);
+
   return (
     <div className="group rounded-[28px] border border-[#eef0eb] bg-white p-3 shadow-[0_10px_28px_rgba(15,23,42,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_40px_rgba(15,23,42,0.1)]">
       <div className="flex h-32 items-center justify-center overflow-hidden rounded-3xl bg-linear-to-br from-[#f8faf8] to-[#eef4ee]">
@@ -24,6 +40,12 @@ const ProductCard = ({ product }) => {
       <h4 className="mt-3 line-clamp-2 text-sm font-semibold leading-snug text-gray-900">
         {product.name}
       </h4>
+
+      {weightLabel ? (
+        <p className="mt-1 text-[11px] font-medium text-gray-500">
+          {weightLabel}
+        </p>
+      ) : null}
 
       <div className="mt-2 flex items-center gap-1 text-xs font-medium text-amber-500">
         <FiStar className="text-sm" />
@@ -48,9 +70,9 @@ const ProductCard = ({ product }) => {
             <FiMinus />
           </button>
 
-          <span className="min-w-8 text-center text-sm font-semibold text-gray-900">
+          {/* <span className="min-w-8 text-center text-sm font-semibold text-gray-900">
             {qty}
-          </span>
+          </span> */}
 
           <button
             onClick={() => increaseQty(cartItemId)}

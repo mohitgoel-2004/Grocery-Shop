@@ -1,15 +1,74 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiArrowLeft, FiMinus, FiPlus, FiShoppingBag, FiTrash2 } from "react-icons/fi";
 import Navbar from "../components/Navbar";
 import { useCart } from "../Context/context";
+import { getDeliverySettings } from "../services/deliverySettingsService";
 
 const formatPrice = (value) => `₹${Number(value || 0).toFixed(2)}`;
 
 const Cart = () => {
   const [activeTab, setActiveTab] = useState("cart");
   const [promoCode, setPromoCode] = useState("");
+   const [deliverySettings, setDeliverySettings] = useState(null);
   const navigate = useNavigate();
+
+  const {
+  cart,
+  increaseQty,
+  decreaseQty,
+  removeItem,
+  isLoadingCart,
+  subtotal,
+  // deliveryCharge,
+  // tax,
+  // total,
+  // deliverySettings,
+  minimumOrderValue,
+} = useCart();
+
+   useEffect(() => {
+    const fetchDeliverySettings = async () => {
+        try {
+            const settings =
+                await getDeliverySettings();
+
+            setDeliverySettings(settings);
+        } catch (error) {
+            console.error(
+                "Failed to fetch delivery settings:",
+                error
+            );
+        }
+    };
+
+    fetchDeliverySettings();
+}, []);
+ 
+
+    const deliveryCharge = useMemo(() => {
+  if (!deliverySettings) {
+    return 0;
+  }
+
+  if (!deliverySettings.isDeliveryChargeEnabled) {
+    return 0;
+  }
+
+  if (
+    subtotal >= deliverySettings.freeDeliveryThreshold
+  ) {
+    return 0;
+  }
+
+  return deliverySettings.deliveryCharge;
+}, [subtotal, deliverySettings]);
+
+const total = useMemo(() => {
+  return Number(subtotal || 0) + Number(deliveryCharge || 0);
+}, [subtotal, deliveryCharge]);
+
+  
 
   const handleTabChange = (tabId) => {
     setActiveTab(tabId);
@@ -35,16 +94,7 @@ const Cart = () => {
     }
   };
 
-  const {
-    cart,
-    increaseQty,
-    decreaseQty,
-    removeItem,
-    isLoadingCart,
-    subtotal,
-    deliveryCharge,
-    total,
-  } = useCart();
+  
 
   const items = cart;
   const itemCount = useMemo(
@@ -53,9 +103,9 @@ const Cart = () => {
   );
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,#ffffff_0%,#f4f7f4_42%,#e9efe9_100%)]  px-0 py-0 md:px-4 md:py-4 lg:px-6">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top,#ffffff_0%,#f4f7f4_42%,#e9efe9_100%)] px-0 py-0 md:px-4 md:py-4 lg:px-6">
       <div className="mx-auto flex min-h-screen w-full max-w-107.5 flex-col overflow-hidden bg-white shadow-[0_28px_80px_rgba(15,23,42,0.16)] md:min-h-[calc(100vh-2rem)] md:rounded-[36px] md:border md:border-white/60 lg:max-w-120">
-        <div className="shrink-0 bg-white/95 px-4 pt-4 pb-3 backdrop-blur-sm">
+        <div className="shrink-0 border-b border-[#eef0eb] bg-white/95 px-4 pt-4 pb-3 backdrop-blur-sm">
           <div className="flex items-center justify-between gap-3">
             <button
               onClick={() => navigate("/home")}
@@ -84,7 +134,7 @@ const Cart = () => {
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-4 pb-6 pt-2">
+        <div className="flex-1 overflow-y-auto px-4 pb-[calc(7rem+env(safe-area-inset-bottom))] pt-2">
           <div className="mb-4 rounded-[28px] bg-linear-to-br from-[#e8f1ef] to-[#f7f8f6] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]">
             <div className="inline-flex rounded-full bg-white/70 px-4 py-2 text-sm font-semibold text-gray-800 shadow-sm backdrop-blur-sm">
               {itemCount} item{itemCount === 1 ? "" : "s"} in cart
@@ -171,7 +221,7 @@ const Cart = () => {
           </div>
 
           {items.length > 0 && (
-            <div className="mt-4 space-y-4 pb-24">
+            <div className="mt-4 space-y-4 pb-6">
               <div className="rounded-[26px] border border-[#eef0eb] bg-[#fafafa] p-3 shadow-[0_8px_20px_rgba(15,23,42,0.04)]">
                 <div className="flex items-center gap-3 rounded-[20px] bg-white px-3 py-3 shadow-sm">
                   <div className="grid h-10 w-10 place-items-center rounded-full bg-[#f3f4f6] text-gray-500">
@@ -200,19 +250,49 @@ const Cart = () => {
                     <span>Delivery</span>
                     <span className="font-semibold text-gray-900">{formatPrice(deliveryCharge)}</span>
                   </div>
+                  {deliverySettings &&
+  deliverySettings.isDeliveryChargeEnabled &&
+  subtotal < deliverySettings.freeDeliveryThreshold && (
+    <p className="mt-1 text-xs text-green-600">
+      Add{" "}
+      {formatPrice(
+        deliverySettings.freeDeliveryThreshold - subtotal
+      )}{" "}
+      more to get free delivery
+    </p>
+  )}
                   <div className="border-t border-[#eef0eb] pt-3 flex items-center justify-between">
                     <span className="text-base font-semibold text-gray-900">Total Cost</span>
                     <span className="text-xl font-bold text-[#31c205]">{formatPrice(total)}</span>
                   </div>
                 </div>
               </div>
+              {deliverySettings &&
+  subtotal < minimumOrderValue && (
+    <div className="rounded-2xl bg-red-50 border border-red-200 p-3">
+      <p className="text-sm font-semibold text-red-600">
+        Minimum order value is {formatPrice(minimumOrderValue)}
+      </p>
 
-              <button
-                onClick={() => navigate("/checkout")}
-                className="sticky bottom-0 flex w-full items-center justify-center gap-3 rounded-3xl bg-[#31c205] py-4 text-base font-semibold text-white  transition hover:scale-[1.01]"
-              >
-                Checkout Now
-              </button>
+      <p className="mt-1 text-xs text-red-500">
+        Add {formatPrice(minimumOrderValue - subtotal)} more to place your order.
+      </p>
+    </div>
+)}
+
+             <button
+  onClick={() => navigate("/checkout")}
+  disabled={
+    subtotal < minimumOrderValue
+  }
+  className={`flex w-full items-center justify-center gap-3 rounded-3xl py-4 text-base font-semibold text-white transition ${
+    subtotal < minimumOrderValue
+      ? "cursor-not-allowed bg-gray-300"
+      : "bg-[#31c205] hover:scale-[1.01]"
+  }`}
+>
+  Checkout Now
+</button>
             </div>
           )}
         </div>

@@ -1,21 +1,56 @@
 const Order = require("../models/Order");
 const Cart = require("../models/Cart");
+const DeliverySettings = require("../models/DeliverySettings");
 
-const calculateDeliveryCharge = (subtotal) => (subtotal >= 500 || subtotal === 0 ? 0 : 40);
+const calculateDeliveryCharge = (subtotal, settings) => {
+  if (!settings) {
+    return 0;
+  }
+
+  // Admin ne delivery charge disable kiya hai
+  if (!settings.isDeliveryChargeEnabled) {
+    return 0;
+  }
+
+  // Free delivery threshold achieve ho gaya
+  if (
+    subtotal >=
+    Number(settings.freeDeliveryThreshold || 0)
+  ) {
+    return 0;
+  }
+
+  // Admin ke according delivery charge
+  return Number(settings.deliveryCharge || 0);
+};
 const calculateTax = (subtotal) => Math.round(subtotal * 0.05);
 
-const createOrder = async ({ user, paymentMethod = "cod", deliveryAddress }) => {
-  const cart = await Cart.findOne({ user: user._id });
+const createOrder = async ({
+  user,
+  paymentMethod = "cod",
+  deliveryAddress,
+}) => {
+  const cart = await Cart.findOne({
+    user: user._id,
+  });
 
   if (!cart || cart.items.length === 0) {
     throw new Error("Cart is empty");
   }
 
   const subtotal = cart.items.reduce(
-    (sum, item) => sum + item.price * item.quantity,
+    (sum, item) =>
+      sum +
+      Number(item.price || 0) *
+        Number(item.quantity || 0),
     0
   );
-  const deliveryCharge = calculateDeliveryCharge(subtotal);
+  const deliverySettings = await DeliverySettings.findOne();
+ const deliveryCharge =
+    calculateDeliveryCharge(
+      subtotal,
+      deliverySettings
+    );
   const tax = calculateTax(subtotal);
   const total = subtotal + deliveryCharge + tax;
   const orderNumber = `#${Math.floor(100000 + Math.random() * 900000)}`;

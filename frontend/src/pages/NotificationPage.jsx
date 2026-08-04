@@ -70,7 +70,7 @@ const NotificationPage = () => {
       <div className="mx-auto flex min-h-screen w-full max-w-107.5 flex-col overflow-hidden bg-white shadow-[0_28px_80px_rgba(15,23,42,0.16)] md:min-h-[calc(100vh-2rem)] md:rounded-[36px] md:border md:border-white/60 lg:max-w-120">
         
         {/* Header */}
-        <div className="shrink-0 bg-white/95 px-4 pt-4 pb-3 backdrop-blur-sm">
+        <div className="shrink-0 border-b border-[#eef0eb] bg-white/95 px-4 pt-4 pb-3 backdrop-blur-sm">
           <div className="flex items-center justify-between gap-3">
             <button
               onClick={() => navigate(-1)}
@@ -105,7 +105,7 @@ const NotificationPage = () => {
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto px-4 pb-6 pt-2">
+        <div className="flex-1 overflow-y-auto px-4 pb-[calc(7rem+env(safe-area-inset-bottom))] pt-2">
           {/* Summary chip */}
           <div className="mb-4 rounded-[28px] bg-linear-to-br from-[#e8f1ef] to-[#f7f8f6] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]">
             <div className="inline-flex rounded-full bg-white/70 px-4 py-2 text-sm font-semibold text-gray-800 shadow-sm backdrop-blur-sm">
@@ -158,7 +158,7 @@ const NotificationPage = () => {
                           </div>
                         </div>
                         {!notification.isRead && (
-                          <span className="mt-1 h-2.5 w-2.5 rounded-full bg-emerald-500 flex-shrink-0" />
+                          <span className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-emerald-500" />
                         )}
                       </div>
                     </div>

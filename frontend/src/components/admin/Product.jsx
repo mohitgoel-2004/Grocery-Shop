@@ -107,7 +107,7 @@ export const ProductSkeleton = ({ count = 8 }) => {
 // ---------- ProductSearch ----------
 export const ProductSearch = ({ searchTerm, setSearchTerm }) => {
   return (
-    <div className="relative flex-1 min-w-[180px]">
+    <div className="relative flex-1 min-w-45">
       <FiSearch
         className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
         size={18}
@@ -134,11 +134,11 @@ export const ProductFilter = ({
   const { allCategories } = useCategories();
 
   return (
-    <div className="flex flex-wrap items-center gap-3">
+    <div className="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
       <select
         value={filterCategory}
         onChange={(e) => setFilterCategory(e.target.value)}
-        className="px-4 py-2.5 pr-10 rounded-xl border border-gray-200 bg-gray-50/70 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-400/60 appearance-none bg-no-repeat bg-[right_0.75rem_center] bg-[length:1rem_1rem]"
+        className="w-full appearance-none rounded-xl border border-gray-200 bg-gray-50/70 px-4 py-2.5 pr-10 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-400/60 bg-no-repeat bg-position-[right_0.75rem_center] bg-size-[1rem_1rem] sm:w-auto"
         style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
         }}
@@ -154,7 +154,7 @@ export const ProductFilter = ({
       <select
         value={filterStatus}
         onChange={(e) => setFilterStatus(e.target.value)}
-        className="px-4 py-2.5 pr-10 rounded-xl border border-gray-200 bg-gray-50/70 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-400/60 appearance-none bg-no-repeat bg-[right_0.75rem_center] bg-[length:1rem_1rem]"
+        className="w-full appearance-none rounded-xl border border-gray-200 bg-gray-50/70 px-4 py-2.5 pr-10 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-400/60 bg-no-repeat bg-position-[right_0.75rem_center] bg-size-[1rem_1rem] sm:w-auto"
         style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
         }}
@@ -167,7 +167,7 @@ export const ProductFilter = ({
 
       <button
         onClick={resetFilters}
-        className="px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/70 hover:bg-gray-100 transition text-gray-600 flex items-center gap-2 text-sm w-full"
+        className="flex w-full items-center justify-center gap-2 rounded-xl border border-gray-200 bg-gray-50/70 px-4 py-2.5 text-sm text-gray-600 transition hover:bg-gray-100 sm:w-auto"
       >
         <FiRefreshCw size={16} />
         Reset
@@ -647,7 +647,7 @@ export const ProductForm = ({
         </button>
         <button
           type="submit"
-          className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-semibold shadow-lg shadow-emerald-200/50 transition"
+          className="rounded-xl bg-linear-to-r from-emerald-500 to-emerald-600 px-6 py-2.5 font-semibold text-white shadow-lg shadow-emerald-200/50 transition hover:from-emerald-600 hover:to-emerald-700"
         >
           {submitLabel}
         </button>
@@ -668,7 +668,7 @@ export const ProductCard = ({
     <motion.div
       whileHover={{ y: -2 }}
       transition={{ duration: 0.2 }}
-     className="relative w-[340px] bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all p-3 -ml-9"
+      className="relative w-full max-w-85 rounded-2xl border border-gray-100 bg-white p-3 shadow-sm transition-all hover:shadow-md"
     >
       {/* Discount Badge – छोटा */}
       {product.discount > 0 && (
@@ -685,7 +685,7 @@ export const ProductCard = ({
       {/* Horizontal Layout */}
       <div className="flex flex-row gap-2.5">
         {/* Image – अब सिर्फ w-16 h-16 */}
-        <div className="w-16 h-16 flex-shrink-0 flex items-center justify-center bg-gray-50 rounded-xl overflow-hidden">
+        <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gray-50">
           {product.images?.length > 0 ? (
             <img
               src={product.images[0]}
@@ -775,7 +775,7 @@ export const ProductTable = ({
   return (
     <div className="overflow-x-auto bg-white rounded-2xl shadow-sm border border-gray-100/80">
       <table className="w-full text-sm">
-        <thead className="bg-gradient-to-r from-gray-50/90 to-gray-100/50 border-b border-gray-100">
+        <thead className="border-b border-gray-100 bg-linear-to-r from-gray-50/90 to-gray-100/50">
           <tr className="text-left text-gray-500 text-xs font-semibold uppercase tracking-wider">
             <th className="px-4 py-3.5">Product</th>
             <th className="px-4 py-3.5 hidden sm:table-cell">Category</th>
@@ -793,7 +793,7 @@ export const ProductTable = ({
             >
               <td className="px-4 py-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0">
+                  <div className="h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-gray-100">
                     {product.images && product.images.length > 0 ? (
                       <img
                         src={product.images[0]}

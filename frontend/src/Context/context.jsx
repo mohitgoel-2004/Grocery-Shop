@@ -6,6 +6,7 @@ import React, {
   useState,
 } from "react";
 import toast from "react-hot-toast";
+import { getDeliverySettings } from "../services/deliverySettingsService";
 
 import {
   addCartItem,
@@ -55,6 +56,7 @@ const normalizeCart = (cart) => {
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
   const [isLoadingCart, setIsLoadingCart] = useState(false);
+    const [deliverySettings, setDeliverySettings] = useState(null);
 
   const syncCartFromServer = async () => {
     const token = localStorage.getItem("token");
@@ -76,6 +78,8 @@ export const CartProvider = ({ children }) => {
     }
   };
 
+
+  
   useEffect(() => {
     syncCartFromServer();
 
@@ -89,6 +93,25 @@ export const CartProvider = ({ children }) => {
       window.removeEventListener("auth:changed", handleAuthChanged);
     };
   }, []);
+
+  useEffect(() => {
+  const fetchSettings = async () => {
+    try {
+      const settings = await getDeliverySettings();
+
+      setDeliverySettings(settings);
+    } catch (error) {
+      console.error(
+        "Failed to fetch delivery settings:",
+        error
+      );
+
+      setDeliverySettings(null);
+    }
+  };
+
+  fetchSettings();
+}, []);
 
   useEffect(() => {
     if (!isLoadingCart) {
@@ -228,31 +251,82 @@ export const CartProvider = ({ children }) => {
     }, 0);
   }, [cart]);
 
-  const deliveryCharge = subtotal >= 500 || subtotal === 0 ? 0 : 40;
+  const minimumOrderValue = Number(
+  deliverySettings?.minimumOrderValue || 0
+);
 
-  const discount = subtotal >= 1000 ? 100 : 0;
+ const deliveryCharge = useMemo(() => {
+  if (!deliverySettings) {
+    return 0;
+  }
 
-  const total = subtotal + deliveryCharge - discount;
+  // Admin ne delivery charge OFF kiya hai
+  if (!deliverySettings.isDeliveryChargeEnabled) {
+    return 0;
+  }
+
+  // Free delivery threshold
+  const freeDeliveryThreshold = Number(
+    deliverySettings.freeDeliveryThreshold || 0
+  );
+
+  if (
+    freeDeliveryThreshold > 0 &&
+    subtotal >= freeDeliveryThreshold
+  ) {
+    return 0;
+  }
+
+  // Admin configured delivery charge
+  return Number(
+    deliverySettings.deliveryCharge || 0
+  );
+}, [subtotal, deliverySettings]);
+
+const discount = subtotal >= 1000 ? 100 : 0;
+
+const tax = useMemo(() => {
+  return Math.round(subtotal * 0.05);
+}, [subtotal]);
+
+const total = useMemo(() => {
+  return (
+    subtotal +
+    deliveryCharge +
+    tax -
+    discount
+  );
+}, [
+  subtotal,
+  deliveryCharge,
+  tax,
+  discount,
+]);
 
   const value = {
-    cart,
-    setCart,
+  cart,
+  setCart,
 
-    addToCart,
-    increaseQty,
-    decreaseQty,
-    updateQty,
-    removeItem,
-    clearCart,
-    refreshCart: syncCartFromServer,
-    isLoadingCart,
+  addToCart,
+  increaseQty,
+  decreaseQty,
+  updateQty,
+  removeItem,
+  clearCart,
+  refreshCart: syncCartFromServer,
+  isLoadingCart,
 
-    totalItems,
-    subtotal,
-    deliveryCharge,
-    discount,
-    total,
-  };
+  totalItems,
+  subtotal,
+
+  deliverySettings,
+   minimumOrderValue,
+  deliveryCharge,
+
+  tax,
+  discount,
+  total,
+};
 
   return (
     <CartContext.Provider value={value}>

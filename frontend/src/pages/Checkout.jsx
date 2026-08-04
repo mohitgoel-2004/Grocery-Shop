@@ -1,12 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../Context/context";
 import toast from "react-hot-toast";
 import { fetchProfile, placeOrder } from "../services/api";
+import { getDeliverySettings } from "../services/deliverySettingsService";
 
 const Checkout = () => {
     const navigate = useNavigate();
  const { cart, clearCart } = useCart();
+  const [deliverySettings, setDeliverySettings] = useState(null);
     const [formData, setFormData] = useState({
         fullName: "",
         phone: "",
@@ -36,10 +38,74 @@ const Checkout = () => {
         loadProfile();
     }, []);
 
-    const subtotal = cart.reduce((acc, item) => acc + item.price * item.qty, 0);
-    const delivery = 20;
-    const tax = Math.round(subtotal * 0.05);
-    const total = subtotal + delivery + tax;
+     useEffect(() => {
+        const loadDeliverySettings = async () => {
+            try {
+                const settings =
+                    await getDeliverySettings();
+
+                console.log(
+                    "Checkout Delivery Settings:",
+                    settings
+                );
+
+                setDeliverySettings(settings);
+            } catch (error) {
+                console.error(
+                    "Failed to load delivery settings:",
+                    error
+                );
+
+                toast.error(
+                    "Unable to load delivery settings"
+                );
+            }
+        };
+
+        loadDeliverySettings();
+    }, []);
+
+      const subtotal = useMemo(() => {
+        return cart.reduce(
+            (acc, item) =>
+                acc + Number(item.price || 0) * item.qty,
+            0
+        );
+    }, [cart]);
+
+   const delivery = useMemo(() => {
+        if (!deliverySettings) {
+            return 0;
+        }
+
+        // Admin has disabled delivery charge
+        if (
+            !deliverySettings.isDeliveryChargeEnabled
+        ) {
+            return 0;
+        }
+
+        // Free delivery if threshold is reached
+        if (
+            subtotal >=
+            Number(
+                deliverySettings.freeDeliveryThreshold || 0
+            )
+        ) {
+            return 0;
+        }
+
+        // Normal delivery charge
+        return Number(
+            deliverySettings.deliveryCharge || 0
+        );
+    }, [subtotal, deliverySettings]);
+    const tax = useMemo(() => {
+        return Math.round(subtotal * 0.05);
+    }, [subtotal]);
+     const total = useMemo(() => {
+        return subtotal + delivery + tax;
+    }, [subtotal, delivery, tax]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -162,7 +228,13 @@ const Checkout = () => {
                                             </div>
                                         </div>
                                         <span className="font-bold text-emerald-700 text-sm whitespace-nowrap ml-2">
-                                            ₹{item.price * item.qty}
+                                            ₹
+                                            {(
+                                                Number(
+                                                    item.price || 0
+                                                ) *
+                                                item.qty
+                                            ).toFixed(2)}
                                         </span>
                                     </div>
                                 ))}
@@ -215,19 +287,38 @@ const Checkout = () => {
                         <div className="space-y-2 text-sm">
                             <div className="flex justify-between py-1.5 border-b border-gray-200/60">
                                 <span className="text-gray-500">Subtotal</span>
-                                <span className="font-medium text-gray-700">₹{subtotal}</span>
+                                <span className="font-medium text-gray-700">  ₹{subtotal.toFixed(2)}</span>
                             </div>
                             <div className="flex justify-between py-1.5 border-b border-gray-200/60">
                                 <span className="text-gray-500">Delivery</span>
-                                <span className="font-medium text-gray-700">₹{delivery}</span>
+                                <span className="font-medium text-gray-700">₹{delivery.toFixed(2)}</span>
                             </div>
+                             {/* Free Delivery Message */}
+                            {deliverySettings &&
+                                deliverySettings.isDeliveryChargeEnabled &&
+                                subtotal <
+                                    Number(
+                                        deliverySettings.freeDeliveryThreshold ||
+                                            0
+                                    ) && (
+                                    <p className="text-xs text-emerald-600">
+                                        Add{" "}
+                                        {(
+                                            Number(
+                                                deliverySettings.freeDeliveryThreshold ||
+                                                    0
+                                            ) - subtotal
+                                        ).toFixed(2)}{" "}
+                                        more to get free delivery
+                                    </p>
+                                )}
                             <div className="flex justify-between py-1.5 border-b border-gray-200/60">
                                 <span className="text-gray-500">GST</span>
-                                <span className="font-medium text-gray-700">₹{tax}</span>
+                                <span className="font-medium text-gray-700">₹{tax.toFixed(2)}</span>
                             </div>
                             <div className="flex justify-between py-2 text-base font-bold text-emerald-700">
                                 <span>Total</span>
-                                <span>₹{total}</span>
+                                <span>₹{total.toFixed(2)}</span>
                             </div>
                         </div>
                     </section>

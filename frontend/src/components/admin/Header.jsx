@@ -11,7 +11,7 @@ import {
   FiShoppingBag,
 } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAdminProfile } from "../../Context/AdminProfileContext";
 
 const Header = ({ setSidebarOpen }) => {
@@ -19,7 +19,29 @@ const Header = ({ setSidebarOpen }) => {
   const [searchFocused, setSearchFocused] = useState(false);
   const { adminProfile } = useAdminProfile();
   const dropdownRef = useRef(null);
+  const location = useLocation();
   const navigate = useNavigate();
+
+  const menuItems = [
+    { title: "Dashboard", path: "/admin/dashboard" },
+    { title: "Products", path: "/admin/products" },
+    { title: "Categories", path: "/admin/categories" },
+    { title: "Orders", path: "/admin/orders" },
+    { title: "Customers", path: "/admin/customers" },
+    { title: "Inventory", path: "/admin/inventory" },
+    { title: "Coupons", path: "/admin/coupons" },
+    { title: "Reports", path: "/admin/reports" },
+    { title: "Settings", path: "/admin/settings" },
+    { title: "Profile", path: "/admin/profile" },
+  ];
+
+  const activeMobileLabel = menuItems.reduce((current, item) => {
+    if (location.pathname === item.path || location.pathname.startsWith(`${item.path}/`)) {
+      return item.title;
+    }
+
+    return current;
+  }, "Admin Panel");
 
   const handleLogout = () => {
     localStorage.removeItem("adminToken");
@@ -43,35 +65,36 @@ const Header = ({ setSidebarOpen }) => {
       className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
         ${
           danger
-            ? "text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
-            : "text-gray-700 dark:text-gray-200 hover:bg-emerald-50/60 dark:hover:bg-emerald-900/20"
+            ? "text-red-600 hover:bg-red-50"
+            : "text-slate-700 hover:bg-emerald-50/60"
         }`}
     >
-      <span className="text-gray-500 dark:text-gray-400">{icon}</span>
+      <span className="text-slate-500">{icon}</span>
       <span className="font-medium">{label}</span>
     </button>
   );
 
   return (
-    <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-gray-100/60 shadow-sm dark:bg-gray-900/80 dark:border-gray-800/60 transition-all duration-300 overflow-visible">
-      <div className="flex items-center justify-between px-3 sm:px-8 py-2 sm:py-3.5">
+    <header className="sticky top-0 z-30 overflow-visible border-b border-slate-100 bg-white/90 shadow-sm backdrop-blur-xl transition-all duration-300">
+      <div className="flex items-center justify-between px-3 py-2 sm:px-6 sm:py-3.5 lg:px-8">
         {/* ---------- LEFT SECTION ---------- */}
         <div className="flex items-center gap-2 sm:gap-4">
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setSidebarOpen((prev) => !prev)}
-            className="lg:hidden p-1.5 sm:p-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200 text-gray-600 dark:text-gray-300"
+            className="rounded-xl p-1.5 text-slate-600 transition-colors duration-200 hover:bg-slate-100 sm:p-2.5 lg:hidden"
             aria-label="Open sidebar"
           >
-            <FiMenu size={20} className="sm:size-22" />
+            <FiMenu size={20} />
           </motion.button>
 
           <div className="flex items-center gap-1.5 sm:gap-2.5">
-            <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-200/50 dark:shadow-emerald-900/30">
-              <FiShoppingBag size={14} className="sm:text-lg text-white" />
+            <div className="flex h-7 min-w-7 items-center justify-center rounded-xl bg-linear-to-br from-emerald-400 to-emerald-600 px-2 text-[10px] font-semibold text-white shadow-lg shadow-emerald-200/50 sm:h-9 sm:min-w-9 sm:px-0 sm:text-lg">
+              <span className="sm:hidden truncate max-w-20">{activeMobileLabel}</span>
+              <FiShoppingBag size={14} className="hidden text-white sm:block sm:text-lg" />
             </div>
-            <span className="hidden sm:inline text-lg font-extrabold text-gray-800 dark:text-white tracking-tight">
+            <span className="hidden text-lg font-extrabold tracking-tight text-slate-900 sm:inline">
               Grocery<span className="text-emerald-500">Hub</span>
             </span>
           </div>
@@ -84,7 +107,7 @@ const Header = ({ setSidebarOpen }) => {
           >
             <FiSearch
               className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors duration-200 ${
-                searchFocused ? "text-emerald-500" : "text-gray-400 dark:text-gray-500"
+                searchFocused ? "text-emerald-500" : "text-slate-400"
               }`}
               size={18}
             />
@@ -93,9 +116,9 @@ const Header = ({ setSidebarOpen }) => {
               placeholder="Search products, orders, customers..."
               onFocus={() => setSearchFocused(true)}
               onBlur={() => setSearchFocused(false)}
-              className="w-full pl-11 pr-5 py-2.5 rounded-xl border-2 bg-gray-50/80 dark:bg-gray-800/80 border-gray-200 dark:border-gray-700 focus:border-emerald-400 dark:focus:border-emerald-500 focus:ring-0 focus:bg-white dark:focus:bg-gray-800 outline-none transition-all duration-200 text-sm text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 shadow-sm hover:shadow-md"
+              className="w-full rounded-xl border-2 border-slate-200 bg-slate-50/80 py-2.5 pl-11 pr-5 text-sm text-slate-700 shadow-sm transition-all duration-200 placeholder:text-slate-400 hover:shadow-md focus:border-emerald-400 focus:bg-white focus:ring-0"
             />
-            <kbd className="absolute right-3 top-1/2 -translate-y-1/2 hidden lg:inline-block px-2 py-0.5 text-[10px] font-semibold text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-700 rounded-md border border-gray-200 dark:border-gray-600">
+            <kbd className="absolute right-3 top-1/2 hidden -translate-y-1/2 rounded-md border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-semibold text-slate-400 lg:inline-block">
               ⌘K
             </kbd>
           </div>
@@ -108,11 +131,11 @@ const Header = ({ setSidebarOpen }) => {
             whileHover={{ scale: 1.08 }}
             whileTap={{ scale: 0.92 }}
             onClick={() => navigate("/admin/notification")}
-            className="relative w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-gray-100/80 hover:bg-gray-200/90 dark:bg-gray-800/80 dark:hover:bg-gray-700/90 flex items-center justify-center transition-all duration-200 border border-gray-200/60 dark:border-gray-700/60 shadow-sm hover:shadow-md"
+            className="relative flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-slate-100/80 shadow-sm transition-all duration-200 hover:bg-slate-200/90 hover:shadow-md sm:h-11 sm:w-11"
             aria-label="Notifications"
           >
-            <FiBell size={18} className="sm:text-xl text-gray-600 dark:text-gray-300" />
-            <span className="absolute -top-0.5 -right-0.5 w-4 h-4 sm:w-5 sm:h-5 bg-red-500 text-white text-[10px] sm:text-xs rounded-full flex items-center justify-center font-bold shadow-sm shadow-red-200/50">
+            <FiBell size={18} className="text-slate-600 sm:text-xl" />
+            <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-sm shadow-red-200/50 sm:h-5 sm:w-5 sm:text-xs">
               0
             </span>
           </motion.button>
@@ -123,7 +146,7 @@ const Header = ({ setSidebarOpen }) => {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setProfileOpen(!profileOpen)}
-              className="flex items-center gap-1.5 sm:gap-3 bg-gray-100/80 hover:bg-gray-200/90 dark:bg-gray-800/80 dark:hover:bg-gray-700/90 px-2 sm:px-3.5 py-1 sm:py-2 rounded-xl transition-all duration-200 border border-gray-200/60 dark:border-gray-700/60 shadow-sm hover:shadow-md"
+              className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-100/80 px-2 py-1 shadow-sm transition-all duration-200 hover:bg-slate-200/90 hover:shadow-md sm:gap-3 sm:px-3.5 sm:py-2"
             >
               <div className="relative">
                 <img
@@ -133,24 +156,23 @@ const Header = ({ setSidebarOpen }) => {
                       : "https://ui-avatars.com/api/?name=Admin&background=10b981&color=fff&size=100"
                   }
                   alt="Admin"
-                  className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover ring-2 ring-emerald-400/30 dark:ring-emerald-500/30"
+                  className="h-8 w-8 rounded-full object-cover ring-2 ring-emerald-400/30 sm:h-10 sm:w-10"
                 />
-                <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-full bg-emerald-400 border-2 border-white dark:border-gray-800 shadow-sm shadow-emerald-200/50" />
+                <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-white bg-emerald-400 shadow-sm shadow-emerald-200/50 sm:h-3.5 sm:w-3.5" />
               </div>
-              <div className="hidden lg:block text-left">
-                <h4 className="font-semibold text-sm text-gray-800 dark:text-white leading-tight">
+              <div className="hidden text-left lg:block">
+                <h4 className="text-sm font-semibold leading-tight text-slate-900">
                   {adminProfile?.name || "Admin"}
                 </h4>
-                <p className="text-xs text-gray-500 dark:text-gray-400 leading-tight">
+                <p className="text-xs leading-tight text-slate-500">
                   {adminProfile?.email || "admin@groceryhub.in"}
                 </p>
               </div>
               <FiChevronDown
-                className={`text-gray-400 dark:text-gray-500 transition-transform duration-300 ${
+                className={`text-slate-400 transition-transform duration-300 ${
                   profileOpen ? "rotate-180" : ""
                 }`}
                 size={14}
-                className="sm:text-base"
               />
             </motion.button>
 
@@ -162,11 +184,11 @@ const Header = ({ setSidebarOpen }) => {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -8, scale: 0.96 }}
                   transition={{ duration: 0.15, ease: "easeOut" }}
-                  className="absolute top-full mt-2 w-64 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-100/80 dark:border-gray-700/80 overflow-hidden z-50 right-0 sm:right-0 left-auto"
+                  className="absolute right-0 top-full z-50 mt-2 w-64 overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-2xl"
                   style={{ minWidth: "16rem" }}
                 >
                   {/* Profile header */}
-                  <div className="px-5 py-4 bg-gradient-to-r from-emerald-50/60 to-emerald-100/30 dark:from-emerald-900/20 dark:to-emerald-800/10 border-b border-gray-100/60 dark:border-gray-700/60">
+                  <div className="border-b border-slate-100 bg-emerald-50/60 px-5 py-4">
                     <div className="flex items-center gap-3">
                       <img
                         src={
@@ -175,16 +197,16 @@ const Header = ({ setSidebarOpen }) => {
                             : "https://ui-avatars.com/api/?name=Admin&background=10b981&color=fff&size=100"
                         }
                         alt="Admin"
-                        className="w-10 h-10 rounded-full object-cover ring-2 ring-emerald-300/40 dark:ring-emerald-400/30"
+                        className="h-10 w-10 rounded-full object-cover ring-2 ring-emerald-300/40"
                       />
                       <div>
-                        <h4 className="font-bold text-gray-800 dark:text-white">
+                        <h4 className="font-bold text-slate-900">
                           {adminProfile?.name || "Admin"}
                         </h4>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                        <p className="text-xs text-slate-500">
                           {adminProfile?.email || "admin@groceryhub.in"}
                         </p>
-                        <span className="inline-block mt-1 text-[10px] font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-100/70 dark:bg-emerald-900/40 px-2 py-0.5 rounded-full">
+                        <span className="mt-1 inline-block rounded-full bg-emerald-100/70 px-2 py-0.5 text-[10px] font-medium text-emerald-600">
                           ● Active
                         </span>
                       </div>
@@ -218,7 +240,7 @@ const Header = ({ setSidebarOpen }) => {
                     />
                   </div>
 
-                  <hr className="dark:border-gray-700/60" />
+                  <hr className="border-slate-100" />
                   <DropdownItem
                     icon={<FiLogOut size={18} />}
                     label="Logout"
@@ -233,16 +255,16 @@ const Header = ({ setSidebarOpen }) => {
       </div>
 
       {/* Mobile Search */}
-      <div className="md:hidden px-3 pb-2 sm:pb-3.5 -mt-0.5">
+      <div className="-mt-0.5 px-3 pb-2 sm:pb-3.5 md:hidden">
         <div className="relative">
           <FiSearch
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500"
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
             size={16}
           />
           <input
             type="text"
             placeholder="Search groceries, orders..."
-            className="w-full pl-9 pr-3 py-1.5 sm:py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/70 dark:bg-gray-800/70 focus:outline-none focus:ring-2 focus:ring-emerald-400/60 text-sm text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 transition-shadow"
+            className="w-full rounded-xl border border-slate-200 bg-slate-50/70 py-1.5 pl-9 pr-3 text-sm text-slate-700 transition-shadow placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/60 sm:py-2.5"
           />
         </div>
       </div>

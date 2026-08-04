@@ -48,16 +48,15 @@ import {
 export const customerStatusConfig = {
   active: {
     label: "Active",
-    color:
-      "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300",
+    color: "bg-emerald-100 text-emerald-700",
   },
   inactive: {
     label: "Inactive",
-    color: "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300",
+    color: "bg-gray-100 text-gray-700",
   },
   blocked: {
     label: "Blocked",
-    color: "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300",
+    color: "bg-red-100 text-red-700",
   },
 };
 
@@ -90,22 +89,22 @@ export const CustomerCard = ({  customer,
   onRestore,
   onPermanentDelete, }) => {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100/80 dark:border-gray-700/80 overflow-hidden hover:shadow-xl transition-all duration-300 group">
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-100/80 overflow-hidden hover:shadow-xl transition-all duration-300 group">
       <div className="p-4 space-y-3">
         <div className="flex justify-between items-start">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white font-bold text-lg">
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-black font-bold text-lg">
               {(customer.fullName || customer.name || "U")
                 .charAt(0)
                 .toUpperCase()}
             </div>
 
             <div>
-              <h3 className="font-bold text-gray-800 dark:text-white">
+              <h3 className="font-bold text-gray-800 dark:text-black">
                 {customer.fullName || customer.name || "Unknown Customer"}
               </h3>
 
-              <p className="text-xs text-gray-500 dark:text-gray-400">
+              <p className="text-xs text-gray-500 dark:text-gray-700">
                 {customer.email}
               </p>
             </div>
@@ -114,10 +113,10 @@ export const CustomerCard = ({  customer,
           <CustomerStatusBadge status={customer.status} />
         </div>
         <div className="flex justify-between text-sm">
-          <span className="text-gray-600 dark:text-gray-300">
+          <span className="text-gray-600 dark:text-gray-600">
             Orders: {customer.totalOrders}
           </span>
-          <span className="font-bold text-gray-800 dark:text-white">
+          <span className="font-bold text-gray-800 dark:text-black">
             ₹{customer.totalSpent}
           </span>
         </div>
@@ -170,10 +169,10 @@ export const CustomerTable = ({
             >
               <td className="px-4 py-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white font-bold text-sm">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-black font-bold text-sm">
                     {customer.fullName?.charAt(0).toUpperCase() || "?"}
                   </div>
-                  <span className="font-medium text-gray-800 dark:text-white">
+                  <span className="font-medium text-gray-800 dark:text-black">
                     {customer.fullName}
                   </span>
                 </div>
@@ -184,7 +183,7 @@ export const CustomerTable = ({
               <td className="px-4 py-3 text-gray-600 dark:text-gray-300">
                 {customer.totalOrders}
               </td>
-              <td className="px-4 py-3 font-bold text-gray-800 dark:text-white">
+              <td className="px-4 py-3 font-bold text-gray-800 dark:text-black">
                 ₹{customer.totalSpent}
               </td>
               <td className="px-4 py-3">
@@ -299,7 +298,7 @@ export const CustomerSearch = ({ searchTerm, setSearchTerm }) => {
         placeholder="Search by name, email, or phone..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
-        className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/70 dark:bg-gray-700/50 focus:outline-none focus:ring-2 focus:ring-emerald-400/60 text-sm dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
+        className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-gray-200  bg-gray-50/70  focus:outline-none focus:ring-2 focus:ring-emerald-400/60 text-sm dark:text-white placeholder-gray-400 "
       />
     </div>
   );
@@ -318,7 +317,7 @@ export const CustomerFilters = ({
       <select
         value={filterStatus}
         onChange={(e) => setFilterStatus(e.target.value)}
-        className="px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/70 dark:bg-gray-700/50 text-sm dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-400/60"
+        className="px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/70  text-sm  focus:outline-none focus:ring-2 focus:ring-emerald-400/60"
       >
         <option value="all">All Status</option>
         <option value="active">Active</option>
@@ -328,20 +327,20 @@ export const CustomerFilters = ({
       <select
         value={filterSort}
         onChange={(e) => setFilterSort(e.target.value)}
-        className="px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/70 dark:bg-gray-700/50 text-sm dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-400/60"
+        className="px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/70  text-sm  focus:outline-none focus:ring-2 focus:ring-emerald-400/60"
       >
         <option value="newest">Newest</option>
         <option value="oldest">Oldest</option>
         <option value="highest_spent">Highest Spent</option>
         <option value="most_orders">Most Orders</option>
       </select>
-      <button
+      {/* <button
         onClick={resetFilters}
-        className="px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/70 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-600 transition text-gray-600 dark:text-gray-300 flex items-center gap-2"
+        className="px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/70  text-sm  focus:outline-none focus:ring-2 focus:ring-emerald-400/60"
       >
         <FiRefreshCw size={16} />
         Reset
-      </button>
+      </button> */}
     </div>
   );
 };
@@ -413,7 +412,7 @@ export const CustomerStats = ({ stats }) => {
         return (
           <div
             key={idx}
-            className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100/80 dark:border-gray-700/80 p-5"
+            className="bg-white rounded-2xl shadow-sm border border-gray-100/80 p-5"
           >
             <div className="flex justify-between items-start">
               <div>
@@ -421,7 +420,7 @@ export const CustomerStats = ({ stats }) => {
                   {item.label}
                 </p>
 
-                <p className="text-2xl font-extrabold text-gray-800 dark:text-white mt-1">
+                <p className="text-2xl font-extrabold text-gray-800 dark:text-black mt-1">
                   {item.value}
                 </p>
               </div>

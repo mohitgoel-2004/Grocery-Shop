@@ -17,14 +17,14 @@ import {
 
 // ---------- Optional: color palette for categories ----------
 const categoryColors = [
-  'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
-  'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
-  'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
-  'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300',
-  'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300',
-  'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-300',
-  'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300',
-  'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300',
+  'bg-red-100 text-red-700',
+  'bg-blue-100 text-blue-700',
+  'bg-green-100 text-green-700',
+  'bg-yellow-100 text-yellow-700',
+  'bg-purple-100 text-purple-700',
+  'bg-pink-100 text-pink-700',
+  'bg-indigo-100 text-indigo-700',
+  'bg-orange-100 text-orange-700',
 ];
 
 // ---------- Component: CategoryCard ----------
@@ -40,8 +40,8 @@ export const CategoryCard = ({
   ];
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100/80 dark:border-gray-700/80 overflow-hidden hover:shadow-xl transition-all duration-300 group">
-      <div className="relative h-32 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 flex items-center justify-center">
+    <div className="group overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm transition-all duration-300 hover:shadow-xl">
+      <div className="relative flex h-32 items-center justify-center bg-linear-to-br from-slate-50 to-slate-100">
         {category.image ? (
           <img
             src={category.image}
@@ -57,8 +57,8 @@ export const CategoryCard = ({
           <span
             className={`px-3 py-1 rounded-full text-xs font-medium ${
               category.status === 'active'
-                ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'
-                : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
+                ? 'bg-emerald-100 text-emerald-700'
+                : 'bg-slate-100 text-slate-700'
             }`}
           >
             {category.status === 'active' ? 'Active' : 'Inactive'}
@@ -69,14 +69,14 @@ export const CategoryCard = ({
       <div className="p-4 space-y-3">
         <div className="flex justify-between items-start">
           <div>
-            <h3 className="font-bold text-gray-800 dark:text-white text-lg leading-tight">
+            <h3 className="text-lg font-bold leading-tight text-slate-900">
               {category.name}
             </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p className="text-sm text-slate-500">
               {category.productCount || 0} products
             </p>
             {category.description && (
-              <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 line-clamp-2">
+              <p className="mt-1 line-clamp-2 text-xs text-slate-400">
                 {category.description}
               </p>
             )}
@@ -84,7 +84,7 @@ export const CategoryCard = ({
           <div className="flex gap-1">
             <button
               onClick={() => onEdit(category)}
-              className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400"
+              className="rounded-xl p-2 text-slate-400 transition hover:bg-slate-100 hover:text-emerald-600"
             >
               <FiEdit2 size={16} />
             </button>
@@ -100,13 +100,13 @@ export const CategoryCard = ({
 
     onDelete(category._id);
   }}
-  className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition text-gray-400 hover:text-red-600 dark:hover:text-red-400"
+  className="rounded-xl p-2 text-slate-400 transition hover:bg-slate-100 hover:text-red-600"
 >
   <FiTrash2 size={16} />
 </button>
             <button
               onClick={() => onToggleStatus(category._id)}
-              className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400"
+              className="rounded-xl p-2 text-slate-400 transition hover:bg-slate-100 hover:text-emerald-600"
               title={category.status === 'active' ? 'Deactivate' : 'Activate'}
             >
               {category.status === 'active' ? (
@@ -118,7 +118,7 @@ export const CategoryCard = ({
           </div>
         </div>
 
-        <div className="flex justify-between items-center text-xs text-gray-400 dark:text-gray-500 pt-1 border-t border-gray-100 dark:border-gray-700">
+        <div className="flex items-center justify-between border-t border-slate-100 pt-1 text-xs text-slate-400">
           <span>Created: {category.createdAt || 'N/A'}</span>
           <Link
             to={`/admin/categories/${category._id}`}
@@ -140,10 +140,10 @@ export const CategoryTable = ({
   onToggleStatus,
 }) => {
   return (
-    <div className="overflow-x-auto bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100/80 dark:border-gray-700/80">
+    <div className="overflow-x-auto rounded-2xl border border-slate-100 bg-white shadow-sm">
       <table className="w-full text-sm">
-        <thead className="bg-gray-50/80 dark:bg-gray-700/50 border-b border-gray-100 dark:border-gray-700">
-          <tr className="text-left text-gray-500 dark:text-gray-400 text-xs font-medium uppercase tracking-wider">
+        <thead className="border-b border-slate-100 bg-slate-50/80">
+          <tr className="text-left text-xs font-medium uppercase tracking-wider text-slate-500">
             <th className="px-4 py-3">Category</th>
             <th className="px-4 py-3">Description</th>
             <th className="px-4 py-3">Products</th>
@@ -151,9 +151,9 @@ export const CategoryTable = ({
             <th className="px-4 py-3 text-center">Actions</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-100 dark:divide-gray-700/50">
+        <tbody className="divide-y divide-slate-100/80">
           {categories.map((category) => (
-            <tr key={category._id} className="hover:bg-gray-50/50 dark:hover:bg-gray-700/30 transition">
+            <tr key={category._id} className="transition hover:bg-emerald-50/30">
               <td className="px-4 py-3">
                 <div className="flex items-center gap-3">
                   {category.image ? (
@@ -163,28 +163,28 @@ export const CategoryTable = ({
                       className="w-10 h-10 rounded-lg object-cover"
                     />
                   ) : (
-                    <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-400">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 text-slate-500">
                       <FiTag size={18} />
                     </div>
                   )}
                   <div>
-                    <p className="font-medium text-gray-800 dark:text-white">{category.name}</p>
-                    <p className="text-xs text-gray-400 dark:text-gray-500">ID: {category._id}</p>
+                    <p className="font-medium text-slate-900">{category.name}</p>
+                    <p className="text-xs text-slate-400">ID: {category._id}</p>
                   </div>
                 </div>
               </td>
-              <td className="px-4 py-3 text-gray-600 dark:text-gray-300 max-w-xs truncate">
+              <td className="max-w-xs truncate px-4 py-3 text-slate-600">
                 {category.description || '—'}
               </td>
-              <td className="px-4 py-3 text-gray-600 dark:text-gray-300">
+              <td className="px-4 py-3 text-slate-600">
                 {category.productCount || 0}
               </td>
               <td className="px-4 py-3">
                 <span
                   className={`px-3 py-1 rounded-full text-xs font-medium ${
                     category.status === 'active'
-                      ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'
-                      : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
+                      ? 'bg-emerald-100 text-emerald-700'
+                      : 'bg-slate-100 text-slate-700'
                   }`}
                 >
                   {category.status === 'active' ? 'Active' : 'Inactive'}
@@ -194,13 +194,13 @@ export const CategoryTable = ({
                 <div className="flex items-center justify-center gap-2">
                   <Link
                     to={`/admin/categories/${category._id}`}
-                    className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-blue-500"
+                    className="rounded-lg p-1.5 text-blue-500 hover:bg-slate-100"
                   >
                     <FiEdit2 size={16} />
                   </Link>
                   <button
                     onClick={() => onEdit(category)}
-                    className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-emerald-500"
+                    className="rounded-lg p-1.5 text-emerald-500 hover:bg-slate-100"
                   >
                     <FiEdit2 size={16} />
                   </button>
@@ -214,13 +214,13 @@ export const CategoryTable = ({
       onDelete(category._id);
     }
   }}
-  className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-red-500"
+  className="rounded-lg p-1.5 text-red-500 hover:bg-slate-100"
 >
   <FiTrash2 size={16} />
 </button>
                   <button
                     onClick={() => onToggleStatus(category._id)}
-                    className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                    className="rounded-lg p-1.5 hover:bg-slate-100"
                   >
                     {category.status === 'active' ? (
                       <FiToggleRight size={18} className="text-emerald-500" />
@@ -288,7 +288,7 @@ export const CategoryForm = ({
     <form onSubmit={handleSubmit} className="space-y-5">
       {/* Name */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+        <label className="mb-1 block text-sm font-medium text-slate-700">
           Category Name *
         </label>
         <input
@@ -297,8 +297,8 @@ export const CategoryForm = ({
           value={formData.name}
           onChange={handleChange}
           className={`w-full px-4 py-2.5 rounded-xl border ${
-            errors.name ? 'border-red-500' : 'border-gray-200 dark:border-gray-700'
-          } bg-gray-50/70 dark:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-emerald-400/60 dark:text-white`}
+            errors.name ? 'border-red-500' : 'border-slate-200'
+          } bg-slate-50/70 focus:outline-none focus:ring-2 focus:ring-emerald-400/60 text-slate-900`}
           placeholder="e.g. Dairy Products"
         />
         {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
@@ -306,7 +306,7 @@ export const CategoryForm = ({
 
       {/* Description */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+        <label className="mb-1 block text-sm font-medium text-slate-700">
           Description
         </label>
         <textarea
@@ -314,14 +314,14 @@ export const CategoryForm = ({
           value={formData.description}
           onChange={handleChange}
           rows="3"
-          className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/70 dark:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-emerald-400/60 dark:text-white resize-none"
+          className="w-full resize-none rounded-xl border border-slate-200 bg-slate-50/70 px-4 py-2.5 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-400/60"
           placeholder="Brief description of the category..."
         />
       </div>
 
       {/* Image URL */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+        <label className="mb-1 block text-sm font-medium text-slate-700">
           Image URL (optional)
         </label>
         <input
@@ -329,14 +329,14 @@ export const CategoryForm = ({
           name="image"
           value={formData.image}
           onChange={handleChange}
-          className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/70 dark:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-emerald-400/60 dark:text-white"
+          className="w-full rounded-xl border border-slate-200 bg-slate-50/70 px-4 py-2.5 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-400/60"
           placeholder="https://example.com/category.jpg"
         />
       </div>
 
       {/* Icon (optional) */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+        <label className="mb-1 block text-sm font-medium text-slate-700">
           Icon (emoji or text, optional)
         </label>
         <input
@@ -344,21 +344,21 @@ export const CategoryForm = ({
           name="icon"
           value={formData.icon}
           onChange={handleChange}
-          className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/70 dark:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-emerald-400/60 dark:text-white"
+          className="w-full rounded-xl border border-slate-200 bg-slate-50/70 px-4 py-2.5 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-400/60"
           placeholder="🥛 or Dairy"
         />
       </div>
 
       {/* Status */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+        <label className="mb-1 block text-sm font-medium text-slate-700">
           Status
         </label>
         <select
           name="status"
           value={formData.status}
           onChange={handleChange}
-          className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/70 dark:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-emerald-400/60 dark:text-white"
+          className="w-full rounded-xl border border-slate-200 bg-slate-50/70 px-4 py-2.5 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-400/60"
         >
           <option value="active">Active</option>
           <option value="inactive">Inactive</option>
@@ -370,13 +370,13 @@ export const CategoryForm = ({
         <button
           type="button"
           onClick={onCancel}
-          className="px-6 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition"
+          className="rounded-xl border border-slate-200 px-6 py-2.5 text-slate-600 transition hover:bg-slate-50"
         >
           Cancel
         </button>
         <button
           type="submit"
-          className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-semibold shadow-lg shadow-emerald-200/50 dark:shadow-emerald-900/30 transition flex items-center gap-2"
+          className="flex items-center gap-2 rounded-xl bg-linear-to-r from-emerald-500 to-emerald-600 px-6 py-2.5 font-semibold text-white shadow-lg shadow-emerald-200/50 transition hover:from-emerald-600 hover:to-emerald-700"
         >
           <FiSave size={18} />
           {submitLabel}
@@ -396,13 +396,13 @@ export const DeleteProductModal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md shadow-xl">
-        <h2 className="text-xl font-bold text-gray-800 dark:text-white">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40">
+      <div className="w-full max-w-md rounded-2xl border border-slate-100 bg-white p-6 shadow-xl">
+        <h2 className="text-xl font-bold text-slate-900">
           Delete Category
         </h2>
 
-        <p className="mt-3 text-gray-600 dark:text-gray-300">
+        <p className="mt-3 text-slate-600">
           Are you sure you want to delete this category?
         </p>
 

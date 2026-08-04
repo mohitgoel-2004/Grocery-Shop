@@ -60,12 +60,53 @@ export const ProductsPage = () => {
   };
 
   return (
-    <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-6">
+    <div className="mx-auto max-w-7xl space-y-6 p-4 pb-24 sm:p-6 sm:pb-6">
       {/* ===== Header with Filters & Total Products (Mobile-friendly) ===== */}
       <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <h4 className="flex items-center gap-2 text-2xl font-extrabold text-slate-900">
+              <FiTag className="text-emerald-500" />
+              Product Management
+            </h4>
+          </div>
+          <div className="flex items-center justify-between gap-3 lg:justify-end">
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`rounded-xl border p-2 ${
+                  viewMode === 'grid'
+                    ? 'border-emerald-300 bg-emerald-100 text-emerald-700'
+                    : 'border-slate-200 text-slate-500 hover:bg-slate-50'
+                } transition`}
+                aria-label="Grid view"
+              >
+                <FiGrid size={16} />
+              </button>
+              <button
+                onClick={() => setViewMode('table')}
+                className={`rounded-xl border p-2 ${
+                  viewMode === 'table'
+                    ? 'border-emerald-300 bg-emerald-100 text-emerald-700'
+                    : 'border-slate-200 text-slate-500 hover:bg-slate-50'
+                } transition`}
+                aria-label="Table view"
+              >
+                <FiList size={16} />
+              </button>
+            </div>
+            <span className="whitespace-nowrap text-sm font-semibold text-slate-500">
+              Total Products:
+              <span className="ml-2 font-bold text-emerald-600">
+                {allProducts.length}
+              </span>
+            </span>
+          </div>
+        </div>
+
         {/* Top row: filters and total count */}
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex flex-wrap items-center gap-4">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex w-full flex-wrap items-center gap-4">
             {/* Filter dropdowns – using ProductFilter component but we'll style it inline */}
             <ProductFilter
               filterCategory={filterCategory}
@@ -74,40 +115,6 @@ export const ProductsPage = () => {
               setFilterStatus={setFilterStatus}
               resetFilters={resetFilters}
             />
-          </div>
-          <div className="flex items-center gap-3">
-           
-            {/* View toggle – kept small */}
-            <div className="flex items-center gap-1">
-              <button
-                onClick={() => setViewMode('grid')}
-                className={`p-2 rounded-xl border ${
-                  viewMode === 'grid'
-                    ? 'bg-emerald-100 border-emerald-300 text-emerald-700'
-                    : 'border-gray-200 text-gray-500 hover:bg-gray-50'
-                } transition`}
-                aria-label="Grid view"
-              >
-                <FiGrid size={16} />
-              </button>
-              <button
-                onClick={() => setViewMode('table')}
-                className={`p-2 rounded-xl border ${
-                  viewMode === 'table'
-                    ? 'bg-emerald-100 border-emerald-300 text-emerald-700'
-                    : 'border-gray-200 text-gray-500 hover:bg-gray-50'
-                } transition`}
-                aria-label="Table view"
-              >
-                <FiList size={16} />
-              </button>
-               <span className="text-sm font-semibold text-gray-500 whitespace-nowrap">
-              Total Products:
-              <span className="text-emerald-600 ml-2 font-bold">
-                {allProducts.length}
-              </span>
-            </span>
-            </div>
           </div>
         </div>
 
@@ -120,12 +127,7 @@ export const ProductsPage = () => {
       {/* ===== Floating Add Button (Mobile only) ===== */}
       <Link
         to="/admin/products/add"
-        className="fixed bottom-24 right-6 
-                   w-14 h-14 rounded-full
-                   bg-gradient-to-r from-emerald-500 to-emerald-600
-                   text-white shadow-xl shadow-emerald-300/50
-                   flex items-center justify-center
-                   z-50 hover:scale-105 transition-transform"
+        className="fixed bottom-24 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-linear-to-r from-emerald-500 to-emerald-600 text-white shadow-xl shadow-emerald-300/50 transition-transform hover:scale-105"
         aria-label="Add Product"
       >
         <FiPlus size={28} />
@@ -135,13 +137,13 @@ export const ProductsPage = () => {
       {loading ? (
         <ProductSkeleton count={8} />
       ) : allProducts.length === 0 ? (
-        <div className="text-center py-16 bg-white rounded-3xl border border-gray-100 shadow-sm">
-          <p className="text-gray-400">
+        <div className="rounded-3xl border border-slate-100 bg-white py-16 text-center shadow-sm">
+          <p className="text-slate-400">
             No products found. Try adjusting your filters.
           </p>
         </div>
       ) : viewMode === 'grid' ? (
-        <div className="px-2">
+        <div className="grid grid-cols-1 justify-items-center gap-4 sm:grid-cols-2 sm:gap-5 xl:grid-cols-3 2xl:grid-cols-4">
           {products.map((product) => (
             <ProductCard
               key={product._id || product.id}
@@ -189,17 +191,17 @@ export const AddProductPage = () => {
   };
 
   return (
-    <div className="p-4 sm:p-6 max-w-3xl mx-auto">
-      <div className="flex items-center gap-3 mb-6">
+    <div className="mx-auto max-w-3xl p-4 sm:p-6">
+      <div className="mb-6 flex items-center gap-3">
         <Link
           to="/admin/products"
-          className="p-2 rounded-xl hover:bg-gray-100 transition text-gray-500 hover:text-emerald-600"
+          className="rounded-xl p-2 text-slate-500 transition hover:bg-slate-100 hover:text-emerald-600"
         >
           <FiArrowLeft size={20} />
         </Link>
-        <h1 className="text-2xl font-extrabold text-gray-800">Add New Product</h1>
+        <h1 className="text-2xl font-extrabold text-slate-900">Add New Product</h1>
       </div>
-      <div className="bg-white rounded-3xl shadow-sm border border-gray-100/80 p-5 sm:p-6">
+      <div className="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6">
         <ProductForm
           onSubmit={handleSubmit}
           onCancel={() => navigate('/admin/products')}
@@ -235,17 +237,17 @@ export const EditProductPage = () => {
   };
 
   return (
-    <div className="p-4 sm:p-6 max-w-3xl mx-auto">
-      <div className="flex items-center gap-3 mb-6">
+    <div className="mx-auto max-w-3xl p-4 sm:p-6">
+      <div className="mb-6 flex items-center gap-3">
         <Link
           to="/admin/products"
-          className="p-2 rounded-xl hover:bg-gray-100 transition text-gray-500 hover:text-emerald-600"
+          className="rounded-xl p-2 text-slate-500 transition hover:bg-slate-100 hover:text-emerald-600"
         >
           <FiArrowLeft size={20} />
         </Link>
-        <h1 className="text-2xl font-extrabold text-gray-800">Edit Product</h1>
+        <h1 className="text-2xl font-extrabold text-slate-900">Edit Product</h1>
       </div>
-      <div className="bg-white rounded-3xl shadow-sm border border-gray-100/80 p-5 sm:p-6">
+      <div className="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6">
         <ProductForm
           initialData={product}
           onSubmit={handleSubmit}
@@ -276,19 +278,19 @@ export const ProductDetailsPage = () => {
   if (!product) return <div className="p-6 text-gray-600">Product not found</div>;
 
   return (
-    <div className="p-4 sm:p-6 max-w-3xl mx-auto">
+    <div className="mx-auto max-w-3xl p-4 sm:p-6">
       <Link
         to="/admin/products"
-        className="inline-flex items-center gap-2 text-gray-500 hover:text-emerald-600 mb-6 transition"
+        className="mb-6 inline-flex items-center gap-2 text-slate-500 transition hover:text-emerald-600"
       >
         <FiArrowLeft size={18} /> Back to Products
       </Link>
 
-      <div className="bg-white rounded-3xl shadow-sm border border-gray-100/80 p-5 sm:p-6 space-y-6">
+      <div className="space-y-6 rounded-3xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
           <div>
-            <h1 className="text-2xl font-extrabold text-gray-800">{product.name}</h1>
-            <p className="text-gray-500 text-sm mt-1">
+            <h1 className="text-2xl font-extrabold text-slate-900">{product.name}</h1>
+            <p className="mt-1 text-sm text-slate-500">
               {product.category?.name || product.category} • {product.brand?.name || product.brand}
             </p>
           </div>
@@ -297,39 +299,39 @@ export const ProductDetailsPage = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div className="space-y-3">
-            <div className="flex items-center gap-2 text-gray-700">
+            <div className="flex items-center gap-2 text-slate-700">
               <FiDollarSign className="text-emerald-500" size={18} />
               <span>Price:</span>
-              <span className="font-bold text-gray-800">₹{product.price}</span>
+              <span className="font-bold text-slate-900">₹{product.price}</span>
             </div>
             {product.discount > 0 && (
-              <div className="flex items-center gap-2 text-gray-700">
+              <div className="flex items-center gap-2 text-slate-700">
                 <FiPercent className="text-emerald-500" size={18} />
                 <span>Discount:</span>
-                <span className="font-bold text-gray-800">{product.discount}%</span>
+                <span className="font-bold text-slate-900">{product.discount}%</span>
               </div>
             )}
-            <div className="flex items-center gap-2 text-gray-700">
+            <div className="flex items-center gap-2 text-slate-700">
               <FiBox className="text-emerald-500" size={18} />
               <span>Stock:</span>
-              <span className="font-bold text-gray-800">{product.stock} units</span>
+              <span className="font-bold text-slate-900">{product.stock} units</span>
             </div>
-            <div className="flex items-center gap-2 text-gray-700">
+            <div className="flex items-center gap-2 text-slate-700">
               <FiTag className="text-emerald-500" size={18} />
               <span>SKU:</span>
-              <span className="font-bold text-gray-800">{product.sku || 'N/A'}</span>
+              <span className="font-bold text-slate-900">{product.sku || 'N/A'}</span>
             </div>
           </div>
           <div>
-            <h3 className="font-semibold text-gray-800 mb-2">Description</h3>
-            <p className="text-gray-600 text-sm leading-relaxed">
+            <h3 className="mb-2 font-semibold text-slate-900">Description</h3>
+            <p className="text-sm leading-relaxed text-slate-600">
               {product.description || 'No description provided.'}
             </p>
           </div>
         </div>
 
         <div>
-          <h3 className="font-semibold text-gray-800 mb-3">Product Images</h3>
+          <h3 className="mb-3 font-semibold text-slate-900">Product Images</h3>
           <div className="flex flex-wrap gap-3">
             {product.images && product.images.length > 0 ? (
               product.images.map((src, idx) => (
@@ -337,19 +339,19 @@ export const ProductDetailsPage = () => {
                   key={idx}
                   src={src}
                   alt={`${product.name} ${idx}`}
-                  className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl object-cover border border-gray-200 shadow-sm"
+                  className="h-20 w-20 rounded-xl border border-slate-200 object-cover shadow-sm sm:h-24 sm:w-24"
                 />
               ))
             ) : (
-              <p className="text-gray-400 text-sm">No images uploaded.</p>
+              <p className="text-sm text-slate-400">No images uploaded.</p>
             )}
           </div>
         </div>
 
-        <div className="flex justify-end pt-4 border-t border-gray-100">
+        <div className="flex justify-end border-t border-slate-100 pt-4">
           <Link
             to={`/admin/products/edit/${product._id || product.id}`}
-            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-semibold shadow-lg shadow-emerald-200/50 flex items-center gap-2 transition"
+            className="flex items-center gap-2 rounded-xl bg-linear-to-r from-emerald-500 to-emerald-600 px-5 py-2.5 font-semibold text-white shadow-lg shadow-emerald-200/50 transition hover:from-emerald-600 hover:to-emerald-700"
           >
             Edit Product
           </Link>
