@@ -340,15 +340,15 @@ const Dashboard = () => {
                   <div className="flex justify-between items-start">
                     <div>
                       <p className="text-xs font-semibold text-slate-700">
-                        #{order?._id?.slice(-6) || "------"}
+                        {order?.orderNumber || "------"}
                       </p>
                       <p className="text-sm font-medium text-slate-900">
                         {order.user?.name || order.customer?.name || order.customerName || "Guest"}
                       </p>
-                      <p className="text-xs text-slate-500">{order.items?.length || 0} items</p>
+                      <p className="text-xs text-slate-500">  {order.itemsCount || 0} items</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-bold text-slate-900">₹{order.total || order.totalPrice}</p>
+                      <p className="text-sm font-bold text-slate-900"> ₹{Number(order.totalPrice || 0).toLocaleString("en-IN")}</p>
                       <span
                         className={`text-[10px] font-medium px-2 py-0.5 rounded-full inline-block mt-1 ${
                           order.status === "Delivered"
@@ -387,16 +387,16 @@ const Dashboard = () => {
                       className="border-t border-slate-50/80 transition hover:bg-emerald-50/20"
                     >
                       <td className="py-3 pr-4 text-xs font-semibold text-slate-700">
-                        #{order?._id?.slice(-6) || "------"}
+                         {order?.orderNumber || "------"}
                       </td>
                       <td className="py-3 pr-4 font-medium text-slate-700">
                         {order.user?.name || order.customer?.name || order.customerName || "Guest"}
                       </td>
                       <td className="hidden py-3 pr-4 text-xs text-slate-500 sm:table-cell">
-                        {order.items?.length || 0} Items
+                         {order.itemsCount || 0} items
                       </td>
                       <td className="py-3 pr-4 font-bold text-slate-900">
-                        ₹{order.total || order.totalPrice}
+                       ₹{Number(order.totalPrice || 0).toLocaleString("en-IN")}
                       </td>
                       <td className="py-3">
                         <span

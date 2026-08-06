@@ -7,7 +7,7 @@ const {
   placeOrder,
   fetchOrders,
   cancelUserOrder,
-
+   getMyOrderById,
   getAllOrders,
   getOrderById,
   updateOrderStatus,
@@ -25,6 +25,8 @@ const router = express.Router();
 router.post("/", protect, placeOrder);
 
 router.get("/my-orders", protect, fetchOrders);
+
+router.get("/my-orders/:id", protect, getMyOrderById);
 
 router.put("/cancel", protect, cancelUserOrder);
 

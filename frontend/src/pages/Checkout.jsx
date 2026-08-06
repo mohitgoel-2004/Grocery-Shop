@@ -3,11 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { useCart } from "../Context/context";
 import toast from "react-hot-toast";
 import { fetchProfile, placeOrder } from "../services/api";
+import {useAddress} from "../Context/AddressContext";
 import { getDeliverySettings } from "../services/deliverySettingsService";
 
 const Checkout = () => {
     const navigate = useNavigate();
  const { cart, clearCart } = useCart();
+ const { defaultAddress } = useAddress();
   const [deliverySettings, setDeliverySettings] = useState(null);
     const [formData, setFormData] = useState({
         fullName: "",
@@ -18,25 +20,42 @@ const Checkout = () => {
 
     const [isPlacingOrder, setIsPlacingOrder] = useState(false);
 
-    useEffect(() => {
-        const loadProfile = async () => {
-            try {
-                const response = await fetchProfile();
-                const user = response.data.user || {};
+   useEffect(() => {
+    const loadProfile = async () => {
+        try {
+            const response = await fetchProfile();
+            const user = response.data.user || {};
 
-                setFormData((prev) => ({
-                    ...prev,
-                    fullName: user.fullName || prev.fullName,
-                    phone: user.mobile || prev.phone,
-                    address: user.address || prev.address,
-                }));
-            } catch (error) {
-                // keep current form values if profile load fails
-            }
-        };
+            setFormData((prev) => ({
+                ...prev,
+                fullName: user.fullName || prev.fullName,
+                phone: user.mobile || prev.phone,
+            }));
+        } catch (error) {
+            console.error("Failed to load profile:", error);
+        }
+    };
 
-        loadProfile();
-    }, []);
+    loadProfile();
+}, []);
+
+useEffect(() => {
+    if (!defaultAddress) return;
+
+    const formattedAddress = [
+        defaultAddress.address,
+        defaultAddress.city,
+        defaultAddress.state,
+        defaultAddress.pincode,
+    ]
+        .filter(Boolean)
+        .join(", ");
+
+    setFormData((prev) => ({
+        ...prev,
+        address: formattedAddress,
+    }));
+}, [defaultAddress]);
 
      useEffect(() => {
         const loadDeliverySettings = async () => {

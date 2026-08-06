@@ -67,13 +67,9 @@ const getTodayCustomers = async () => {
 
 const getRecentOrders = async () => {
   const orders = await Order.find()
-.populate("user", "fullName email")
-.sort({ createdAt: -1 })
-.limit(10);
-
-console.log(
-JSON.stringify(orders,null,2)
-);
+    .populate("user", "fullName email")
+    .sort({ createdAt: -1 })
+    .limit(10);
 
   return orders.map((order) => ({
     _id: order._id,
@@ -82,15 +78,14 @@ JSON.stringify(orders,null,2)
       `ORD-${order._id.toString().slice(-6).toUpperCase()}`,
 
     customerName: order.user?.fullName || "Guest",
-
     customerEmail: order.user?.email || "",
 
     itemsCount: order.items?.length || 0,
 
-  totalPrice: order.total || 0,
+    // Final amount customer has to pay
+    totalPrice: order.total || 0,
 
     status: order.status,
-
     createdAt: order.createdAt,
   }));
 };

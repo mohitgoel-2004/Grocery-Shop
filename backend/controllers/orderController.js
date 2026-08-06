@@ -65,7 +65,7 @@ const Order = require("../models/Order");
 const getAllOrders = asyncHandler(async (req, res) => {
 
     const orders = await Order.find()
-        .populate("user", "name email phone")
+        .populate("user", "fullName email mobile")
         .populate("items.product")
         .sort({ createdAt: -1 });
 
@@ -79,7 +79,7 @@ const getAllOrders = asyncHandler(async (req, res) => {
 const getOrderById = asyncHandler(async (req, res) => {
 
     const order = await Order.findById(req.params.id)
-        .populate("user", "name email phone")
+        .populate("user", "fullName email mobile")
         .populate("items.product");
 
     if (!order)
@@ -194,7 +194,7 @@ const searchOrders = asyncHandler(async (req, res) => {
     const keyword = req.query.keyword || "";
 
     const orders = await Order.find()
-        .populate("user", "name email phone")
+        .populate("user", "fullName email mobile")
         .populate("items.product");
 
     const filtered = orders.filter((o) =>
@@ -223,7 +223,7 @@ const getOrdersByStatus = asyncHandler(async (req, res) => {
     const orders = await Order.find({
         status: req.params.status,
     })
-        .populate("user", "name email phone")
+       .populate("user", "fullName email mobile")
         .populate("items.product");
 
     res.json(
@@ -234,11 +234,31 @@ const getOrdersByStatus = asyncHandler(async (req, res) => {
 
 });
 
+const getMyOrderById = asyncHandler(async (req, res) => {
+    const order = await Order.findOne({
+        _id: req.params.id,
+        user: req.user._id,
+    })
+        .populate("user", "fullName email mobile")
+        .populate("items.product");
+
+    if (!order) {
+        throw new ApiError(404, "Order not found");
+    }
+
+    res.status(200).json(
+        ApiResponse.success(
+            { order },
+            "Order fetched successfully"
+        )
+    );
+});
+
 module.exports = {
 	placeOrder,
 	fetchOrders,
 	cancelUserOrder,
-
+    getMyOrderById,
 	getAllOrders,
     getOrderById,
     updateOrderStatus,

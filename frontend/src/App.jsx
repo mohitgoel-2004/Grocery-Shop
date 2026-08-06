@@ -11,6 +11,8 @@ import ProductDetails from "./pages/ProductDetails";
 import Checkout from "./pages/Checkout";
 import Profile from "./pages/ProfilePage";
 import Orders from "./pages/Orders";
+// import OrderDetails from "./pages/OrderDetails";
+import TrackOrder from "./pages/TrackOrder";
 import AddressManagementPage from "./pages/AddressManagementPage";
 import NotificationPage from "./pages/NotificationPage";
 
@@ -75,6 +77,8 @@ function App() {
       <Route path="/checkout" element={<Checkout />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/orders" element={<Orders />} />
+{/* <Route path="/orders/:id" element={<OrderDetails />} /> */}
+<Route path="/orders/:id/track" element={<TrackOrder />} />
       <Route path="/addresses" element={<AddressManagementPage />} />
       <Route path="/notifications" element={<NotificationPage />} />
 
