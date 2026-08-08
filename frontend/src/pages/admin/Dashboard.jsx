@@ -41,16 +41,16 @@ const Dashboard = () => {
   console.log(dashboard.recentOrders);
 
   const stats = [
-    {
-      title: "Revenue",
-      value: `₹${dashboard?.summary?.totalRevenue ?? 0}`,
-      icon: <FiDollarSign size={24} />,
-      color: "from-emerald-400 to-emerald-600",
-      bgLight: "bg-emerald-50",
-      textColor: "text-emerald-600",
-      positive: true,
-      change: "Live",
-    },
+   {
+  title: "Revenue",
+  value: `₹${Math.round(Number(dashboard?.summary?.totalRevenue ?? 0))}`,
+  icon: <FiDollarSign size={24} />,
+  color: "from-emerald-400 to-emerald-600",
+  bgLight: "bg-emerald-50",
+  textColor: "text-emerald-600",
+  positive: true,
+  change: "Live",
+},
     {
       title: "Orders",
       value: dashboard?.summary?.totalOrders ?? 0,

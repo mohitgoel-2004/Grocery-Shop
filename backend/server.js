@@ -19,6 +19,7 @@ const cartRoutes = require("./routes/cartRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const addressRoutes = require("./routes/addressRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
+const paymentRoutes = require("./routes/paymentRoutes");
 
 // Admin Routes
 const adminRoutes = require("./routes/adminRoutes");
@@ -90,7 +91,7 @@ app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/addresses", addressRoutes);
 app.use("/api/notifications", notificationRoutes);
-
+app.use("/api/payments", paymentRoutes);
 /* ===========================
    Admin APIs
 =========================== */

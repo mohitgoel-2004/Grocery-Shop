@@ -7,5 +7,6 @@ export * from "./productService";
 export * from "./cartService";
 export * from "./orderService";
 export * from "./userService";
+export * from "./paymentService";
 // export * from "./adminProfileService";
 // export * from "./notificationService";

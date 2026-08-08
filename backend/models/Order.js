@@ -90,10 +90,32 @@ adminNote: {
     type: String,
     default: "",
 },
+
+razorpayOrderId: {
+    type: String,
+    default: "",
+},
+
+razorpayPaymentId: {
+    type: String,
+    default: "",
+},
+
+razorpaySignature: {
+    type: String,
+    default: "",
+},
+
+paidAt: {
+    type: Date,
+    default: null,
+},
 	},
 	{
 		timestamps: true,
 	}
 );
+
+
 
 module.exports = mongoose.model("Order", orderSchema);
