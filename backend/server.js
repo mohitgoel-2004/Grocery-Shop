@@ -29,6 +29,7 @@ const adminOrderRoutes = require("./routes/adminOrderRoutes");
 const adminCustomerRoutes = require("./routes/adminCustomerRoutes");
 const adminProfileRoutes = require("./routes/adminProfileRoutes");
 const deliverySettingsRoutes = require("./routes/deliverySettingsRoutes");
+const inventoryRoutes = require("./routes/inventoryRoutes");
 
 
 // Middleware
@@ -92,6 +93,7 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/addresses", addressRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/payments", paymentRoutes);
+app.use("/api/inventory", inventoryRoutes);
 /* ===========================
    Admin APIs
 =========================== */

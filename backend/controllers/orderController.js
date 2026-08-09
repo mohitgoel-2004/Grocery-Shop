@@ -3,9 +3,10 @@ const asyncHandler = require("../utils/asyncHandler");
 const ApiResponse = require("../utils/apiResponse");
 const ApiError = require("../utils/apiError");
 const {
-	createOrder,
-	listOrders,
-	cancelOrder,
+  createOrder,
+  listOrders,
+  cancelOrder,
+  updateOrderStatusWithInventory,
 } = require("../services/orderService");
 
 // const {
@@ -93,37 +94,42 @@ const getOrderById = asyncHandler(async (req, res) => {
     );
 
 });
-const updateOrderStatus = asyncHandler(async (req, res) => {
+const updateOrderStatus = asyncHandler(
+  async (req, res) => {
     const { status } = req.body;
 
-    const order = await Order.findByIdAndUpdate(
-        req.params.id,
-        { status },
-       { returnDocument: "after" }
-    );
-
-    if (!order) {
-        throw new ApiError(404, "Order not found");
+    if (!status) {
+      throw new ApiError(
+        400,
+        "Status is required"
+      );
     }
 
+    const order =
+      await updateOrderStatusWithInventory(
+        req.params.id,
+        status
+      );
+
     await Notification.create({
-        user: order.user,
-        title: "Order Update",
-        message: `Your order status has been updated to ${status}.`,
-        type: "order",
-        data: {
-            orderId: order._id,
-            status,
-        },
+      user: order.user,
+      title: "Order Update",
+      message: `Your order status has been updated to ${status}.`,
+      type: "order",
+      data: {
+        orderId: order._id,
+        status,
+      },
     });
 
     res.json(
-        ApiResponse.success(
-            { order },
-            "Order status updated successfully"
-        )
+      ApiResponse.success(
+        { order },
+        "Order status updated successfully"
+      )
     );
-});
+  }
+);
 const deleteOrder = asyncHandler(async (req, res) => {
 
     const order = await Order.findById(req.params.id);

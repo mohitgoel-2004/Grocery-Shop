@@ -40,7 +40,6 @@ import {
   FiEye,
   FiLock,
   FiRotateCcw,
-
   FiUnlock,
 } from "react-icons/fi";
 
@@ -79,7 +78,8 @@ export const CustomerStatusBadge = ({ status }) => {
 };
 
 // ---------- 2. CustomerCard (grid view) ----------
-export const CustomerCard = ({  customer,
+export const CustomerCard = ({
+  customer,
   onViewDetails,
   onEdit,
   onBlock,
@@ -87,7 +87,8 @@ export const CustomerCard = ({  customer,
   onPremium,
   onDelete,
   onRestore,
-  onPermanentDelete, }) => {
+  onPermanentDelete,
+}) => {
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100/80 overflow-hidden hover:shadow-xl transition-all duration-300 group">
       <div className="p-4 space-y-3">
@@ -117,7 +118,7 @@ export const CustomerCard = ({  customer,
             Orders: {customer.totalOrders}
           </span>
           <span className="font-bold text-gray-800 dark:text-black">
-            ₹{customer.totalSpent}
+            ₹{Number(customer.totalSpent || 0).toFixed(2)}
           </span>
         </div>
         <div className="flex justify-between items-center text-xs text-gray-400 dark:text-gray-500">
@@ -190,92 +191,90 @@ export const CustomerTable = ({
                 <CustomerStatusBadge status={customer.status} />
               </td>
               <td className="px-4 py-3">
-               <div className="flex items-center justify-center gap-2">
+                <div className="flex items-center justify-center gap-2">
+                  {/* View */}
+                  <button
+                    onClick={() => onViewDetails(customer._id)}
+                    className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-blue-500"
+                  >
+                    <FiEye size={16} />
+                  </button>
 
-  {/* View */}
-  <button
-    onClick={() => onViewDetails(customer._id)}
-    className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-blue-500"
-  >
-    <FiEye size={16} />
-  </button>
+                  {/* Edit */}
+                  {!customer.deleted && (
+                    <button
+                      onClick={() => onEdit(customer)}
+                      className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-emerald-500"
+                    >
+                      <FiEdit2 size={16} />
+                    </button>
+                  )}
 
-  {/* Edit */}
-  {!customer.deleted && (
-    <button
-      onClick={() => onEdit(customer)}
-      className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-emerald-500"
-    >
-      <FiEdit2 size={16} />
-    </button>
-  )}
+                  {/* Active → Block */}
+                  {!customer.deleted && customer.status !== "blocked" && (
+                    <button
+                      onClick={() => onBlock(customer._id)}
+                      className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-amber-500"
+                      title="Block Customer"
+                    >
+                      <FiLock size={16} />
+                    </button>
+                  )}
 
-  {/* Active → Block */}
-  {!customer.deleted && customer.status !== "blocked" && (
-    <button
-      onClick={() => onBlock(customer._id)}
-      className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-amber-500"
-      title="Block Customer"
-    >
-      <FiLock size={16} />
-    </button>
-  )}
+                  {/* Blocked → Unblock */}
+                  {!customer.deleted && customer.status === "blocked" && (
+                    <button
+                      onClick={() => onUnblock(customer._id)}
+                      className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-green-500"
+                      title="Unblock Customer"
+                    >
+                      <FiUnlock size={16} />
+                    </button>
+                  )}
 
-  {/* Blocked → Unblock */}
-  {!customer.deleted && customer.status === "blocked" && (
-    <button
-      onClick={() => onUnblock(customer._id)}
-      className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-green-500"
-      title="Unblock Customer"
-    >
-      <FiUnlock size={16} />
-    </button>
-  )}
+                  {/* Premium */}
+                  {!customer.deleted && !customer.isPremium && (
+                    <button
+                      onClick={() => onPremium(customer._id)}
+                      className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-purple-500"
+                      title="Make Premium"
+                    >
+                      <FiStar size={16} />
+                    </button>
+                  )}
 
-  {/* Premium */}
-  {!customer.deleted && !customer.isPremium && (
-    <button
-      onClick={() => onPremium(customer._id)}
-      className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-purple-500"
-      title="Make Premium"
-    >
-      <FiStar size={16} />
-    </button>
-  )}
+                  {/* Soft Delete */}
+                  {!customer.deleted && (
+                    <button
+                      onClick={() => onDelete(customer._id)}
+                      className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-red-500"
+                      title="Delete"
+                    >
+                      <FiTrash2 size={16} />
+                    </button>
+                  )}
 
-  {/* Soft Delete */}
-  {!customer.deleted && (
-    <button
-      onClick={() => onDelete(customer._id)}
-      className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-red-500"
-      title="Delete"
-    >
-      <FiTrash2 size={16} />
-    </button>
-  )}
+                  {/* Deleted Customers */}
+                  {customer.deleted && (
+                    <>
+                      <button
+                        onClick={() => onRestore(customer._id)}
+                        className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-green-600"
+                        title="Restore"
+                      >
+                        <FiRotateCcw size={16} />
+                      </button>
 
-  {/* Deleted Customers */}
-  {customer.deleted && (
-    <>
-      <button
-        onClick={() => onRestore(customer._id)}
-        className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-green-600"
-        title="Restore"
-      >
-        <FiRotateCcw size={16} />
-      </button>
-
-      <button
-        onClick={() => onPermanentDelete(customer._id)}
-        className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-red-700"
-        title="Permanent Delete"
-      >
-        <FiTrash2 size={16} />
-      </button>
-    </>
-  )}
-
-</div>
+                      <button
+                        onClick={() => onPermanentDelete(customer._id)}
+                        className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-red-700"
+                        title="Permanent Delete"
+                      >
+                        <FiTrash2 size={16} />
+                      </button>
+                    </>
+                  )}
+                </div>
               </td>
             </tr>
           ))}
@@ -556,10 +555,9 @@ export const CustomerForm = ({
         />
       </div>
 
-      
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-        city
+          city
         </label>
         <textarea
           name="city"
@@ -628,7 +626,7 @@ export const CustomerProfileModal = ({ isOpen, onClose, customer }) => {
             <div className="flex justify-between items-start mb-6">
               <div className="flex items-center gap-4">
                 <div className="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-2xl font-bold">
-                 {customer.fullName?.charAt(0).toUpperCase() || "?"}
+                  {customer.fullName?.charAt(0).toUpperCase() || "?"}
                 </div>
                 <div>
                   <h2 className="text-2xl font-extrabold text-gray-800 dark:text-white">

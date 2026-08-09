@@ -53,6 +53,8 @@ import CustomersPage, {
   EditCustomerPage,
 } from "./pages/admin/Customer";
 
+import Inventory from "./pages/admin/Inventory";
+
 import Settings from "./pages/admin/Setting/Settings";
 
 import AdminNotifications from "./pages/admin/Notification";
@@ -133,6 +135,8 @@ function App() {
 <Route path="customers/blocked" element={<BlockedCustomersPage />} />
 
 <Route path="customers/premium" element={<PremiumCustomersPage />} />
+
+<Route path="inventory" element={<Inventory />} />
 
 <Route path="settings" element={<Settings />} />
 

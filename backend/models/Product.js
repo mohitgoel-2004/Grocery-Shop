@@ -51,10 +51,36 @@ const productSchema = new mongoose.Schema(
       max: 100,
     },
 
-    // Inventory
+    // =========================
+    // INVENTORY
+    // =========================
     stock: {
       type: Number,
       default: 0,
+      min: 0,
+    },
+
+    reservedStock: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+
+    damagedStock: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+
+    expiredStock: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+
+    lowStockThreshold: {
+      type: Number,
+      default: 10,
       min: 0,
     },
 
@@ -142,9 +168,28 @@ const productSchema = new mongoose.Schema(
   
 );
 
-// Virtual Discount Price
+// =========================
+// Virtuals
+// =========================
+
+// Selling price
 productSchema.virtual("finalPrice").get(function () {
   return this.price - (this.price * this.discount) / 100;
+});
+
+// Available stock
+productSchema.virtual("availableStock").get(function () {
+  return Math.max(0, this.stock - this.reservedStock);
+});
+
+// Low stock
+productSchema.virtual("isLowStock").get(function () {
+  return this.availableStock <= this.lowStockThreshold;
+});
+
+// Out of stock
+productSchema.virtual("isOutOfStock").get(function () {
+  return this.availableStock <= 0;
 });
 
 // Return virtual fields in JSON
