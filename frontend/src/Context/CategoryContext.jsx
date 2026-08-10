@@ -23,23 +23,28 @@ export const CategoryProvider = ({ children }) => {
     loadCategories();
   }, []);
 
- const loadCategories = async () => {
+const loadCategories = async () => {
   try {
     setLoading(true);
 
     const res = await categoryService.fetchCategories();
 
-    // console.log("API Response:", res);
-    // console.log("Categories:", categories);
+    console.log("========== CATEGORY DEBUG ==========");
+    console.log("FULL RESPONSE:", res);
+    console.log("DATA:", res?.data);
+    console.log("CATEGORIES:", res?.data?.categories);
+    console.log("FIRST CATEGORY:", res?.data?.categories?.[0]);
+    console.log(
+      "PRODUCT COUNT:",
+      res?.data?.categories?.[0]?.productCount
+    );
+    console.log("====================================");
 
     const data = res?.data?.categories || [];
 
-    // console.log("Parsed Categories:", data);
-
     setCategories(data);
-
   } catch (err) {
-    console.error(err);
+    console.error("CATEGORY FETCH ERROR:", err);
   } finally {
     setLoading(false);
   }

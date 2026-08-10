@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   FiPlus, FiGrid, FiList, FiArrowLeft,
-  FiDollarSign, FiPercent, FiBox, FiTag, FiCalendar,
+  FiDollarSign, FiPercent, FiBox, FiTag, FiCalendar,  FiUpload,
 } from 'react-icons/fi';
 
 // Import all product UI components (already light-themed)
@@ -20,6 +20,7 @@ import {
 } from '../../components/admin/Product';
 
 import { useProducts } from '../../Context/ProductContext';
+import {bulkImportProducts} from "../../services/AdminProductService";
 
 // ============================================================
 // 1. ProductsPage – lists all products with search, filter, pagination
@@ -27,7 +28,9 @@ import { useProducts } from '../../Context/ProductContext';
 export const ProductsPage = () => {
   const {
     products,
-    allProducts,
+      allProducts,
+
+     totalProducts,
     loading,
     searchTerm,
     setSearchTerm,
@@ -45,6 +48,66 @@ export const ProductsPage = () => {
 
   const [viewMode, setViewMode] = useState('grid');
   const [deleteProductId, setDeleteProductId] = useState(null);
+  const [importing, setImporting] = useState(false);
+const fileInputRef = useRef(null);
+
+const handleBulkImport = async (e) => {
+  const file = e.target.files?.[0];
+
+  if (!file) return;
+
+  const allowedExtensions = [".xlsx", ".xls", ".csv"];
+  const extension =
+    "." + file.name.split(".").pop().toLowerCase();
+
+  if (!allowedExtensions.includes(extension)) {
+    alert("Only Excel (.xlsx, .xls) or CSV files are allowed");
+    e.target.value = "";
+    return;
+  }
+
+  try {
+    setImporting(true);
+
+    const response = await bulkImportProducts(file);
+
+    console.log("Bulk Import Response:", response);
+
+    const result = response?.data;
+
+    alert(
+      `Import completed!\n\n` +
+      `Total Rows: ${result?.totalRows ?? 0}\n` +
+      `Valid Rows: ${result?.validRows ?? 0}\n` +
+      `Inserted: ${result?.insertedRows ?? 0}\n` +
+      `Invalid: ${result?.invalidRows ?? 0}`
+    );
+
+    window.location.reload();
+
+  } catch (error) {
+    console.error(
+      "Bulk Import Error:",
+      error
+    );
+
+    console.error(
+      "Backend Error:",
+      error.response?.data
+    );
+
+    alert(
+      error.response?.data?.message ||
+      "Failed to import products"
+    );
+  } finally {
+    setImporting(false);
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  }
+};
 
   const handleDelete = (id) => setDeleteProductId(id);
   const confirmDelete = () => {
@@ -71,6 +134,27 @@ export const ProductsPage = () => {
             </h4>
           </div>
           <div className="flex items-center justify-between gap-3 lg:justify-end">
+              {/* Import Excel / CSV */}
+  <div>
+    <input
+      ref={fileInputRef}
+      type="file"
+      accept=".xlsx,.xls,.csv"
+      onChange={handleBulkImport}
+      className="hidden"
+    />
+
+    <button
+      type="button"
+      onClick={() => fileInputRef.current?.click()}
+      disabled={importing}
+      className="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50"
+    >
+      <FiUpload size={16} />
+
+      {importing ? "Importing..." : "Import Products"}
+    </button>
+  </div>
             <div className="flex items-center gap-1">
               <button
                 onClick={() => setViewMode('grid')}
@@ -98,7 +182,7 @@ export const ProductsPage = () => {
             <span className="whitespace-nowrap text-sm font-semibold text-slate-500">
               Total Products:
               <span className="ml-2 font-bold text-emerald-600">
-                {allProducts.length}
+               {totalProducts}
               </span>
             </span>
           </div>
@@ -218,14 +302,24 @@ export const AddProductPage = () => {
 export const EditProductPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { products, updateProduct, loading } = useProducts();
+
+  const {
+    products,
+    getProductById,
+    updateProduct,
+    loading,
+  } = useProducts();
+
   const [product, setProduct] = useState(null);
 
   useEffect(() => {
     const found = products.find(
       p => String(p._id || p.id) === String(id)
     );
-    if (found) setProduct(found);
+
+    if (found) {
+      setProduct(found);
+    }
   }, [id, products]);
 
   if (loading) return <div className="p-6 text-gray-600">Loading...</div>;

@@ -1,70 +1,97 @@
 const Category = require("../models/Category");
+const Product = require("../models/Product");
 const asyncHandler = require("../utils/asyncHandler");
 const ApiResponse = require("../utils/apiResponse");
 const ApiError = require("../utils/apiError");
 
-// GET
+// GET ALL CATEGORIES
 exports.listCategories = asyncHandler(async (req, res) => {
-    const categories = await Category.find().sort({ createdAt: -1 });
+  const categories = await Category.find()
+    .sort({ createdAt: -1 })
+    .lean();
 
-    res.status(200).json(
-        ApiResponse.success(
-            { categories },
-            "Categories fetched successfully"
-        )
-    );
+  const categoriesWithCount = await Promise.all(
+    categories.map(async (category) => {
+      const productCount = await Product.countDocuments({
+        category: category._id,
+      });
+
+    //   console.log(
+    //     "CATEGORY COUNT =>",
+    //     category.name,
+    //     category._id.toString(),
+    //     productCount
+    //   );
+
+      return {
+        ...category,
+        productCount: productCount,
+      };
+    })
+  );
+
+  console.log(
+    "FINAL CATEGORY =>",
+    categoriesWithCount[0]
+  );
+
+  res.status(200).json(
+    ApiResponse.success(
+      {
+        categories: categoriesWithCount,
+      },
+      "Categories fetched successfully"
+    )
+  );
 });
 
 // CREATE
 exports.createCategory = asyncHandler(async (req, res) => {
+  const category = await Category.create(req.body);
 
-    const category = await Category.create(req.body);
-
-    res.status(201).json(
-        ApiResponse.success(
-            { category },
-            "Category created successfully"
-        )
-    );
+  res.status(201).json(
+    ApiResponse.success(
+      { category },
+      "Category created successfully"
+    )
+  );
 });
 
 // UPDATE
 exports.updateCategory = asyncHandler(async (req, res) => {
-
-    const category = await Category.findByIdAndUpdate(
+  const category = await Category.findByIdAndUpdate(
     req.params.id,
     req.body,
     {
-        returnDocument: "after",
-        runValidators: true,
+      returnDocument: "after",
+      runValidators: true,
     }
-);
+  );
 
-    if (!category) {
-        throw new ApiError(404, "Category not found");
-    }
+  if (!category) {
+    throw new ApiError(404, "Category not found");
+  }
 
-    res.status(200).json(
-        ApiResponse.success(
-            { category },
-            "Category updated successfully"
-        )
-    );
+  res.status(200).json(
+    ApiResponse.success(
+      { category },
+      "Category updated successfully"
+    )
+  );
 });
 
 // DELETE
 exports.deleteCategory = asyncHandler(async (req, res) => {
+  const category = await Category.findByIdAndDelete(req.params.id);
 
-    const category = await Category.findByIdAndDelete(req.params.id);
+  if (!category) {
+    throw new ApiError(404, "Category not found");
+  }
 
-    if (!category) {
-        throw new ApiError(404, "Category not found");
-    }
-
-    res.status(200).json(
-        ApiResponse.success(
-            {},
-            "Category deleted successfully"
-        )
-    );
+  res.status(200).json(
+    ApiResponse.success(
+      {},
+      "Category deleted successfully"
+    )
+  );
 });

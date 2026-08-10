@@ -2,10 +2,10 @@ import axios from "axios";
 
 const api = axios.create({
   baseURL: "http://10.77.245.168:5000/api",
-  headers: {
-    "Content-Type": "application/json",
-  },
   withCredentials: true,
+  headers: {
+    Accept: "application/json",
+  },
 });
 
 api.interceptors.request.use(
@@ -25,10 +25,7 @@ api.interceptors.request.use(
         "🔐 Using Authorization header provided by request"
       );
 
-      console.log(
-        "REQUEST URL:",
-        config.url
-      );
+      console.log("REQUEST URL:", config.url);
 
       console.log(
         "AUTH HEADER:",
@@ -36,6 +33,9 @@ api.interceptors.request.use(
           config.headers.authorization
       );
 
+      // Important:
+      // Don't force Content-Type here.
+      // Axios/browser will handle FormData automatically.
       return config;
     }
 
@@ -63,21 +63,12 @@ api.interceptors.request.use(
         localStorage.getItem("token");
     }
 
-    console.log(
-      "REQUEST URL:",
-      config.url
-    );
-
-    console.log(
-      "TOKEN:",
-      token
-    );
+    console.log("REQUEST URL:", config.url);
+    console.log("TOKEN:", token);
 
     console.log(
       "AUTH HEADER:",
-      token
-        ? `Bearer ${token}`
-        : "NO TOKEN"
+      token ? `Bearer ${token}` : "NO TOKEN"
     );
 
     // =====================================================
@@ -85,9 +76,14 @@ api.interceptors.request.use(
     // =====================================================
 
     if (token) {
-      config.headers.Authorization =
-        `Bearer ${token}`;
+      config.headers.Authorization = `Bearer ${token}`;
     }
+
+    // =====================================================
+    // 5. IMPORTANT:
+    //    Do NOT set Content-Type globally.
+    //    Axios handles FormData automatically.
+    // =====================================================
 
     return config;
   },

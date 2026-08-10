@@ -46,7 +46,6 @@ export const deleteProduct = async (id) => {
 };
 
 // Toggle Product Status
-export const toggleProductStatus = async (id) => {
-  const response = await api.patch(`/admin/products/${id}/status`);
-  return response.data;
+export const toggleProductStatus = (id) => {
+  return api.patch(`/admin/products/${id}/status`);
 };

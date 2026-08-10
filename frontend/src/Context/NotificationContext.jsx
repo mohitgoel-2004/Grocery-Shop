@@ -51,17 +51,22 @@ const fetchNotifications = async () => {
   };
 
   // Mark all as read
-  const readAll = async () => {
-    try {
-      await markAllRead();
-      setNotifications((prev) =>
-        prev.map((n) => ({ ...n, read: true }))
-      );
-      toast.success("All notifications marked as read");
-    } catch (err) {
-      toast.error("Error updating notifications");
-    }
-  };
+ const readAll = async () => {
+  try {
+    await markAllRead();
+
+    setNotifications((prev) =>
+      prev.map((n) => ({
+        ...n,
+        isRead: true,
+      }))
+    );
+
+    toast.success("All notifications marked as read");
+  } catch (err) {
+    toast.error("Error updating notifications");
+  }
+};
 
   // Delete notification
   const removeNotification = async (id) => {
@@ -76,9 +81,15 @@ const fetchNotifications = async () => {
     }
   };
 
-  useEffect(() => {
-    fetchNotifications();
-  }, []);
+useEffect(() => {
+  const isAdminRoute = window.location.pathname.startsWith("/admin");
+
+  if (isAdminRoute) {
+    return;
+  }
+
+  fetchNotifications();
+}, []);
 
   return (
     <NotificationContext.Provider

@@ -3,6 +3,7 @@ const ApiResponse = require("../utils/apiResponse");
 const ApiError = require("../utils/apiError");
 const Product = require("../models/Product");
 const Category = require("../models/Category");
+const XLSX = require("xlsx");
 
 const {
   getProducts,
@@ -150,15 +151,19 @@ const updateProduct = asyncHandler(async (req, res) => {
     body.slug = slugify(body.name);
   }
 
-  if (Array.isArray(body.images) && body.images.length > 0) {
-    body.image = body.images[0];
+  if (Array.isArray(body.images)) {
+    body.image = body.images.length > 0 ? body.images[0] : "";
+  }
+
+  if (body.status) {
+    body.isActive = body.status === "active";
   }
 
   const product = await Product.findByIdAndUpdate(
     req.params.id,
     body,
     {
-      returnDocument: "after",
+      new: true,
       runValidators: true,
     }
   ).populate("category");
@@ -225,12 +230,22 @@ const getAdminProducts = asyncHandler(async (req, res) => {
 
   const query = {};
 
-  if (search) {
-    query.name = {
-      $regex: search,
-      $options: "i",
-    };
-  }
+ if (search) {
+  query.$or = [
+    {
+      name: {
+        $regex: search,
+        $options: "i",
+      },
+    },
+    {
+      sku: {
+        $regex: search,
+        $options: "i",
+      },
+    },
+  ];
+}
 
   if (category) {
     query.category = category;
@@ -272,6 +287,661 @@ const getAdminProductById = asyncHandler(async (req, res) => {
       "Product fetched successfully"
     )
   );
+});
+
+// ======================================================
+// ADMIN - BULK IMPORT PRODUCTS FROM EXCEL / CSV
+// ======================================================
+
+// ======================================================
+// ADMIN - BULK IMPORT PRODUCTS FROM EXCEL / CSV
+// ======================================================
+
+const bulkImportProducts = asyncHandler(async (req, res) => {
+  if (!req.file) {
+    throw new ApiError(
+      400,
+      "Please upload an Excel (.xlsx/.xls) or CSV file"
+    );
+  }
+
+  try {
+    // ------------------------------------------
+    // Read uploaded Excel / CSV file
+    // ------------------------------------------
+
+    const workbook = XLSX.read(req.file.buffer, {
+      type: "buffer",
+    });
+
+    const sheetName = workbook.SheetNames[0];
+
+    if (!sheetName) {
+      throw new ApiError(
+        400,
+        "Excel/CSV file does not contain any sheet"
+      );
+    }
+
+    const worksheet = workbook.Sheets[sheetName];
+
+    const rows = XLSX.utils.sheet_to_json(worksheet, {
+      defval: "",
+      raw: false,
+    });
+
+    if (!rows.length) {
+      throw new ApiError(
+        400,
+        "Excel/CSV file is empty"
+      );
+    }
+
+    // ------------------------------------------
+    // Helper functions
+    // ------------------------------------------
+
+    const normalizeNumber = (value, defaultValue = 0) => {
+      if (
+        value === "" ||
+        value === null ||
+        value === undefined
+      ) {
+        return defaultValue;
+      }
+
+      const number = Number(value);
+
+      return Number.isFinite(number) ? number : NaN;
+    };
+
+    const normalizeBoolean = (
+      value,
+      defaultValue = false
+    ) => {
+      if (
+        value === "" ||
+        value === null ||
+        value === undefined
+      ) {
+        return defaultValue;
+      }
+
+      if (typeof value === "boolean") {
+        return value;
+      }
+
+      const normalized = String(value)
+        .trim()
+        .toLowerCase();
+
+      return [
+        "true",
+        "1",
+        "yes",
+        "y",
+      ].includes(normalized);
+    };
+
+    const allowedUnits = [
+      "kg",
+      "g",
+      "gm",
+      "L",
+      "mL",
+      "pcs",
+      "pack",
+      "box",
+    ];
+
+    const allowedStatuses = [
+      "active",
+      "inactive",
+      "draft",
+    ];
+
+    // ------------------------------------------
+    // Get all categories
+    // ------------------------------------------
+
+    const categories = await Category.find({})
+      .select("_id name")
+      .lean();
+
+    const categoryMap = new Map();
+
+    categories.forEach((category) => {
+      categoryMap.set(
+        String(category.name)
+          .trim()
+          .toLowerCase(),
+        category._id
+      );
+    });
+
+    // ------------------------------------------
+    // Get existing SKU + slug
+    // ------------------------------------------
+
+    const existingProducts = await Product.find({})
+      .select("sku slug")
+      .lean();
+
+    const existingSkus = new Set();
+    const existingSlugs = new Set();
+
+    existingProducts.forEach((product) => {
+      if (product.sku) {
+        existingSkus.add(
+          String(product.sku)
+            .trim()
+            .toLowerCase()
+        );
+      }
+
+      if (product.slug) {
+        existingSlugs.add(
+          String(product.slug)
+            .trim()
+            .toLowerCase()
+        );
+      }
+    });
+
+    // ------------------------------------------
+    // Import tracking
+    // ------------------------------------------
+
+    const validProducts = [];
+    const errors = [];
+
+    const importedSkus = new Set();
+    const importedSlugs = new Set();
+
+    // ------------------------------------------
+    // Process every Excel / CSV row
+    // ------------------------------------------
+
+    for (let index = 0; index < rows.length; index++) {
+      const row = rows[index];
+
+      // Excel header = row 1
+      // First product = row 2
+      const rowNumber = index + 2;
+
+      const name = String(row.name || "").trim();
+
+      const categoryName = String(
+        row.category || ""
+      ).trim();
+
+      const brand = String(
+        row.brand || ""
+      ).trim();
+
+      const description = String(
+        row.description || ""
+      ).trim();
+
+      const sku = String(
+        row.sku || ""
+      ).trim();
+
+      // ----------------------------------------
+      // Name validation
+      // ----------------------------------------
+
+      if (!name) {
+        errors.push({
+          row: rowNumber,
+          field: "name",
+          message: "Product name is required",
+        });
+
+        continue;
+      }
+
+      // ----------------------------------------
+      // Category validation
+      // ----------------------------------------
+
+      if (!categoryName) {
+        errors.push({
+          row: rowNumber,
+          field: "category",
+          message: "Category is required",
+        });
+
+        continue;
+      }
+
+    let categoryId = categoryMap.get(
+  categoryName.toLowerCase()
+);
+
+if (!categoryId) {
+  const newCategory = await Category.create({
+    name: categoryName,
+    slug: slugify(categoryName),
+    status: "active",
+  });
+
+  categoryId = newCategory._id;
+
+  categoryMap.set(
+    categoryName.toLowerCase(),
+    categoryId
+  );
+}
+      // ----------------------------------------
+      // Price
+      // ----------------------------------------
+
+      const price = normalizeNumber(row.price);
+
+      if (!Number.isFinite(price)) {
+        errors.push({
+          row: rowNumber,
+          field: "price",
+          message: "Valid price is required",
+        });
+
+        continue;
+      }
+
+      if (price < 0) {
+        errors.push({
+          row: rowNumber,
+          field: "price",
+          message: "Price cannot be negative",
+        });
+
+        continue;
+      }
+
+      // ----------------------------------------
+      // Discount
+      // ----------------------------------------
+
+      const discount = normalizeNumber(
+        row.discount,
+        0
+      );
+
+      if (!Number.isFinite(discount)) {
+        errors.push({
+          row: rowNumber,
+          field: "discount",
+          message: "Invalid discount",
+        });
+
+        continue;
+      }
+
+      if (discount < 0 || discount > 100) {
+        errors.push({
+          row: rowNumber,
+          field: "discount",
+          message:
+            "Discount must be between 0 and 100",
+        });
+
+        continue;
+      }
+
+      // ----------------------------------------
+      // Inventory
+      // ----------------------------------------
+
+      const stock = normalizeNumber(
+        row.stock,
+        0
+      );
+
+      const reservedStock = normalizeNumber(
+        row.reservedStock,
+        0
+      );
+
+      const damagedStock = normalizeNumber(
+        row.damagedStock,
+        0
+      );
+
+      const expiredStock = normalizeNumber(
+        row.expiredStock,
+        0
+      );
+
+      const lowStockThreshold = normalizeNumber(
+        row.lowStockThreshold,
+        10
+      );
+
+      if (
+        !Number.isFinite(stock) ||
+        stock < 0
+      ) {
+        errors.push({
+          row: rowNumber,
+          field: "stock",
+          message: "Invalid stock",
+        });
+
+        continue;
+      }
+
+      if (
+        !Number.isFinite(reservedStock) ||
+        reservedStock < 0
+      ) {
+        errors.push({
+          row: rowNumber,
+          field: "reservedStock",
+          message: "Invalid reserved stock",
+        });
+
+        continue;
+      }
+
+      if (
+        !Number.isFinite(damagedStock) ||
+        damagedStock < 0
+      ) {
+        errors.push({
+          row: rowNumber,
+          field: "damagedStock",
+          message: "Invalid damaged stock",
+        });
+
+        continue;
+      }
+
+      if (
+        !Number.isFinite(expiredStock) ||
+        expiredStock < 0
+      ) {
+        errors.push({
+          row: rowNumber,
+          field: "expiredStock",
+          message: "Invalid expired stock",
+        });
+
+        continue;
+      }
+
+      if (
+        !Number.isFinite(lowStockThreshold) ||
+        lowStockThreshold < 0
+      ) {
+        errors.push({
+          row: rowNumber,
+          field: "lowStockThreshold",
+          message: "Invalid low stock threshold",
+        });
+
+        continue;
+      }
+
+      // ----------------------------------------
+      // Unit
+      // ----------------------------------------
+
+      const unit = String(
+        row.unit || "pcs"
+      ).trim();
+
+      if (!allowedUnits.includes(unit)) {
+        errors.push({
+          row: rowNumber,
+          field: "unit",
+          message:
+            `Invalid unit "${unit}". Allowed values: ${allowedUnits.join(
+              ", "
+            )}`,
+        });
+
+        continue;
+      }
+
+      // ----------------------------------------
+      // Status
+      // ----------------------------------------
+
+      const status = String(
+        row.status || "active"
+      )
+        .trim()
+        .toLowerCase();
+
+      if (!allowedStatuses.includes(status)) {
+        errors.push({
+          row: rowNumber,
+          field: "status",
+          message:
+            `Invalid status "${status}"`,
+        });
+
+        continue;
+      }
+
+      // ----------------------------------------
+      // SKU validation
+      // ----------------------------------------
+
+      const normalizedSku = sku
+        ? sku.toLowerCase()
+        : "";
+
+      if (normalizedSku) {
+        if (existingSkus.has(normalizedSku)) {
+          errors.push({
+            row: rowNumber,
+            field: "sku",
+            message:
+              `SKU "${sku}" already exists in database`,
+          });
+
+          continue;
+        }
+
+        if (importedSkus.has(normalizedSku)) {
+          errors.push({
+            row: rowNumber,
+            field: "sku",
+            message:
+              `Duplicate SKU "${sku}" in uploaded file`,
+          });
+
+          continue;
+        }
+      }
+
+      // ----------------------------------------
+      // Generate unique slug
+      // ----------------------------------------
+
+      let slug = slugify(name);
+
+      if (!slug) {
+        errors.push({
+          row: rowNumber,
+          field: "name",
+          message:
+            "Unable to generate product slug",
+        });
+
+        continue;
+      }
+
+      const originalSlug = slug;
+      let counter = 1;
+
+      while (
+        existingSlugs.has(slug) ||
+        importedSlugs.has(slug)
+      ) {
+        slug = `${originalSlug}-${counter}`;
+        counter++;
+      }
+
+      // ----------------------------------------
+      // Images
+      // ----------------------------------------
+
+      let images = [];
+
+      if (row.images) {
+        images = String(row.images)
+          .split(",")
+          .map((image) => image.trim())
+          .filter(Boolean);
+      }
+
+      const image = String(
+        row.image ||
+        images[0] ||
+        ""
+      ).trim();
+
+      // ----------------------------------------
+      // Product data
+      // ----------------------------------------
+
+      const productData = {
+        name,
+        slug,
+        description,
+        category: categoryId,
+        brand,
+
+        price,
+        discount,
+
+        stock,
+        reservedStock,
+        damagedStock,
+        expiredStock,
+        lowStockThreshold,
+
+        weight: normalizeNumber(
+          row.weight,
+          0
+        ),
+
+        unit,
+
+        images,
+        image,
+
+        badge: String(
+          row.badge || ""
+        ).trim(),
+
+        rating: normalizeNumber(
+          row.rating,
+          0
+        ),
+
+        totalReviews: normalizeNumber(
+          row.totalReviews,
+          0
+        ),
+
+        status,
+
+        // status ke according isActive
+        isActive: status === "active",
+
+        isFeatured: normalizeBoolean(
+          row.isFeatured,
+          false
+        ),
+
+        metaTitle: String(
+          row.metaTitle || ""
+        ).trim(),
+
+        metaDescription: String(
+          row.metaDescription || ""
+        ).trim(),
+      };
+
+      // SKU only when provided
+      if (sku) {
+        productData.sku = sku;
+      }
+
+      validProducts.push(productData);
+
+      if (normalizedSku) {
+        importedSkus.add(normalizedSku);
+      }
+
+      importedSlugs.add(slug);
+    }
+
+    // ------------------------------------------
+    // No valid products
+    // ------------------------------------------
+
+    if (!validProducts.length) {
+      return res.status(400).json(
+        ApiResponse.success(
+          {
+            totalRows: rows.length,
+            validRows: 0,
+            insertedRows: 0,
+            invalidRows: errors.length,
+            errors,
+          },
+          "No valid products found"
+        )
+      );
+    }
+
+    // ------------------------------------------
+    // Insert valid products
+    // ------------------------------------------
+
+    const insertedProducts =
+      await Product.insertMany(
+        validProducts,
+        {
+          ordered: false,
+        }
+      );
+
+    // ------------------------------------------
+    // Response
+    // ------------------------------------------
+
+    return res.status(201).json(
+      ApiResponse.success(
+        {
+          totalRows: rows.length,
+
+          validRows: validProducts.length,
+
+          insertedRows: insertedProducts.length,
+
+          invalidRows: errors.length,
+
+          errors,
+
+          products: insertedProducts,
+        },
+        "Products imported successfully"
+      )
+    );
+  } catch (error) {
+    console.error(
+      "BULK PRODUCT IMPORT ERROR:",
+      error
+    );
+
+    throw error;
+  }
 });
 const createCategory = asyncHandler(async (req, res) => {
   const { name, icon, image, description, status } = req.body;
@@ -350,4 +1020,6 @@ module.exports = {
   toggleProductStatus,
   getAdminProducts,
   getAdminProductById,
+
+  bulkImportProducts,
 };

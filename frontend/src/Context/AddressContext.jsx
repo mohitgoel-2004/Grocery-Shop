@@ -84,7 +84,12 @@ useEffect(() => {
 }, [addresses, defaultAddress]);
 
 useEffect(() => {
-  // console.log("Address Provider Mounted");
+  const isAdminRoute = window.location.pathname.startsWith("/admin");
+
+  if (isAdminRoute) {
+    return;
+  }
+
   refreshAddresses();
 }, []);
   // ============================
