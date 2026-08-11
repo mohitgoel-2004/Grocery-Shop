@@ -57,11 +57,11 @@ const Orders = () => {
 };
   return (
     <div className="min-h-screen bg-gray-100">
-      <div className="bg-emerald-600 text-white p-4 flex items-center gap-3">
-        <button onClick={() => navigate(-1)}>←</button>
+     <div className="bg-emerald-600 text-white p-4 flex items-center gap-3 rounded-2xl mt-2 mx-4">
+  <button onClick={() => navigate(-1)}>←</button>
 
-        <h1 className="text-xl font-bold">My Orders</h1>
-      </div>
+  <h1 className="text-xl font-bold">My Orders</h1>
+</div>
 
       <div className="p-4">
         {isLoading ? (
@@ -89,22 +89,34 @@ const Orders = () => {
                   </p>
                 </div>
 
-                <span
-                  className={`px-3 py-1 rounded-full text-sm font-semibold
+               <span
+  className={`inline-flex w-fit items-center justify-center whitespace-nowrap rounded-lg md:rounded-md px-2.5 md:px-2 py-1 md:py-[2px] text-xs md:text-[11px] font-semibold leading-4 tracking-wide uppercase shadow-sm
     ${
       order.status === "processing"
-        ? "bg-yellow-100 text-yellow-700"
+        ? "bg-amber-100 text-amber-700 border border-amber-200/50 shadow-amber-100"
         : order.status === "pending"
-          ? "bg-blue-100 text-blue-700"
+          ? "bg-blue-100 text-blue-700 border border-blue-200/50 shadow-blue-100"
           : order.status === "shipped"
-            ? "bg-purple-100 text-purple-700"
+            ? "bg-purple-100 text-purple-700 border border-purple-200/50 shadow-purple-100"
             : order.status === "delivered"
-              ? "bg-green-100 text-green-700"
-              : "bg-red-100 text-red-700"
+              ? "bg-emerald-100 text-emerald-700 border border-emerald-200/50 shadow-emerald-100"
+              : order.status === "cancelled"
+                ? "bg-red-100 text-red-700 border border-red-200/50 shadow-red-100"
+                : order.status === "returned"
+                  ? "bg-pink-100 text-pink-700 border border-pink-200/50 shadow-pink-100"
+                  : "bg-gray-100 text-gray-700 border border-gray-200/50 shadow-gray-100"
     }`}
-                >
-                  {order.status}
-                </span>
+>
+  <span className="block md:hidden mr-1.5 text-[10px]">
+    {order.status === "processing" && "⚙️"}
+    {order.status === "pending" && "⏳"}
+    {order.status === "shipped" && "🚚"}
+    {order.status === "delivered" && "✅"}
+    {order.status === "cancelled" && "❌"}
+    {order.status === "returned" && "↩️"}
+  </span>
+  {order.status}
+</span>
               </div>
 
               <div className="mt-4">

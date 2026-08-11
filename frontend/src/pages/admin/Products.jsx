@@ -155,30 +155,33 @@ const handleBulkImport = async (e) => {
       {importing ? "Importing..." : "Import Products"}
     </button>
   </div>
-            <div className="flex items-center gap-1">
-              <button
-                onClick={() => setViewMode('grid')}
-                className={`rounded-xl border p-2 ${
-                  viewMode === 'grid'
-                    ? 'border-emerald-300 bg-emerald-100 text-emerald-700'
-                    : 'border-slate-200 text-slate-500 hover:bg-slate-50'
-                } transition`}
-                aria-label="Grid view"
-              >
-                <FiGrid size={16} />
-              </button>
-              <button
-                onClick={() => setViewMode('table')}
-                className={`rounded-xl border p-2 ${
-                  viewMode === 'table'
-                    ? 'border-emerald-300 bg-emerald-100 text-emerald-700'
-                    : 'border-slate-200 text-slate-500 hover:bg-slate-50'
-                } transition`}
-                aria-label="Table view"
-              >
-                <FiList size={16} />
-              </button>
-            </div>
+           <div className="hidden items-center gap-1 md:flex">
+  {/* Grid View */}
+  <button
+    onClick={() => setViewMode("grid")}
+    className={`rounded-xl border p-2 ${
+      viewMode === "grid"
+        ? "border-emerald-300 bg-emerald-100 text-emerald-700"
+        : "border-slate-200 text-slate-500 hover:bg-slate-50"
+    } transition`}
+    aria-label="Grid view"
+  >
+    <FiGrid size={16} />
+  </button>
+
+  {/* Table View */}
+  <button
+    onClick={() => setViewMode("table")}
+    className={`rounded-xl border p-2 ${
+      viewMode === "table"
+        ? "border-emerald-300 bg-emerald-100 text-emerald-700"
+        : "border-slate-200 text-slate-500 hover:bg-slate-50"
+    } transition`}
+    aria-label="Table view"
+  >
+    <FiList size={16} />
+  </button>
+</div>
             <span className="whitespace-nowrap text-sm font-semibold text-slate-500">
               Total Products:
               <span className="ml-2 font-bold text-emerald-600">

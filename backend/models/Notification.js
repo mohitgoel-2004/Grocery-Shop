@@ -2,10 +2,19 @@ const mongoose = require("mongoose");
 
 const notificationSchema = new mongoose.Schema(
   {
+    // Customer notification ke liye user required hai
+    // Admin notification ke liye null ho sakta hai
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
+      default: null,
+    },
+
+    recipientType: {
+      type: String,
+      enum: ["customer", "admin"],
       required: true,
+      default: "customer",
     },
 
     title: {

@@ -26,22 +26,52 @@ const placeOrder = asyncHandler(async (req, res) => {
         deliveryAddress,
     });
 
-    // Customer Notification
-    await Notification.create({
-        user: order.user,
-        title: "Order Placed",
-        message: `Your order ${
-            order.orderNumber ? "#" + order.orderNumber : ""
-        } has been placed successfully.`,
-        type: "order",
-        data: {
-            orderId: order._id,
-        },
-    });
+  // ===============================
+// Customer Notification
+// ===============================
+ await Notification.create({
+    user: order.user,
+    recipientType: "customer",
+    title: "Order Placed",
+    message: `Your order ${
+      order.orderNumber
+        ? "#" + order.orderNumber
+        : ""
+    } has been placed successfully.`,
+    type: "order",
+    data: {
+      orderId: order._id,
+    },
+  });
 
-    res
-        .status(201)
-        .json(ApiResponse.success({ order }, "Order placed successfully"));
+  // ========================================
+  // ADMIN NOTIFICATION
+  // ========================================
+
+  await Notification.create({
+    user: null,
+    recipientType: "admin",
+    title: "New Order Received",
+    message: `New order ${
+      order.orderNumber
+        ? "#" + order.orderNumber
+        : ""
+    } has been received.`,
+    type: "order",
+    data: {
+      orderId: order._id,
+      userId: order.user,
+    },
+  });
+
+  res
+    .status(201)
+    .json(
+      ApiResponse.success(
+        { order },
+        "Order placed successfully"
+      )
+    );
 });
 
 const fetchOrders = asyncHandler(async (req, res) => {

@@ -11,6 +11,7 @@ import {
   FiMinus,
   FiPlus,
   FiShoppingCart,
+  FiSearch,
 } from "react-icons/fi";
 
 const formatPrice = (value) => `₹${Number(value || 0).toFixed(2)}`;
@@ -128,7 +129,6 @@ const ProductDetails = () => {
 
   const handleAddToCart = async () => {
     if (!selectedProduct) return;
-
     await addToCart(selectedProduct, quantity);
   };
 
@@ -144,47 +144,49 @@ const ProductDetails = () => {
     ? formatWeight(selectedProduct.weight, selectedProduct.unit)
     : "";
      
-    const searchRef = useRef(null);
-const [highlightSearch, setHighlightSearch] = useState(false);
-
+  const searchRef = useRef(null);
+  const [highlightSearch, setHighlightSearch] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,#ffffff_0%,#f4f7f4_45%,#e9efe9_100%)] px-0 py-0 md:px-4 md:py-4 lg:px-6">
-      <div className="mx-auto flex min-h-screen w-full max-w-107.5 flex-col overflow-hidden bg-white shadow-[0_28px_80px_rgba(15,23,42,0.16)] md:min-h-[calc(100vh-2rem)] md:rounded-[36px] md:border md:border-white/60 lg:max-w-120">
-        <div className="shrink-0 border-b border-[#eef0eb] bg-white/95 px-4 pt-4 pb-3 backdrop-blur-sm">
+    <div className="min-h-screen bg-white px-0 py-0 md:px-4 md:py-4 lg:px-6">
+      <div className="mx-auto flex min-h-screen w-full max-w-107.5 flex-col overflow-hidden bg-white md:min-h-[calc(100vh-2rem)] md:rounded-[30px] md:border md:border-emerald-100 lg:max-w-120">
+        
+        {/* Header - Matching Home Page */}
+        <div className="shrink-0 bg-gradient-to-b from-emerald-100 via-emerald-50 to-white px-4 pt-4 pb-3">
           <div className="flex items-center justify-between gap-3">
             <button
               onClick={
                 selectedProduct ? handleBackToList : () => navigate("/home")
               }
-              className="grid h-11 w-11 place-items-center rounded-full bg-[#f3f4f6] text-gray-800 shadow-sm transition hover:scale-105 hover:bg-[#eceff1]"
+              className="grid h-11 w-11 place-items-center rounded-full border border-emerald-100 bg-white shadow-sm transition hover:scale-105 hover:bg-emerald-50"
               aria-label="Back"
             >
-              <FiArrowLeft className="text-lg" />
+              <FiArrowLeft className="text-lg text-emerald-600" />
             </button>
 
             <div className="text-center">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-gray-400">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-emerald-600">
                 Grocery Store
               </p>
-              <h2 className="text-base font-semibold text-gray-900 sm:text-lg">
+              <h2 className="text-base font-bold text-gray-900 sm:text-lg">
                 {selectedProduct ? "Product Details" : "All Products"}
               </h2>
             </div>
 
             <button
               onClick={() => navigate("/cart")}
-              className="relative grid h-11 w-11 place-items-center rounded-full bg-[#f3f4f6] text-gray-800 shadow-sm transition hover:scale-105 hover:bg-[#eceff1]"
+              className="relative grid h-11 w-11 place-items-center rounded-full border border-emerald-100 bg-white shadow-sm transition hover:scale-105 hover:bg-emerald-50"
               aria-label="Open cart"
             >
-              <FiShoppingCart className="text-lg" />
+              <FiShoppingCart className="text-lg text-emerald-600" />
             </button>
           </div>
         </div>
 
-        <div className="flex-1 space-y-4 overflow-y-auto px-4 pb-[calc(7rem+env(safe-area-inset-bottom))] pt-2">
+        <div className="flex-1 space-y-4 overflow-y-auto px-4 pb-[calc(7rem+env(safe-area-inset-bottom))] pt-4">
           {!selectedProduct ? (
             <>
+              {/* Search Bar */}
               <div className="relative">
                 <input
                   ref={searchRef}
@@ -192,23 +194,24 @@ const [highlightSearch, setHighlightSearch] = useState(false);
                   placeholder="What's on your shopping list today?"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className={`w-full rounded-[22px] bg-[#f7f8f6] py-3.5 pl-12 pr-14 text-sm text-gray-800 outline-none transition placeholder:text-gray-400 focus:bg-white ${
+                  className={`w-full rounded-2xl border bg-white py-3.5 pl-12 pr-14 text-sm text-gray-800 outline-none transition placeholder:text-gray-400 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 ${
                     highlightSearch
-                      ? "border-green-500 ring-4 ring-green-100"
-                      : "border-[#e6e8e3] focus:border-[#b8d6bb]"
+                      ? "border-emerald-500 ring-4 ring-emerald-500/20"
+                      : "border-gray-200 focus:border-emerald-500"
                   }`}
                 />
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-                  <FiFilter className="text-lg" />
+                  <FiSearch className="text-lg" />
                 </span>
                 <button
                   type="button"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 grid h-9 w-9 place-items-center rounded-full bg-[#111827] text-white shadow-lg transition hover:scale-105"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 grid h-9 w-9 place-items-center rounded-full bg-emerald-600 text-white shadow-md shadow-emerald-200/50 transition hover:bg-emerald-700 hover:scale-105"
                 >
                   <FiFilter className="text-sm" />
                 </button>
               </div>
 
+              {/* Categories */}
               <div className="flex gap-3 overflow-x-auto pb-1 pt-1 scrollbar-hide">
                 {categories.map((cat) => {
                   const categoryLabel =
@@ -220,8 +223,8 @@ const [highlightSearch, setHighlightSearch] = useState(false);
                       onClick={() => setActiveCategory(categoryLabel)}
                       className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition ${
                         activeCategory === categoryLabel
-                          ? "bg-[#111827] text-white shadow-md"
-                          : "bg-[#f3f4f6] text-gray-700 hover:bg-[#e9ecef]"
+                          ? "bg-emerald-600 text-white shadow-md shadow-emerald-200/50"
+                          : "bg-emerald-50 text-gray-700 hover:bg-emerald-100"
                       }`}
                     >
                       {categoryLabel}
@@ -230,10 +233,12 @@ const [highlightSearch, setHighlightSearch] = useState(false);
                 })}
               </div>
 
+              {/* Product Count */}
               <p className="text-xs font-medium tracking-wide text-gray-500">
                 {filteredProducts.length} products found
               </p>
 
+              {/* Product Grid */}
               {isLoading ? (
                 <div className="py-10 text-center text-gray-500">
                   Loading products...
@@ -245,11 +250,11 @@ const [highlightSearch, setHighlightSearch] = useState(false);
                       <div
                         key={product._id}
                         onClick={() => handleProductClick(product)}
-                        className="group cursor-pointer rounded-[28px] border border-[#eef0eb] bg-white p-3 shadow-[0_10px_28px_rgba(15,23,42,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_40px_rgba(15,23,42,0.1)]"
+                        className="group cursor-pointer rounded-2xl border border-emerald-100/80 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md hover:shadow-emerald-100/50"
                       >
-                        <div className="relative flex h-28 items-center justify-center overflow-hidden rounded-3xl bg-linear-to-br from-[#f8faf8] to-[#eef4ee]">
+                        <div className="relative flex h-28 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-emerald-50 to-emerald-100/30">
                           {product.badge ? (
-                            <span className="absolute left-3 top-3 rounded-full bg-[#ff7a59] px-2.5 py-1 text-[10px] font-bold text-white shadow-md">
+                            <span className="absolute left-3 top-3 rounded-full bg-red-500 px-2.5 py-1 text-[10px] font-bold text-white shadow-md shadow-red-200/50">
                               {product.badge}
                             </span>
                           ) : null}
@@ -267,7 +272,7 @@ const [highlightSearch, setHighlightSearch] = useState(false);
                           {product.name}
                         </h4>
                         {formatWeight(product.weight, product.unit) ? (
-                          <p className="mt-1 text-xs text-gray-500">
+                          <p className="mt-1 text-xs text-gray-400">
                             {formatWeight(product.weight, product.unit)}
                           </p>
                         ) : null}
@@ -276,7 +281,7 @@ const [highlightSearch, setHighlightSearch] = useState(false);
                             <p className="text-xs uppercase tracking-wide text-gray-400">
                               Price
                             </p>
-                            <p className="text-sm font-bold text-gray-900">
+                            <p className="text-sm font-bold text-emerald-600">
                               {formatPrice(product.price)}
                             </p>
                           </div>
@@ -286,7 +291,7 @@ const [highlightSearch, setHighlightSearch] = useState(false);
                               event.stopPropagation();
                               handleQuickAdd(product);
                             }}
-                            className="grid h-10 w-10 place-items-center rounded-full bg-[#111827] text-white shadow-md transition hover:scale-105"
+                            className="grid h-10 w-10 place-items-center rounded-full bg-emerald-600 text-white shadow-md shadow-emerald-200/50 transition hover:bg-emerald-700 hover:scale-105"
                             aria-label={`Add ${product.name} to cart`}
                           >
                             <FiPlus className="text-lg" />
@@ -303,9 +308,11 @@ const [highlightSearch, setHighlightSearch] = useState(false);
               )}
             </>
           ) : (
+            // Product Detail View
             <div className="space-y-5 pb-24">
-              <div className="rounded-[34px] bg-[linear-gradient(180deg,#f7f8f6_0%,#ffffff_78%)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]">
-                <div className="relative mx-auto flex h-70 items-center justify-center overflow-hidden rounded-[30px] bg-white">
+              {/* Product Image */}
+              <div className="rounded-2xl border border-emerald-100/80 bg-white p-4 shadow-sm">
+                <div className="relative mx-auto flex h-70 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-emerald-50 to-emerald-100/30">
                   {selectedProduct.image ? (
                     <img
                       src={selectedProduct.image}
@@ -317,7 +324,7 @@ const [highlightSearch, setHighlightSearch] = useState(false);
                   )}
                   <button
                     type="button"
-                    className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-full bg-white/95 text-[#ff7a59] shadow-lg transition hover:scale-105"
+                    className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-full bg-white/95 text-red-500 shadow-lg transition hover:scale-105"
                     aria-label="Favorite"
                   >
                     <FiHeart className="text-lg" />
@@ -325,9 +332,10 @@ const [highlightSearch, setHighlightSearch] = useState(false);
                 </div>
               </div>
 
+              {/* Product Info */}
               <div className="space-y-3">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.28em] text-gray-400">
+                  <p className="text-xs font-semibold uppercase tracking-[0.28em] text-emerald-600">
                     Selected Product
                   </p>
                   <h2 className="mt-2 text-2xl font-semibold leading-tight text-gray-900">
@@ -340,41 +348,42 @@ const [highlightSearch, setHighlightSearch] = useState(false);
                   ) : null}
                 </div>
 
-                <div className="flex items-center justify-between gap-3 rounded-[26px] border border-[#eef0eb] bg-[#fafafa] px-4 py-4">
+                {/* Price & Quantity */}
+                <div className="flex items-center justify-between gap-3 rounded-2xl border border-emerald-100/80 bg-emerald-50/30 px-4 py-4">
                   <div>
                     <p className="text-xs uppercase tracking-wide text-gray-400">
                       Price
                     </p>
                     <div className="mt-1 flex items-end gap-2">
-                      <span className="text-2xl font-bold text-gray-900">
+                      <span className="text-2xl font-bold text-emerald-600">
                         {formatPrice(selectedProduct.price)}
                       </span>
                       {selectedProduct.rating ? (
-                        <span className="rounded-full bg-[#fff4de] px-2.5 py-1 text-xs font-semibold text-[#9a5b00]">
-                          {selectedProduct.rating.toFixed(1)} rating
+                        <span className="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700 border border-amber-200/50">
+                          ⭐ {selectedProduct.rating.toFixed(1)}
                         </span>
                       ) : null}
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 rounded-full bg-white px-3 py-2 shadow-sm">
+                  <div className="flex items-center gap-2 rounded-full bg-white px-3 py-2 shadow-sm border border-emerald-100">
                     <button
                       type="button"
                       onClick={() =>
                         setQuantity((current) => Math.max(1, current - 1))
                       }
-                      className="grid h-8 w-8 place-items-center rounded-full bg-[#f3f4f6] text-gray-800 transition hover:bg-[#e9ecef]"
+                      className="grid h-8 w-8 place-items-center rounded-full border border-emerald-200 bg-white text-emerald-600 transition hover:bg-emerald-50 hover:border-emerald-300"
                       aria-label="Decrease quantity"
                     >
                       <FiMinus className="text-sm" />
                     </button>
-                    <span className="min-w-8 text-center text-sm font-semibold text-gray-900">
+                    <span className="min-w-8 text-center text-sm font-bold text-gray-900">
                       {quantity.toString().padStart(2, "0")}
                     </span>
                     <button
                       type="button"
                       onClick={() => setQuantity((current) => current + 1)}
-                      className="grid h-8 w-8 place-items-center rounded-full bg-[#111827] text-white transition hover:scale-105"
+                      className="grid h-8 w-8 place-items-center rounded-full bg-emerald-600 text-white transition hover:bg-emerald-700 hover:scale-105"
                       aria-label="Increase quantity"
                     >
                       <FiPlus className="text-sm" />
@@ -382,14 +391,16 @@ const [highlightSearch, setHighlightSearch] = useState(false);
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 text-sm font-medium text-[#6d7c63]">
-                  <span className="h-2.5 w-2.5 rounded-full bg-[#9bc77c]" />
+                {/* Delivery Info */}
+                <div className="flex items-center gap-2 text-sm font-medium text-emerald-600">
+                  <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
                   Available on fast delivery
                 </div>
               </div>
 
-              <div className="rounded-[28px] bg-[#f8faf8] p-4">
-                <h4 className="text-sm font-semibold uppercase tracking-[0.22em] text-gray-500">
+              {/* Description */}
+              <div className="rounded-2xl border border-emerald-100/80 bg-white p-4 shadow-sm">
+                <h4 className="text-sm font-semibold uppercase tracking-[0.22em] text-emerald-600">
                   Description
                 </h4>
                 <p className="mt-2 text-sm leading-6 text-gray-600">
@@ -401,10 +412,11 @@ const [highlightSearch, setHighlightSearch] = useState(false);
                 </p>
               </div>
 
-                <div className="sticky bottom-0 -mx-4 bg-linear-to-t from-white via-white to-white/0 px-4 pb-[calc(0.5rem+env(safe-area-inset-bottom))] pt-4">
+              {/* Add to Cart Button */}
+              <div className="sticky bottom-0 -mx-4 bg-gradient-to-t from-white via-white to-white/0 px-4 pb-[calc(0.5rem+env(safe-area-inset-bottom))] pt-4">
                 <button
                   onClick={handleAddToCart}
-                  className="flex w-full items-center justify-center gap-3 rounded-3xl bg-[#111827] py-4 font-semibold text-white shadow-[0_18px_30px_rgba(17,24,39,0.22)] transition hover:scale-[1.01]"
+                  className="flex w-full items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-emerald-600 py-4 font-bold text-white shadow-lg shadow-emerald-200/50 transition hover:from-emerald-600 hover:to-emerald-700 hover:scale-[1.01]"
                 >
                   <FiShoppingCart className="text-lg" />
                   Add To Cart

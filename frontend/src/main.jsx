@@ -15,6 +15,7 @@ import { CustomerProvider } from "./Context/CustomerContext";
 import { OrdersProvider } from "./Context/OrderContext";
 // import { DashboardProvider } from "./Context/dashboardContext";
 import { AdminProfileProvider } from "./Context/AdminProfileContext";
+import { AdminNotificationProvider } from "./Context/AdminNotificationContext";
 import { Toaster } from "react-hot-toast";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
@@ -23,6 +24,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <ProductProvider>
         <AddressProvider>
           <NotificationProvider>
+            <AdminNotificationProvider>
             <AdminProfileProvider>
             {/* <DashboardProvider> */}
             <CategoryProvider>
@@ -37,6 +39,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
             </CategoryProvider>
             {/* </DashboardProvider> */}
             </AdminProfileProvider>
+            </AdminNotificationProvider>
           </NotificationProvider>
         </AddressProvider>
       </ProductProvider>

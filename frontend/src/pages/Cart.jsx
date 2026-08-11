@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FiArrowLeft, FiMinus, FiPlus, FiShoppingBag, FiTrash2 } from "react-icons/fi";
+import { FiArrowLeft, FiMinus, FiPlus, FiShoppingBag, FiTrash2, FiTruck, FiClock, FiTag } from "react-icons/fi";
 import Navbar from "../components/Navbar";
 import { useCart } from "../Context/context";
 import { getDeliverySettings } from "../services/deliverySettingsService";
@@ -10,78 +10,50 @@ const formatPrice = (value) => `₹${Number(value || 0).toFixed(2)}`;
 const Cart = () => {
   const [activeTab, setActiveTab] = useState("cart");
   const [promoCode, setPromoCode] = useState("");
-   const [deliverySettings, setDeliverySettings] = useState(null);
+  const [deliverySettings, setDeliverySettings] = useState(null);
   const navigate = useNavigate();
 
   const {
-  cart,
-  increaseQty,
-  decreaseQty,
-  removeItem,
-  isLoadingCart,
-  subtotal,
-  // deliveryCharge,
-  // tax,
-  // total,
-  // deliverySettings,
-  minimumOrderValue,
-} = useCart();
+    cart,
+    increaseQty,
+    decreaseQty,
+    removeItem,
+    isLoadingCart,
+    subtotal,
+    minimumOrderValue,
+  } = useCart();
 
-   useEffect(() => {
+  useEffect(() => {
     const fetchDeliverySettings = async () => {
-        try {
-            const settings =
-                await getDeliverySettings();
-
-            setDeliverySettings(settings);
-        } catch (error) {
-            console.error(
-                "Failed to fetch delivery settings:",
-                error
-            );
-        }
+      try {
+        const settings = await getDeliverySettings();
+        setDeliverySettings(settings);
+      } catch (error) {
+        console.error("Failed to fetch delivery settings:", error);
+      }
     };
-
     fetchDeliverySettings();
-}, []);
- 
+  }, []);
 
-    const deliveryCharge = useMemo(() => {
-  if (!deliverySettings) {
-    return 0;
-  }
+  const deliveryCharge = useMemo(() => {
+    if (!deliverySettings) return 0;
+    if (!deliverySettings.isDeliveryChargeEnabled) return 0;
+    if (subtotal >= deliverySettings.freeDeliveryThreshold) return 0;
+    return deliverySettings.deliveryCharge;
+  }, [subtotal, deliverySettings]);
 
-  if (!deliverySettings.isDeliveryChargeEnabled) {
-    return 0;
-  }
-
-  if (
-    subtotal >= deliverySettings.freeDeliveryThreshold
-  ) {
-    return 0;
-  }
-
-  return deliverySettings.deliveryCharge;
-}, [subtotal, deliverySettings]);
-
-const total = useMemo(() => {
-  return Number(subtotal || 0) + Number(deliveryCharge || 0);
-}, [subtotal, deliveryCharge]);
-
-  
+  const total = useMemo(() => {
+    return Number(subtotal || 0) + Number(deliveryCharge || 0);
+  }, [subtotal, deliveryCharge]);
 
   const handleTabChange = (tabId) => {
     setActiveTab(tabId);
-
     switch (tabId) {
       case "home":
         navigate("/home");
         break;
       case "cart":
         navigate("/cart");
-        break;
-      case "search":
-        // navigate("/search");
         break;
       case "products":
         navigate("/products");
@@ -94,8 +66,6 @@ const total = useMemo(() => {
     }
   };
 
-  
-
   const items = cart;
   const itemCount = useMemo(
     () => items.reduce((count, item) => count + item.qty, 0),
@@ -103,57 +73,76 @@ const total = useMemo(() => {
   );
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,#ffffff_0%,#f4f7f4_42%,#e9efe9_100%)] px-0 py-0 md:px-4 md:py-4 lg:px-6">
-      <div className="mx-auto flex min-h-screen w-full max-w-107.5 flex-col overflow-hidden bg-white shadow-[0_28px_80px_rgba(15,23,42,0.16)] md:min-h-[calc(100vh-2rem)] md:rounded-[36px] md:border md:border-white/60 lg:max-w-120">
-        <div className="shrink-0 border-b border-[#eef0eb] bg-white/95 px-4 pt-4 pb-3 backdrop-blur-sm">
+    <div className="min-h-screen bg-white px-0 py-0 md:px-4 md:py-4 lg:px-6">
+      <div className="mx-auto flex min-h-screen w-full max-w-107.5 flex-col overflow-hidden bg-white md:min-h-[calc(100vh-2rem)] md:rounded-[30px] md:border md:border-emerald-100 lg:max-w-120">
+        
+        {/* Header */}
+        <div className="shrink-0 bg-gradient-to-b from-emerald-100 via-emerald-50 to-white px-4 pt-4 pb-3">
           <div className="flex items-center justify-between gap-3">
             <button
               onClick={() => navigate("/home")}
-              className="grid h-11 w-11 place-items-center rounded-full bg-[#f3f4f6] text-gray-800 shadow-sm transition hover:scale-105 hover:bg-[#eceff1]"
+              className="grid h-11 w-11 place-items-center rounded-full border border-emerald-100 bg-white shadow-sm transition hover:scale-105 hover:bg-emerald-50"
               aria-label="Back"
             >
-              <FiArrowLeft className="text-lg" />
+              <FiArrowLeft className="text-lg text-emerald-600" />
             </button>
 
             <div className="text-center">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-gray-400">
-                Mobile App
+              <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-emerald-600">
+                Your Cart
               </p>
-              <h2 className="text-base font-semibold text-gray-900 sm:text-lg">
+              <h2 className="text-base font-bold text-gray-900 sm:text-lg">
                 My Cart
               </h2>
             </div>
 
             <button
               onClick={() => navigate("/products")}
-              className="grid h-11 w-11 place-items-center rounded-full bg-[#f3f4f6] text-gray-800 shadow-sm transition hover:scale-105 hover:bg-[#eceff1]"
+              className="grid h-11 w-11 place-items-center rounded-full border border-emerald-100 bg-white shadow-sm transition hover:scale-105 hover:bg-emerald-50"
               aria-label="Browse products"
             >
-              <FiShoppingBag className="text-lg" />
+              <FiShoppingBag className="text-lg text-emerald-600" />
             </button>
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-4 pb-[calc(7rem+env(safe-area-inset-bottom))] pt-2">
-          <div className="mb-4 rounded-[28px] bg-linear-to-br from-[#e8f1ef] to-[#f7f8f6] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]">
-            <div className="inline-flex rounded-full bg-white/70 px-4 py-2 text-sm font-semibold text-gray-800 shadow-sm backdrop-blur-sm">
-              {itemCount} item{itemCount === 1 ? "" : "s"} in cart
+        {/* Main Content */}
+        <div className="flex-1 overflow-y-auto px-4 pb-[calc(7rem+env(safe-area-inset-bottom))] pt-4">
+          
+          {/* Cart Summary */}
+          <div className="mb-4 rounded-2xl bg-gradient-to-r from-emerald-50 to-emerald-100/50 p-4 border border-emerald-100">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-white shadow-sm">
+                  <FiShoppingBag className="text-emerald-600" size={20} />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-gray-800">
+                    {itemCount} item{itemCount === 1 ? "" : "s"} in cart
+                  </p>
+                  <p className="text-xs text-gray-500">Ready to checkout</p>
+                </div>
+              </div>
+              <span className="text-sm font-bold text-emerald-600">
+                {formatPrice(total)}
+              </span>
             </div>
           </div>
 
+          {/* Cart Items */}
           <div className="space-y-3">
             {isLoadingCart ? (
               <div className="py-10 text-center text-gray-500">Loading cart...</div>
             ) : items.length === 0 ? (
-              <div className="rounded-[28px] border border-dashed border-[#d9ded8] bg-[#fafafa] py-12 text-center">
+              <div className="rounded-2xl border border-dashed border-emerald-200 bg-emerald-50/30 py-12 text-center">
                 <div className="mx-auto mb-4 grid h-16 w-16 place-items-center rounded-full bg-white shadow-sm">
-                  <FiShoppingBag className="text-2xl text-gray-400" />
+                  <FiShoppingBag className="text-2xl text-emerald-400" />
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900">Your cart is empty</h3>
                 <p className="mt-1 text-sm text-gray-500">Add products to see them here.</p>
                 <button
                   onClick={() => navigate("/products")}
-                  className="mt-5 rounded-full bg-[#111827] px-5 py-3 text-sm font-semibold text-white shadow-md transition hover:scale-[1.01]"
+                  className="mt-5 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-md shadow-emerald-200/50 transition hover:bg-emerald-700 hover:scale-[1.01]"
                 >
                   Browse Products
                 </button>
@@ -162,10 +151,11 @@ const total = useMemo(() => {
               items.map((item) => (
                 <div
                   key={item.id}
-                  className="group rounded-[28px] border border-[#eef0eb] bg-white p-3 shadow-[0_10px_28px_rgba(15,23,42,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_40px_rgba(15,23,42,0.1)]"
+                  className="group rounded-2xl border border-emerald-100/80 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md hover:shadow-emerald-100/50"
                 >
                   <div className="flex items-start gap-3">
-                    <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-3xl bg-linear-to-br from-[#f8faf8] to-[#eef4ee]">
+                    {/* Product Image */}
+                    <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-emerald-50 to-emerald-100/30">
                       <img
                         src={item.image || "https://via.placeholder.com/96"}
                         alt={item.name}
@@ -173,14 +163,17 @@ const total = useMemo(() => {
                       />
                     </div>
 
+                    {/* Product Details */}
                     <div className="min-w-0 flex-1">
-                      <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0">
                           <h4 className="truncate text-[15px] font-semibold leading-tight text-gray-900">
                             {item.name}
                           </h4>
-                          <p className="mt-1 text-sm text-gray-500">{item.weight}</p>
-                          <p className="mt-2 text-lg font-bold text-gray-900">
+                          {item.weight && (
+                            <p className="mt-0.5 text-xs text-gray-400">{item.weight}</p>
+                          )}
+                          <p className="mt-1.5 text-lg font-bold text-emerald-600">
                             {formatPrice(item.price)}
                           </p>
                         </div>
@@ -194,20 +187,21 @@ const total = useMemo(() => {
                         </button>
                       </div>
 
-                      <div className="mt-4 flex items-center justify-end gap-2">
+                      {/* Quantity Controls */}
+                      <div className="mt-3 flex items-center justify-end gap-2">
                         <button
                           onClick={() => decreaseQty(item.id)}
-                          className="grid h-9 w-9 place-items-center rounded-full bg-[#f3f4f6] text-gray-800 transition hover:bg-[#e9ecef]"
+                          className="grid h-8 w-8 place-items-center rounded-lg border border-emerald-200 bg-white text-emerald-600 transition hover:bg-emerald-50 hover:border-emerald-300"
                           aria-label={`Decrease quantity for ${item.name}`}
                         >
                           <FiMinus className="text-sm" />
                         </button>
-                        <span className="min-w-8 text-center text-sm font-semibold text-gray-900">
+                        <span className="min-w-8 text-center text-sm font-bold text-gray-900">
                           {String(item.qty).padStart(2, "0")}
                         </span>
                         <button
                           onClick={() => increaseQty(item.id)}
-                          className="grid h-9 w-9 place-items-center rounded-full bg-[#111827] text-white transition hover:scale-105"
+                          className="grid h-8 w-8 place-items-center rounded-lg bg-emerald-600 text-white transition hover:bg-emerald-700 hover:scale-105"
                           aria-label={`Increase quantity for ${item.name}`}
                         >
                           <FiPlus className="text-sm" />
@@ -220,79 +214,92 @@ const total = useMemo(() => {
             )}
           </div>
 
+          {/* Checkout Section */}
           {items.length > 0 && (
-            <div className="mt-4 space-y-4 pb-6">
-              <div className="rounded-[26px] border border-[#eef0eb] bg-[#fafafa] p-3 shadow-[0_8px_20px_rgba(15,23,42,0.04)]">
-                <div className="flex items-center gap-3 rounded-[20px] bg-white px-3 py-3 shadow-sm">
-                  <div className="grid h-10 w-10 place-items-center rounded-full bg-[#f3f4f6] text-gray-500">
-                    <FiShoppingBag className="text-base" />
-                  </div>
+            <div className="mt-6 space-y-4 pb-6">
+              {/* Promo Code */}
+              <div className="rounded-2xl border border-emerald-100/80 bg-white p-3 shadow-sm">
+                <div className="flex items-center gap-3 rounded-xl bg-emerald-50/50 px-3 py-2">
+                  <FiTag className="text-emerald-500" size={18} />
                   <input
                     type="text"
                     value={promoCode}
                     onChange={(event) => setPromoCode(event.target.value)}
-                    placeholder="Apply a promo code"
+                    placeholder="Apply promo code"
                     className="min-w-0 flex-1 bg-transparent text-sm text-gray-800 outline-none placeholder:text-gray-400"
                   />
-                  <button className="rounded-xl bg-[#31c205] px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:scale-[1.01]">
+                  <button className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 hover:scale-[1.01]">
                     Apply
                   </button>
                 </div>
               </div>
 
-              <div className="rounded-[28px] border border-[#eef0eb] bg-white p-4 shadow-[0_10px_28px_rgba(15,23,42,0.06)]">
-                <div className="space-y-3 text-sm">
-                  <div className="flex items-center justify-between text-gray-500">
-                    <span>Subtotal</span>
+              {/* Order Summary */}
+              <div className="rounded-2xl border border-emerald-100/80 bg-white p-4 shadow-sm">
+                <h3 className="text-sm font-bold text-gray-800 mb-3">Order Summary</h3>
+                <div className="space-y-2.5 text-sm">
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-500">Subtotal</span>
                     <span className="font-semibold text-gray-900">{formatPrice(subtotal)}</span>
                   </div>
-                  <div className="flex items-center justify-between text-gray-500">
-                    <span>Delivery</span>
+                  <div className="flex items-center justify-between border-t border-emerald-100/50 pt-2.5">
+                    <div className="flex items-center gap-2">
+                      <FiTruck className="text-emerald-500" size={16} />
+                      <span className="text-gray-500">Delivery</span>
+                    </div>
                     <span className="font-semibold text-gray-900">{formatPrice(deliveryCharge)}</span>
                   </div>
+                  
                   {deliverySettings &&
-  deliverySettings.isDeliveryChargeEnabled &&
-  subtotal < deliverySettings.freeDeliveryThreshold && (
-    <p className="mt-1 text-xs text-green-600">
-      Add{" "}
-      {formatPrice(
-        deliverySettings.freeDeliveryThreshold - subtotal
-      )}{" "}
-      more to get free delivery
-    </p>
-  )}
-                  <div className="border-t border-[#eef0eb] pt-3 flex items-center justify-between">
-                    <span className="text-base font-semibold text-gray-900">Total Cost</span>
-                    <span className="text-xl font-bold text-[#31c205]">{formatPrice(total)}</span>
+                    deliverySettings.isDeliveryChargeEnabled &&
+                    subtotal < deliverySettings.freeDeliveryThreshold && (
+                      <div className="flex items-center gap-2 rounded-lg bg-emerald-50 p-2">
+                        <FiClock className="text-emerald-500" size={14} />
+                        <p className="text-xs text-emerald-700">
+                          Add {formatPrice(deliverySettings.freeDeliveryThreshold - subtotal)} more to get free delivery
+                        </p>
+                      </div>
+                    )}
+
+                  <div className="border-t-2 border-emerald-100 pt-3 flex items-center justify-between">
+                    <span className="text-base font-bold text-gray-900">Total</span>
+                    <span className="text-xl font-bold text-emerald-600">{formatPrice(total)}</span>
                   </div>
                 </div>
               </div>
-              {deliverySettings &&
-  subtotal < minimumOrderValue && (
-    <div className="rounded-2xl bg-red-50 border border-red-200 p-3">
-      <p className="text-sm font-semibold text-red-600">
-        Minimum order value is {formatPrice(minimumOrderValue)}
-      </p>
 
-      <p className="mt-1 text-xs text-red-500">
-        Add {formatPrice(minimumOrderValue - subtotal)} more to place your order.
-      </p>
-    </div>
-)}
+              {/* Minimum Order Warning */}
+              {deliverySettings && subtotal < minimumOrderValue && (
+                <div className="rounded-2xl bg-red-50 border border-red-200 p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="p-1.5 rounded-lg bg-red-100">
+                      <FiShoppingBag className="text-red-500" size={16} />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-red-600">
+                        Minimum order value is {formatPrice(minimumOrderValue)}
+                      </p>
+                      <p className="mt-0.5 text-xs text-red-500">
+                        Add {formatPrice(minimumOrderValue - subtotal)} more to place your order.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
 
-             <button
-  onClick={() => navigate("/checkout")}
-  disabled={
-    subtotal < minimumOrderValue
-  }
-  className={`flex w-full items-center justify-center gap-3 rounded-3xl py-4 text-base font-semibold text-white transition ${
-    subtotal < minimumOrderValue
-      ? "cursor-not-allowed bg-gray-300"
-      : "bg-[#31c205] hover:scale-[1.01]"
-  }`}
->
-  Checkout Now
-</button>
+              {/* Checkout Button */}
+              <button
+                onClick={() => navigate("/checkout")}
+                disabled={subtotal < minimumOrderValue}
+                className={`flex w-full items-center justify-center gap-3 rounded-2xl py-4 text-base font-bold text-white transition ${
+                  subtotal < minimumOrderValue
+                    ? "cursor-not-allowed bg-gray-300"
+                    : "bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 hover:scale-[1.01] shadow-lg shadow-emerald-200/50"
+                }`}
+              >
+                <FiShoppingBag className="text-lg" />
+                Checkout Now
+              </button>
             </div>
           )}
         </div>

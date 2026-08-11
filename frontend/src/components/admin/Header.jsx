@@ -13,11 +13,15 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAdminProfile } from "../../Context/AdminProfileContext";
+import { useAdminNotification } from "../../Context/AdminNotificationContext";
 
 const Header = ({ setSidebarOpen }) => {
   const [profileOpen, setProfileOpen] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
   const { adminProfile } = useAdminProfile();
+  const {
+  unreadCount,
+} = useAdminNotification();
   const dropdownRef = useRef(null);
   const location = useLocation();
   const navigate = useNavigate();
@@ -135,9 +139,11 @@ const Header = ({ setSidebarOpen }) => {
             aria-label="Notifications"
           >
             <FiBell size={18} className="text-slate-600 sm:text-xl" />
-            <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-sm shadow-red-200/50 sm:h-5 sm:w-5 sm:text-xs">
-              0
-            </span>
+         {unreadCount > 0 && (
+  <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white shadow-sm shadow-red-200/50 sm:h-5 sm:min-w-5 sm:text-xs">
+    {unreadCount > 99 ? "99+" : unreadCount}
+  </span>
+)}
           </motion.button>
 
           {/* Profile Dropdown Container - overflow-visible and high z-index */}
