@@ -64,11 +64,15 @@ const Profile = () => {
         const response = await fetchProfile();
         const user = response.data.user;
 
-        setProfile({
-          fullName: user.fullName || "",
-          email: user.email || "",
-          phone: user.mobile || "",
-        });
+       setProfile({
+  fullName: user.fullName || "",
+  email: user.email || "",
+  phone: user.mobile || "",
+  address: user.address || "",
+  landmark: user.landmark || "",
+  city: user.city || "",
+  pincode: user.pincode || "",
+});
       } catch (err) {
         toast.error("Failed to load profile");
       } finally {
@@ -84,33 +88,58 @@ const Profile = () => {
     setProfile((previous) => ({ ...previous, [name]: value }));
   };
 
-  const handleSaveProfile = async () => {
-    if (!profile.phone || !profile.address) {
-      toast.error("Please fill in phone and address.");
-      return;
+const handleSaveProfile = async () => {
+  setIsSaving(true);
+
+  try {
+    const payload = {
+      fullName: profile.fullName.trim(),
+      email: profile.email.trim(),
+      phone: profile.phone.trim(),
+
+      address: defaultAddress?.address || "",
+      city: defaultAddress?.city || "",
+      pincode: defaultAddress?.pincode || "",
+    };
+
+    console.log("PROFILE PAYLOAD:", payload);
+
+    const response = await updateProfile(payload);
+
+    console.log("PROFILE RESPONSE:", response);
+
+    const user = response?.data?.user;
+
+    if (!user) {
+      throw new Error("Updated user data not received");
     }
 
-    setIsSaving(true);
+    setProfile((prev) => ({
+      ...prev,
+      fullName: user.fullName || "",
+      email: user.email || "",
+      phone: user.mobile || "",
+      address: user.address || "",
+      city: user.city || "",
+      pincode: user.pincode || "",
+    }));
 
-    try {
-      const response = await updateProfile(profile);
-      const user = response.data.user || {};
+    localStorage.setItem("authUser", JSON.stringify(user));
 
-      setProfile((prev) => ({
-        ...prev,
-        fullName: user.fullName || prev.fullName,
-        email: user.email || prev.email,
-        phone: user.mobile || prev.phone,
-      }));
-      
-      localStorage.setItem("authUser", JSON.stringify(user));
-      toast.success(response?.message || "Profile saved successfully");
-    } catch (error) {
-      toast.error(error?.response?.data?.message || "Failed to save profile");
-    } finally {
-      setIsSaving(false);
-    }
-  };
+    toast.success("Profile saved successfully");
+  } catch (error) {
+    console.error("PROFILE SAVE ERROR:", error);
+    console.error("SERVER:", error?.response?.data);
+
+    toast.error(
+      error?.response?.data?.message ||
+        error?.message ||
+        "Failed to save profile"
+    );
+  } finally {
+    setIsSaving(false);
+  }
+};
 
   return (
     <div className="min-h-screen bg-white px-0 py-0 md:px-4 md:py-4 lg:px-6">

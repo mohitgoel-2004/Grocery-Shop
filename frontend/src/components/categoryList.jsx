@@ -1,8 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { fetchCategories } from "../services/api";
 
 const CategoryList = () => {
   const [categories, setCategories] = useState([]);
+  const scrollContainerRef = useRef(null);
+  const [showLeftGradient, setShowLeftGradient] = useState(false);
+  const [showRightGradient, setShowRightGradient] = useState(true);
 
   useEffect(() => {
     const loadCategories = async () => {
@@ -18,70 +21,97 @@ const CategoryList = () => {
     loadCategories();
   }, []);
 
+  // Check scroll position for gradient visibility
+  const handleScroll = () => {
+    if (scrollContainerRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } =
+        scrollContainerRef.current;
+
+      setShowLeftGradient(scrollLeft > 20);
+      setShowRightGradient(
+        scrollLeft < scrollWidth - clientWidth - 20
+      );
+    }
+  };
+
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+
+    if (container) {
+      container.addEventListener("scroll", handleScroll);
+
+      // Initial check
+      handleScroll();
+
+      return () =>
+        container.removeEventListener("scroll", handleScroll);
+    }
+  }, [categories]);
+
   return (
-    <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
-      {categories.map((cat) => (
-        <div
-          key={cat._id}
-          className="group cursor-pointer rounded-[22px] bg-[#f4f5f7] p-2.5 transition-all duration-200 active:scale-[0.98] hover:shadow-md"
-        >
-          {/* ==============================
-              IMAGE GRID
-          ============================== */}
-          <div className="grid grid-cols-2 gap-1.5">
-            {[0, 1, 2, 3].map((index) => {
-              /*
-               * Agar category ke paas multiple images hain
-               * to unhe use karega.
-               * Otherwise same category image repeat hogi.
-               */
-              const image =
-                cat.images?.[index] ||
-                cat.image;
+    <div className="relative">
+      {/* Left Gradient Fade */}
+      {showLeftGradient && (
+        <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-12 bg-gradient-to-r from-white to-transparent" />
+      )}
 
-              return (
-                <div
-                  key={index}
-                  className="aspect-square overflow-hidden rounded-[15px] bg-white"
-                >
-                  {image ? (
-                    <img
-                      src={image}
-                      alt={cat.name}
-                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                      onError={(e) => {
-                        e.currentTarget.onerror = null;
-                        e.currentTarget.src =
-                          "https://placehold.co/100x100/png?text=No+Image";
-                      }}
-                    />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-emerald-50 text-2xl">
-                      {cat.icon || "🛒"}
-                    </div>
-                  )}
+      {/* Right Gradient Fade */}
+      {showRightGradient && (
+        <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-12 bg-gradient-to-l from-white to-transparent" />
+      )}
+
+      {/* Scrollable Container */}
+      <div
+        ref={scrollContainerRef}
+        className="scrollbar-hide flex gap-5 overflow-x-auto scroll-smooth px-2 py-3 sm:gap-7"
+        style={{
+          scrollbarWidth: "none",
+          msOverflowStyle: "none",
+        }}
+      >
+        {categories.map((cat) => (
+          <div
+            key={cat._id}
+            className="group flex w-[72px] min-w-[72px] flex-shrink-0 cursor-pointer flex-col items-center sm:w-[82px] sm:min-w-[82px]"
+          >
+            {/* ==============================
+                FULL ROUNDED CATEGORY IMAGE
+            ============================== */}
+            <div className="h-[62px] w-[62px] overflow-hidden rounded-full bg-gray-100 transition-all duration-200 group-hover:shadow-md sm:h-[70px] sm:w-[70px]">
+              {cat.image || cat.images?.[0] ? (
+                <img
+                  src={cat.image || cat.images?.[0]}
+                  alt={cat.name}
+                  className="h-full w-full rounded-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  onError={(e) => {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src =
+                      "https://placehold.co/150x150/png?text=No+Image";
+                  }}
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center rounded-full bg-emerald-50 text-2xl">
+                  {cat.icon || "🛒"}
                 </div>
-              );
-            })}
-          </div>
-
-          {/* ==============================
-              PRODUCT COUNT
-          ============================== */}
-          {cat.productCount > 0 && (
-            <div className="relative z-10 mx-auto -mt-1.5 w-fit rounded-full bg-white px-2.5 py-0.5 text-[10px] font-medium text-gray-500 shadow-sm">
-              +{cat.productCount} more
+              )}
             </div>
-          )}
 
-          {/* ==============================
-              CATEGORY NAME
-          ============================== */}
-          <p className="mt-2 line-clamp-2 min-h-[34px] text-center text-[14px] font-semibold leading-[17px] text-gray-800">
-            {cat.name}
-          </p>
-        </div>
-      ))}
+            {/* ==============================
+                CATEGORY NAME
+            ============================== */}
+            <p className="mt-2 line-clamp-2 w-full text-center text-[11px] font-medium leading-[14px] text-gray-700 sm:text-[12px] sm:leading-[15px]">
+              {cat.name} 
+            </p>
+          </div>
+        ))}
+      </div>
+
+      {/* Custom CSS for hiding scrollbar */}
+      <style jsx>{`
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
     </div>
   );
 };

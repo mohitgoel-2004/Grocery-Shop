@@ -31,6 +31,10 @@ exports.getAddresses = async (req, res) => {
 // ============================
 exports.createAddress = async (req, res) => {
   try {
+    console.log("========== CREATE ADDRESS ==========");
+    console.log("REQ BODY:", req.body);
+    console.log("USER ID:", req.user._id);
+
     const {
       fullName,
       phone,
@@ -42,7 +46,11 @@ exports.createAddress = async (req, res) => {
       type,
     } = req.body;
 
-    // First address -> default
+    console.log("ADDRESS:", address);
+    console.log("CITY:", city);
+    console.log("STATE:", state);
+    console.log("PINCODE:", pincode);
+
     const count = await Address.countDocuments({
       user: req.user._id,
     });
@@ -60,12 +68,16 @@ exports.createAddress = async (req, res) => {
       isDefault: count === 0,
     });
 
+    console.log("SAVED ADDRESS:", newAddress);
+
     res.status(201).json({
       success: true,
       message: "Address added successfully",
       address: newAddress,
     });
   } catch (error) {
+    console.error("CREATE ADDRESS ERROR:", error);
+
     res.status(500).json({
       success: false,
       message: error.message,

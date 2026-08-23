@@ -58,18 +58,19 @@ api.interceptors.request.use(
     // =====================================================
 
     else {
-      token =
-        localStorage.getItem("customerToken") ||
-        localStorage.getItem("token");
-    }
+  token =
+    localStorage.getItem("customerToken") ||
+    sessionStorage.getItem("customerToken") ||
+    localStorage.getItem("token") ||
+    sessionStorage.getItem("token");
+}
 
-    console.log("REQUEST URL:", config.url);
-    console.log("TOKEN:", token);
+console.log("REQUEST URL:", config.url);
+console.log("CUSTOMER TOKEN:", token);
 
-    console.log(
-      "AUTH HEADER:",
-      token ? `Bearer ${token}` : "NO TOKEN"
-    );
+if (token) {
+  config.headers.Authorization = `Bearer ${token}`;
+}
 
     // =====================================================
     // 4. Attach token
