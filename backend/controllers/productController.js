@@ -314,7 +314,9 @@ const bulkImportProducts = asyncHandler(async (req, res) => {
       type: "buffer",
     });
 
-    const sheetName = workbook.SheetNames[0];
+   const sheetName = workbook.SheetNames.includes("Products_Import")
+  ? "Products_Import"
+  : workbook.SheetNames[0];
 
     if (!sheetName) {
       throw new ApiError(
@@ -382,6 +384,58 @@ const bulkImportProducts = asyncHandler(async (req, res) => {
         "y",
       ].includes(normalized);
     };
+ 
+     const parseImages = (value) => {
+      if (
+        value === "" ||
+        value === null ||
+        value === undefined
+      ) {
+        return [];
+      }
+
+      if (Array.isArray(value)) {
+        return value
+          .map((image) => String(image).trim())
+          .filter(Boolean);
+      }
+
+      const text = String(value).trim();
+
+      if (!text) {
+        return [];
+      }
+
+
+      // JSON array:
+      // ["/images/products/1.jpg"]
+      if (
+        text.startsWith("[") &&
+        text.endsWith("]")
+      ) {
+        try {
+          const parsed = JSON.parse(text);
+
+          if (Array.isArray(parsed)) {
+            return parsed
+              .map((image) => String(image).trim())
+              .filter(Boolean);
+          }
+        } catch (error) {
+          console.warn(
+            "Invalid image JSON:",
+            text
+          );
+        }
+      }
+
+      // Comma separated:
+      // image1.jpg,image2.jpg
+      return text
+        .split(",")
+        .map((image) => image.trim())
+        .filter(Boolean);
+    };
 
     const allowedUnits = [
       "kg",
@@ -423,31 +477,32 @@ const bulkImportProducts = asyncHandler(async (req, res) => {
     // Get existing SKU + slug
     // ------------------------------------------
 
-    const existingProducts = await Product.find({})
-      .select("sku slug")
+   const existingProducts = await Product.find({})
+      .select("_id sku slug name")
       .lean();
 
-    const existingSkus = new Set();
-    const existingSlugs = new Set();
+    const existingSkus = new Map();
+    const existingSlugs = new Map();
 
     existingProducts.forEach((product) => {
       if (product.sku) {
-        existingSkus.add(
+        existingSkus.set(
           String(product.sku)
             .trim()
-            .toLowerCase()
+            .toLowerCase(),
+          product
         );
       }
 
       if (product.slug) {
-        existingSlugs.add(
+        existingSlugs.set(
           String(product.slug)
             .trim()
-            .toLowerCase()
+            .toLowerCase(),
+          product
         );
       }
     });
-
     // ------------------------------------------
     // Import tracking
     // ------------------------------------------
@@ -458,18 +513,22 @@ const bulkImportProducts = asyncHandler(async (req, res) => {
     const importedSkus = new Set();
     const importedSlugs = new Set();
 
+    const productsToUpdate = [];
+    const productsToCreate = [];
     // ------------------------------------------
     // Process every Excel / CSV row
     // ------------------------------------------
 
-    for (let index = 0; index < rows.length; index++) {
+   for (let index = 0; index < rows.length; index++) {
       const row = rows[index];
 
       // Excel header = row 1
       // First product = row 2
       const rowNumber = index + 2;
 
-      const name = String(row.name || "").trim();
+      const name = String(
+        row.name || ""
+      ).trim();
 
       const categoryName = String(
         row.category || ""
@@ -486,6 +545,7 @@ const bulkImportProducts = asyncHandler(async (req, res) => {
       const sku = String(
         row.sku || ""
       ).trim();
+
 
       // ----------------------------------------
       // Name validation
@@ -505,7 +565,7 @@ const bulkImportProducts = asyncHandler(async (req, res) => {
       // Category validation
       // ----------------------------------------
 
-      if (!categoryName) {
+     if (!categoryName) {
         errors.push({
           row: rowNumber,
           field: "category",
@@ -515,24 +575,36 @@ const bulkImportProducts = asyncHandler(async (req, res) => {
         continue;
       }
 
-    let categoryId = categoryMap.get(
-  categoryName.toLowerCase()
-);
+      // ----------------------------------------
+      // Find/Create Category
+      // ----------------------------------------
 
-if (!categoryId) {
-  const newCategory = await Category.create({
-    name: categoryName,
-    slug: slugify(categoryName),
-    status: "active",
-  });
+      const normalizedCategoryName =
+        categoryName
+          .trim()
+          .toLowerCase();
 
-  categoryId = newCategory._id;
+      let categoryId =
+        categoryMap.get(
+          normalizedCategoryName
+        );
 
-  categoryMap.set(
-    categoryName.toLowerCase(),
-    categoryId
-  );
-}
+      if (!categoryId) {
+        const newCategory =
+          await Category.create({
+            name: categoryName,
+            slug: slugify(categoryName),
+            isActive: true,
+          });
+
+        categoryId =
+          newCategory._id;
+
+        categoryMap.set(
+          normalizedCategoryName,
+          categoryId
+        );
+      }
       // ----------------------------------------
       // Price
       // ----------------------------------------
@@ -789,19 +861,15 @@ if (!categoryId) {
       // Images
       // ----------------------------------------
 
-      let images = [];
-
-      if (row.images) {
-        images = String(row.images)
-          .split(",")
-          .map((image) => image.trim())
-          .filter(Boolean);
-      }
+     const images =
+        parseImages(
+          row.images
+        );
 
       const image = String(
         row.image ||
-        images[0] ||
-        ""
+          images[0] ||
+          ""
       ).trim();
 
       // ----------------------------------------
@@ -944,15 +1012,30 @@ if (!categoryId) {
   }
 });
 const createCategory = asyncHandler(async (req, res) => {
-  const { name, icon, image, description, status } = req.body;
-
-  const category = await Category.create({
+  const {
     name,
-    slug: slugify(name),
     icon,
     image,
-    description,
-    status,
+    sortOrder,
+    isActive,
+  } = req.body;
+
+  if (!name) {
+    throw new ApiError(
+      400,
+      "Category name is required"
+    );
+  }
+
+  const category = await Category.create({
+    name: name.trim(),
+    slug: slugify(name),
+    icon: icon || "",
+    image: image || "",
+    sortOrder:
+      Number(sortOrder) || 0,
+    isActive:
+      isActive !== false,
   });
 
   res.status(201).json(
