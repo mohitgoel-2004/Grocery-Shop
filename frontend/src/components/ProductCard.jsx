@@ -26,10 +26,11 @@ const ProductCard = ({ product }) => {
   // ============================
   // PRODUCT IMAGE
   // ============================
-  const image =
-    product.image ||
-    product.img ||
-    "https://via.placeholder.com/150";
+ const image =
+  product?.image ||
+  product?.images?.[0] ||
+  product?.img ||
+  "";
 
   // ============================
   // PRICE

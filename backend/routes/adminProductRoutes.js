@@ -8,6 +8,8 @@ const {
   deleteProduct,
   toggleProductStatus,
   bulkImportProducts,
+  // bulkUpdateProducts,
+  autoFetchProductImages,
 } = require("../controllers/productController");
 
 const bulkImportUpload = require("../middleware/bulkImportUpload");
@@ -22,6 +24,12 @@ router.post(
   "/bulk-import",
   bulkImportUpload.single("file"),
   bulkImportProducts
+);
+
+// Auto Fetch Images
+router.post(
+  "/auto-fetch-images",
+  autoFetchProductImages
 );
 
 // Single

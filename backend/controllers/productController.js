@@ -4,6 +4,7 @@ const ApiError = require("../utils/apiError");
 const Product = require("../models/Product");
 const Category = require("../models/Category");
 const XLSX = require("xlsx");
+const { startProductImageJob } = require("../services/productImageService");
 
 const {
   getProducts,
@@ -940,6 +941,15 @@ const bulkImportProducts = asyncHandler(async (req, res) => {
         productData.sku = sku;
       }
 
+      // Barcode / EAN / UPC normalization: support multiple header names
+      const barcodeRaw = (
+        row.barcode || row.ean || row.EAN || row.upc || row.UPC || ""
+      ).toString().trim();
+
+      if (barcodeRaw) {
+        productData.barcode = barcodeRaw;
+      }
+
       validProducts.push(productData);
 
       if (normalizedSku) {
@@ -972,13 +982,19 @@ const bulkImportProducts = asyncHandler(async (req, res) => {
     // Insert valid products
     // ------------------------------------------
 
-    const insertedProducts =
-      await Product.insertMany(
-        validProducts,
-        {
-          ordered: false,
-        }
-      );
+    const insertedProducts = await Product.insertMany(validProducts, {
+      ordered: false,
+    });
+
+    // Start image processing in background. Do NOT await.
+    try {
+      console.log("[ImageJob] Triggered after Excel import");
+      startProductImageJob().catch((err) => {
+        console.error("[ImageJob] Background job error:", err);
+      });
+    } catch (err) {
+      console.error("[ImageJob] Failed to start background job:", err);
+    }
 
     // ------------------------------------------
     // Response
@@ -988,16 +1004,12 @@ const bulkImportProducts = asyncHandler(async (req, res) => {
       ApiResponse.success(
         {
           totalRows: rows.length,
-
           validRows: validProducts.length,
-
           insertedRows: insertedProducts.length,
-
           invalidRows: errors.length,
-
           errors,
-
           products: insertedProducts,
+          imageJobStarted: true,
         },
         "Products imported successfully"
       )
@@ -1011,6 +1023,189 @@ const bulkImportProducts = asyncHandler(async (req, res) => {
     throw error;
   }
 });
+// ======================================================
+// ADMIN - AUTO FETCH PRODUCT IMAGES
+// ======================================================
+
+
+
+// const autoFetchProductImages = asyncHandler(async (req, res) => {
+//   try {
+//     // Only products which don't have an image
+//     const products = await Product.find({
+//       $or: [
+//         { image: "" },
+//         { image: { $exists: false } },
+//         { images: { $size: 0 } },
+//       ],
+//     })
+//       .select("_id name brand image images")
+//       .lean();
+
+//     if (!products.length) {
+//       return res.status(200).json(
+//         ApiResponse.success(
+//           {
+//             total: 0,
+//             updated: 0,
+//             notFound: 0,
+//           },
+//           "All products already have images"
+//         )
+//       );
+//     }
+
+//     let updated = 0;
+//     let notFound = 0;
+
+//     const results = [];
+
+//     // Process one-by-one so external API is not overloaded
+//     for (const product of products) {
+//       try {
+//         const searchText = [product.brand, product.name]
+//           .filter(Boolean)
+//           .join(" ")
+//           .trim();
+
+//         if (!searchText) {
+//           notFound++;
+
+//           results.push({
+//             productId: product._id,
+//             name: product.name,
+//             status: "not-found",
+//           });
+
+//           continue;
+//         }
+
+//         const url =
+//           "https://world.openfoodfacts.org/cgi/search.pl" +
+//           `?search_terms=${encodeURIComponent(searchText)}` +
+//           "&search_simple=1" +
+//           "&action=process" +
+//           "&json=1" +
+//           "&page_size=1" +
+//           "&fields=product_name,brands,image_front_url";
+
+//         const response = await fetch(url, {
+//           headers: {
+//             "User-Agent":
+//               "GroceryHub/1.0 (grocery application)",
+//           },
+//         });
+
+//         if (!response.ok) {
+//           notFound++;
+
+//           results.push({
+//             productId: product._id,
+//             name: product.name,
+//             status: "api-error",
+//           });
+
+//           continue;
+//         }
+
+//         const data = await response.json();
+
+//         const foundProduct = data?.products?.[0];
+
+//         const imageUrl =
+//           foundProduct?.image_front_url || "";
+
+//         if (!imageUrl) {
+//           notFound++;
+
+//           results.push({
+//             productId: product._id,
+//             name: product.name,
+//             status: "image-not-found",
+//           });
+
+//           continue;
+//         }
+
+//         // IMPORTANT:
+//         // Only image fields are updated.
+//         // Other product data remains untouched.
+
+//         await Product.findByIdAndUpdate(
+//           product._id,
+//           {
+//             $set: {
+//               image: imageUrl,
+//               images: [imageUrl],
+//             },
+//           },
+//           {
+//             new: false,
+//           }
+//         );
+
+//         updated++;
+
+//         results.push({
+//           productId: product._id,
+//           name: product.name,
+//           image: imageUrl,
+//           status: "updated",
+//         });
+
+//         // Small delay between requests
+//         await new Promise((resolve) =>
+//           setTimeout(resolve, 300)
+//         );
+//       } catch (error) {
+//         console.error(
+//           `Image fetch failed for ${product.name}:`,
+//           error.message
+//         );
+
+//         notFound++;
+
+//         results.push({
+//           productId: product._id,
+//           name: product.name,
+//           status: "failed",
+//         });
+//       }
+//     }
+
+//     return res.status(200).json(
+//       ApiResponse.success(
+//         {
+//           total: products.length,
+//           updated,
+//           notFound,
+//           results,
+//         },
+//         "Product image fetching completed"
+//       )
+//     );
+//   } catch (error) {
+//     console.error(
+//       "AUTO FETCH PRODUCT IMAGES ERROR:",
+//       error
+//     );
+
+//     throw error;
+//   }
+// });
+
+const autoFetchProductImages = asyncHandler(
+  async (req, res) => {
+    const result = await startProductImageJob();
+
+    return res.status(200).json(
+      ApiResponse.success(
+        result,
+        "Product image fetching job completed"
+      )
+    );
+  }
+);
 const createCategory = asyncHandler(async (req, res) => {
   const {
     name,
@@ -1091,8 +1286,9 @@ const deleteCategory = asyncHandler(async (req, res) => {
 module.exports = {
   listProducts,
   fetchProductById,
+  getProducts,
   listCategories,
-
+  getCategories,
   createCategory,
   updateCategory,
   deleteCategory,
@@ -1105,4 +1301,6 @@ module.exports = {
   getAdminProductById,
 
   bulkImportProducts,
+  // bulkUpdateProducts,
+  autoFetchProductImages,
 };

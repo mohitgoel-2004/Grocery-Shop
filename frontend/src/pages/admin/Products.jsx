@@ -20,36 +20,98 @@ import {
 } from '../../components/admin/Product';
 
 import { useProducts } from '../../Context/ProductContext';
-import {bulkImportProducts} from "../../services/AdminProductService";
+import {
+  bulkImportProducts,
+   autoFetchProductImages as fetchProductImagesFromApi,
+} from "../../services/AdminProductService";
 
 // ============================================================
 // 1. ProductsPage – lists all products with search, filter, pagination
 // ============================================================
 export const ProductsPage = () => {
   const {
-    products,
-      allProducts,
+   products,
+  allProducts,
+  totalProducts,
+  loading,
+  searchTerm,
+  setSearchTerm,
+  filterCategory,
+  setFilterCategory,
+  filterStatus,
+  setFilterStatus,
+  currentPage,
+  setCurrentPage,
+  totalPages,
+  deleteProduct,
+  toggleProductStatus,
+  resetFilters,
+  refreshProducts,
 
-     totalProducts,
-    loading,
-    searchTerm,
-    setSearchTerm,
-    filterCategory,
-    setFilterCategory,
-    filterStatus,
-    setFilterStatus,
-    currentPage,
-    setCurrentPage,
-    totalPages,
-    deleteProduct,
-    toggleProductStatus,
-    resetFilters,
   } = useProducts();
 
   const [viewMode, setViewMode] = useState('grid');
   const [deleteProductId, setDeleteProductId] = useState(null);
   const [importing, setImporting] = useState(false);
 const fileInputRef = useRef(null);
+
+const [fetchingImages, setFetchingImages] = useState(false);
+
+const handleAutoFetchImages = async () => {
+  try {
+    setFetchingImages(true);
+
+    console.log("🚀 Starting auto image fetch job...");
+
+  const response = await fetchProductImagesFromApi();
+
+    console.log(
+      "✅ Auto Image Job Response:",
+      response
+    );
+
+    const result =
+      response?.data ||
+      response ||
+      {};
+
+    const processed = result?.processed ?? 0;
+    const updated = result?.updated ?? 0;
+    const notFound = result?.notFound ?? 0;
+    const failed = result?.failed ?? 0;
+
+    // IMPORTANT:
+    // Backend job is awaited, so by this point
+    // MongoDB updates are already completed.
+
+    console.log("🔄 Refreshing products from database...");
+
+    await refreshProducts();
+
+    console.log("✅ Products refreshed with new images");
+
+    alert(
+      `Image fetching completed!\n\n` +
+      `Processed: ${processed}\n` +
+      `Updated: ${updated}\n` +
+      `Not Found: ${notFound}\n` +
+      `Failed: ${failed}`
+    );
+  } catch (error) {
+    console.error(
+      "❌ AUTO FETCH IMAGES ERROR:",
+      error
+    );
+
+    alert(
+      error?.response?.data?.message ||
+        error?.message ||
+        "Failed to fetch product images"
+    );
+  } finally {
+    setFetchingImages(false);
+  }
+};
 
 const handleBulkImport = async (e) => {
   const file = e.target.files?.[0];
@@ -155,6 +217,26 @@ const handleBulkImport = async (e) => {
       {importing ? "Importing..." : "Import Products"}
     </button>
   </div>
+
+   {/* Auto Fetch Product Images */}
+  <button
+    type="button"
+    onClick={handleAutoFetchImages}
+    disabled={fetchingImages}
+    className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+  >
+    {fetchingImages ? (
+      <>
+        <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+        Fetching Images...
+      </>
+    ) : (
+      <>
+        <span>🖼️</span>
+        Auto Fetch Images
+      </>
+    )}
+  </button>
            <div className="hidden items-center gap-1 md:flex">
   {/* Grid View */}
   <button

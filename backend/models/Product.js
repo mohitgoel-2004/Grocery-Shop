@@ -37,6 +37,14 @@ const productSchema = new mongoose.Schema(
       trim: true,
     },
 
+    // Optional barcode / EAN / UPC
+    barcode: {
+      type: String,
+      default: "",
+      trim: true,
+      index: true,
+    },
+
     // Pricing
     price: {
       type: Number,

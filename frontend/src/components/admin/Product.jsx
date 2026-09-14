@@ -104,6 +104,14 @@ export const ProductSkeleton = ({ count = 8 }) => {
   );
 };
 
+export const autoFetchProductImages = async () => {
+  const response = await api.post(
+    "/admin/products/auto-fetch-images"
+  );
+
+  return response.data;
+};
+
 // ---------- ProductSearch ----------
 export const ProductSearch = ({ searchTerm, setSearchTerm }) => {
   return (
@@ -664,36 +672,50 @@ export const ProductCard = ({
   onDelete,
   onToggleStatus,
 }) => {
+  // Support both image and images fields
+  const productImage =
+    product?.image ||
+    product?.images?.[0] ||
+    "";
+
   return (
     <motion.div
       whileHover={{ y: -2 }}
       transition={{ duration: 0.2 }}
       className="relative w-full max-w-85 rounded-2xl border border-gray-100 bg-white p-3 shadow-sm transition-all hover:shadow-md"
     >
-      {/* Discount Badge – छोटा */}
+      {/* Discount Badge */}
       {product.discount > 0 && (
         <div className="absolute left-2 top-2 z-10 bg-red-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full">
           {product.discount}% OFF
         </div>
       )}
 
-      {/* Status – छोटा */}
+      {/* Status */}
       <div className="absolute top-2 right-2">
         <ProductStatusBadge status={product.status} />
       </div>
 
       {/* Horizontal Layout */}
       <div className="flex flex-row gap-2.5">
-        {/* Image – अब सिर्फ w-16 h-16 */}
+
+        {/* Image */}
         <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gray-50">
-          {product.images?.length > 0 ? (
+          {productImage ? (
             <img
-              src={product.images[0]}
+              src={productImage}
               alt={product.name}
               className="w-full h-full object-contain p-1"
+              loading="lazy"
+              onError={(e) => {
+                e.currentTarget.style.display = "none";
+              }}
             />
           ) : (
-            <FiImage className="text-gray-300" size={24} />
+            <FiImage
+              className="text-gray-300"
+              size={24}
+            />
           )}
         </div>
 
@@ -703,20 +725,30 @@ export const ProductCard = ({
             <h3 className="font-bold text-gray-900 text-xs sm:text-sm truncate leading-tight">
               {product.name}
             </h3>
+
             <p className="text-gray-500 text-[10px] leading-tight">
-              {product.brand?.name || product.brand || "FreshFarm"}
+              {product.brand?.name ||
+                product.brand ||
+                "FreshFarm"}
             </p>
 
-            {/* Price & Discount – छोटा */}
+            {/* Price */}
             <div className="flex items-center gap-1 mt-0.5 flex-wrap">
               <span className="text-emerald-600 font-bold text-sm">
                 ₹{product.price}
               </span>
+
               {product.discount > 0 && (
                 <>
                   <span className="text-gray-400 line-through text-[9px]">
-                    ₹{Math.round(product.price / (1 - product.discount / 100))}
+                    ₹
+                    {Math.round(
+                      product.price /
+                        (1 -
+                          product.discount / 100)
+                    )}
                   </span>
+
                   <span className="bg-emerald-100 text-emerald-700 text-[8px] px-1 rounded-full font-semibold">
                     {product.discount}% off
                   </span>
@@ -724,14 +756,14 @@ export const ProductCard = ({
               )}
             </div>
 
-            {/* Stock – छोटा */}
+            {/* Stock */}
             <div className="mt-0.5 inline-flex items-center gap-0.5 bg-gray-100 rounded-full px-1.5 py-0.5 text-[8px] text-gray-700">
               <FiBox size={10} />
               {product.stock} in stock
             </div>
           </div>
 
-          {/* Actions – आइकॉन और भी छोटे */}
+          {/* Actions */}
           <div className="flex justify-end gap-1 mt-1.5">
             <button
               onClick={() => onEdit(product)}
@@ -740,22 +772,42 @@ export const ProductCard = ({
             >
               <FiEdit2 size={11} />
             </button>
+
             <button
-              onClick={() => onDelete(product._id || product.id)}
+              onClick={() =>
+                onDelete(
+                  product._id || product.id
+                )
+              }
               className="w-6 h-6 rounded-lg bg-red-50 hover:bg-red-100 text-red-500 flex items-center justify-center transition"
               aria-label="Delete"
             >
               <FiTrash2 size={11} />
             </button>
+
             <button
-              onClick={() => onToggleStatus(product._id || product.id)}
+              onClick={() =>
+                onToggleStatus(
+                  product._id || product.id
+                )
+              }
               className="w-6 h-6 flex items-center justify-center"
-              aria-label={product.status === "active" ? "Deactivate" : "Activate"}
+              aria-label={
+                product.status === "active"
+                  ? "Deactivate"
+                  : "Activate"
+              }
             >
               {product.status === "active" ? (
-                <FiToggleRight size={20} className="text-emerald-500" />
+                <FiToggleRight
+                  size={20}
+                  className="text-emerald-500"
+                />
               ) : (
-                <FiToggleLeft size={20} className="text-gray-300" />
+                <FiToggleLeft
+                  size={20}
+                  className="text-gray-300"
+                />
               )}
             </button>
           </div>

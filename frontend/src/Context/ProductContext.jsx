@@ -1,4 +1,3 @@
-
 import React, {
   createContext,
   useContext,
@@ -41,12 +40,10 @@ export const ProductProvider = ({ children }) => {
         category: filterCategory,
         status: filterStatus,
       });
-console.log("🔥 ADMIN PRODUCTS RESPONSE:", response);
-console.log("🔥 RESPONSE DATA:", response?.data);
-      // Supports:
-      // response.data.data
-      // response.data
-      // response
+
+      console.log("🔥 ADMIN PRODUCTS RESPONSE:", response);
+      console.log("🔥 RESPONSE DATA:", response?.data);
+
       const data =
         response?.data?.data ||
         response?.data ||
@@ -58,13 +55,13 @@ console.log("🔥 RESPONSE DATA:", response?.data);
         : [];
 
       setProducts(fetchedProducts);
+
       setTotalPages(Number(data.totalPages) || 1);
       setTotalProducts(Number(data.total) || 0);
     } catch (err) {
       console.error("LOAD PRODUCTS ERROR:", err);
 
       setProducts([]);
-
       setTotalPages(1);
       setTotalProducts(0);
 
@@ -76,6 +73,20 @@ console.log("🔥 RESPONSE DATA:", response?.data);
     } finally {
       setLoading(false);
     }
+  };
+
+  // ==========================================
+  // REFRESH PRODUCTS
+  // ==========================================
+  // Same loadProducts function, but exposed
+  // separately for manual refresh after image job.
+
+  const refreshProducts = async () => {
+    console.log("🔄 Refreshing admin products...");
+
+    await loadProducts();
+
+    console.log("✅ Admin products refreshed");
   };
 
   // ==========================================
@@ -128,10 +139,8 @@ console.log("🔥 RESPONSE DATA:", response?.data);
 
       await productService.createProduct(product);
 
-      // After adding, return to first page
       setCurrentPage(1);
 
-      // If already on page 1, explicitly refresh
       if (currentPage === 1) {
         await loadProducts();
       }
@@ -144,6 +153,7 @@ console.log("🔥 RESPONSE DATA:", response?.data);
         "Failed to create product";
 
       setError(message);
+
       throw err;
     }
   };
@@ -168,6 +178,7 @@ console.log("🔥 RESPONSE DATA:", response?.data);
         "Failed to update product";
 
       setError(message);
+
       throw err;
     }
   };
@@ -182,11 +193,8 @@ console.log("🔥 RESPONSE DATA:", response?.data);
 
       await productService.deleteProduct(id);
 
-      // Reload current page
       await loadProducts();
 
-      // If deletion makes current page invalid,
-      // move to previous page.
       if (
         currentPage > 1 &&
         products.length === 1 &&
@@ -203,6 +211,7 @@ console.log("🔥 RESPONSE DATA:", response?.data);
         "Failed to delete product";
 
       setError(message);
+
       throw err;
     }
   };
@@ -227,6 +236,33 @@ console.log("🔥 RESPONSE DATA:", response?.data);
         "Failed to update product status";
 
       setError(message);
+
+      throw err;
+    }
+  };
+
+  // ==========================================
+  // AUTO FETCH PRODUCT IMAGES
+  // ==========================================
+
+  const autoFetchProductImages = async () => {
+    try {
+      setError("");
+
+      // Call the service function to trigger image fetching on backend
+      await productService.autoFetchProductImages();
+
+      await loadProducts();
+    } catch (err) {
+      console.error("AUTO FETCH IMAGES ERROR:", err);
+
+      const message =
+        err?.response?.data?.message ||
+        err?.message ||
+        "Failed to fetch product images";
+
+      setError(message);
+
       throw err;
     }
   };
@@ -250,9 +286,7 @@ console.log("🔥 RESPONSE DATA:", response?.data);
     // Products
     products,
 
-    // Kept for backward compatibility
-    // NOTE: this is current-page products because
-    // pagination is handled by backend.
+    // Backward compatibility
     allProducts: products,
 
     totalProducts,
@@ -281,6 +315,7 @@ console.log("🔥 RESPONSE DATA:", response?.data);
 
     // APIs
     loadProducts,
+    refreshProducts,
     getProductById,
     addProduct,
     updateProduct,
@@ -309,4 +344,3 @@ export const useProducts = () => {
 
   return context;
 };
-

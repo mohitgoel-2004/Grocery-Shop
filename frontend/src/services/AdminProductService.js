@@ -95,3 +95,15 @@ export const bulkImportProducts = async (file) => {
 
   return response.data;
 };
+
+// ==========================================
+// AUTO FETCH MISSING PRODUCT IMAGES
+// ==========================================
+
+export const autoFetchProductImages = async () => {
+  const response = await api.post(
+    "/admin/products/auto-fetch-images"
+  );
+
+  return response.data;
+};
