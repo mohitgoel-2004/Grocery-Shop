@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import toast from "react-hot-toast";
 import { fetchCategories, fetchProducts } from "../services/api";
@@ -47,6 +47,8 @@ const ProductDetails = () => {
   const [categories, setCategories] = useState(["All"]);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
   const { addToCart } = useCart();
 
   useEffect(() => {
@@ -76,6 +78,31 @@ const ProductDetails = () => {
 
     loadCatalog();
   }, []);
+
+  useEffect(() => {
+    if (isLoading || products.length === 0) {
+      return;
+    }
+
+    const productId =
+      searchParams.get("productId") ||
+      location.state?.productId ||
+      location.state?.selectedProductId ||
+      null;
+
+    if (!productId) {
+      return;
+    }
+
+    const matchedProduct = products.find(
+      (product) => String(product._id) === String(productId)
+    );
+
+    if (matchedProduct) {
+      setSelectedProduct(matchedProduct);
+      setQuantity(1);
+    }
+  }, [isLoading, products, searchParams, location.state]);
 
   const handleTabChange = (tabId) => {
     setActiveTab(tabId);
@@ -152,7 +179,7 @@ const ProductDetails = () => {
       <div className="mx-auto flex min-h-screen w-full max-w-107.5 flex-col overflow-hidden bg-white md:min-h-[calc(100vh-2rem)] md:rounded-[30px] md:border md:border-emerald-100 lg:max-w-120">
         
         {/* Header - Matching Home Page */}
-        <div className="shrink-0 bg-gradient-to-b from-emerald-100 via-emerald-50 to-white px-4 pt-4 pb-3">
+        <div className="shrink-0 bg-linear-to-b from-emerald-100 via-emerald-50 to-white px-4 pt-4 pb-3">
           <div className="flex items-center justify-between gap-3">
             <button
               onClick={
@@ -252,7 +279,7 @@ const ProductDetails = () => {
                         onClick={() => handleProductClick(product)}
                         className="group cursor-pointer rounded-2xl border border-emerald-100/80 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md hover:shadow-emerald-100/50"
                       >
-                        <div className="relative flex h-28 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-emerald-50 to-emerald-100/30">
+                        <div className="relative flex h-28 items-center justify-center overflow-hidden rounded-xl bg-linear-to-br from-emerald-50 to-emerald-100/30">
                           {product.badge ? (
                             <span className="absolute left-3 top-3 rounded-full bg-red-500 px-2.5 py-1 text-[10px] font-bold text-white shadow-md shadow-red-200/50">
                               {product.badge}
@@ -312,7 +339,7 @@ const ProductDetails = () => {
             <div className="space-y-5 pb-24">
               {/* Product Image */}
               <div className="rounded-2xl border border-emerald-100/80 bg-white p-4 shadow-sm">
-                <div className="relative mx-auto flex h-70 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-emerald-50 to-emerald-100/30">
+                <div className="relative mx-auto flex h-70 items-center justify-center overflow-hidden rounded-xl bg-linear-to-br from-emerald-50 to-emerald-100/30">
                   {selectedProduct.image ? (
                     <img
                       src={selectedProduct.image}
@@ -413,10 +440,10 @@ const ProductDetails = () => {
               </div>
 
               {/* Add to Cart Button */}
-              <div className="sticky bottom-0 -mx-4 bg-gradient-to-t from-white via-white to-white/0 px-4 pb-[calc(0.5rem+env(safe-area-inset-bottom))] pt-4">
+              <div className="sticky bottom-0 -mx-4 bg-linear-to-t from-white via-white to-white/0 px-4 pb-[calc(0.5rem+env(safe-area-inset-bottom))] pt-4">
                 <button
                   onClick={handleAddToCart}
-                  className="flex w-full items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-emerald-600 py-4 font-bold text-white shadow-lg shadow-emerald-200/50 transition hover:from-emerald-600 hover:to-emerald-700 hover:scale-[1.01]"
+                  className="flex w-full items-center justify-center gap-3 rounded-2xl bg-linear-to-r from-emerald-500 to-emerald-600 py-4 font-bold text-white shadow-lg shadow-emerald-200/50 transition hover:from-emerald-600 hover:to-emerald-700 hover:scale-[1.01]"
                 >
                   <FiShoppingCart className="text-lg" />
                   Add To Cart

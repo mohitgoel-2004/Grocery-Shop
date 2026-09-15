@@ -39,7 +39,10 @@ const AdminProfile = () => {
       if (!file) return;
 
       setImageUploading(true);
-      await uploadProfileImage(file);
+      const formData = new FormData();
+      formData.append("image", file);
+
+      await uploadProfileImage(formData);
       await refreshProfile();
    toast.success("Profile image updated");
     } catch (err) {
@@ -87,15 +90,17 @@ const AdminProfile = () => {
       {/* Main Card */}
       <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-lg overflow-hidden">
         {/* Top Section - Avatar & Name */}
-        <div className="relative bg-gradient-to-r from-green-50 to-emerald-50 px-6 py-8 sm:px-8">
+        <div className="relative bg-linear-to-r from-green-50 to-emerald-50 px-6 py-8 sm:px-8">
           <div className="flex flex-col items-center sm:flex-row sm:items-start sm:gap-8">
             {/* Avatar */}
             <div className="relative group">
               <div className="relative">
                 <img
                   src={
-                    adminProfile?.image
-                      ? `http://10.13.8.168:5000${adminProfile.image}`
+                    adminProfile?.avatar || adminProfile?.image
+                      ? `http://10.77.245.168:5000${
+                          adminProfile.avatar || adminProfile.image
+                        }`
                       : "https://ui-avatars.com/api/?name=Admin&background=10b981&color=fff&size=128"
                   }
                   alt="Profile"

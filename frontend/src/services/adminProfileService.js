@@ -19,15 +19,13 @@ export const changePassword = async (data) => {
 };
 
 export const uploadProfileImage = async (formData) => {
-  const res = await api.put(
-    "/admin/profile/image",
-    formData,
-    {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    }
-  );
+  const payload = formData instanceof FormData ? formData : (() => {
+    const data = new FormData();
+    data.append("image", formData);
+    return data;
+  })();
+
+  const res = await api.put("/admin/profile/image", payload);
 
   return res.data;
 };

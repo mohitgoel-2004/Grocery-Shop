@@ -1,58 +1,27 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
-  FiArrowRight,
   FiBell,
-  FiClock,
   FiMapPin,
   FiSearch,
-  FiTag,
-  FiTruck,
 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 
 import Navbar from "../components/Navbar";
 import CategoryList from "../components/CategoryList";
 import ProductCard from "../components/ProductCard";
+import HomeBanner from "../assets/HomeBanner.jpeg";
+import HomeBanner2 from "../assets/HomeBanner2.jpeg";
+import HomeBanner3 from "../assets/HomeBanner3.jpeg";
 
 import { useAddress } from "../Context/AddressContext";
 import { fetchProducts } from "../services/productService";
 import { useNotification } from "../Context/NotificationContext";
 
-const offers = [
-  {
-    id: 1,
-    title: "Flat 30% Off",
-    subtitle: "On all organic vegetables",
-    description: "Use code: ORGANIC30",
-    bg: "from-green-600 to-emerald-700",
-    icon: <FiTag className="text-3xl" />,
-    cta: "Grab Deal",
-  },
-  {
-    id: 2,
-    title: "Free Delivery",
-    subtitle: "On orders above ₹199",
-    description: "No minimum order fee",
-    bg: "from-emerald-500 to-teal-600",
-    icon: <FiTruck className="text-3xl" />,
-    cta: "Order Now",
-  },
-  {
-    id: 3,
-    title: "Early Bird",
-    subtitle: "Get 20% extra off",
-    description: "Order before 10 AM",
-    bg: "from-green-500 to-green-700",
-    icon: <FiClock className="text-3xl" />,
-    cta: "Shop Now",
-  },
-];
-
 const Home = () => {
   const { defaultAddress } = useAddress();
 
   const [highlightSearch, setHighlightSearch] = useState(false);
-  const [currentOffer, setCurrentOffer] = useState(0);
+  const [currentBanner, setCurrentBanner] = useState(0);
   const [products, setProducts] = useState([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(false);
   const [activeTab, setActiveTab] = useState("home");
@@ -66,6 +35,16 @@ const Home = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+
+  const banners = [HomeBanner, HomeBanner2, HomeBanner3];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentBanner((previous) => (previous + 1) % banners.length);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [banners.length]);
 
   // ============================
   // NAVIGATION
@@ -109,19 +88,6 @@ const Home = () => {
         navigate("/home");
     }
   };
-
-  // ============================
-  // OFFER SLIDER
-  // ============================
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentOffer(
-        (previous) => (previous + 1) % offers.length
-      );
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, []);
 
   // ============================
   // LOAD PRODUCTS
@@ -208,7 +174,7 @@ const Home = () => {
             HEADER
         ===================================================== */}
 
-        <header className="shrink-0 bg-gradient-to-b from-emerald-100 via-emerald-50 to-white px-4 pb-3 pt-4">
+        <header className="shrink-0 bg-linear-to-b from-emerald-100 via-emerald-50 to-white px-4 pb-3 pt-4">
 
           {/* Location + Notification */}
           <div className="flex items-center justify-between gap-3">
@@ -225,7 +191,7 @@ const Home = () => {
               <div className="mt-0.5 flex items-center gap-1.5">
                 <FiMapPin className="shrink-0 text-emerald-600" />
 
-                <h2 className="max-w-[230px] truncate text-[15px] font-bold text-gray-900">
+                <h2 className="max-w-57.5 truncate text-[15px] font-bold text-gray-900">
                   {defaultAddress
                     ? `${defaultAddress.address}, ${defaultAddress.city}`
                     : "Select Location"}
@@ -334,71 +300,12 @@ const Home = () => {
               OFFER SECTION
           ================================================= */}
 
-          <section className="relative mt-3 overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-100 via-emerald-50 to-white p-5 shadow-sm">
-
-            <div className="pointer-events-none absolute -right-8 -top-10 h-32 w-32 rounded-full bg-emerald-300/30 blur-2xl" />
-
-            <div className="pointer-events-none absolute bottom-0 left-0 h-24 w-24 rounded-full bg-emerald-200/30 blur-2xl" />
-
-            <div className="relative flex items-start justify-between gap-4">
-
-              <div className="max-w-[72%] sm:max-w-[68%]">
-
-                <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-emerald-100 bg-white/70 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-emerald-700 backdrop-blur-sm">
-                  Limited Offer
-                </div>
-
-                <div className="flex items-center gap-2 text-emerald-700">
-                  {offers[currentOffer].icon}
-
-                  <span className="text-sm font-medium">
-                    Fresh picks for today
-                  </span>
-                </div>
-
-                <h2 className="mt-3 text-[2rem] font-extrabold leading-tight text-[#0f172a] sm:text-4xl">
-                  {offers[currentOffer].title}
-                </h2>
-
-                <p className="mt-2 text-base font-medium text-slate-700">
-                  {offers[currentOffer].subtitle}
-                </p>
-
-                <p className="mt-1 text-sm text-slate-500">
-                  {offers[currentOffer].description}
-                </p>
-
-                <button className="mt-4 inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white shadow-md transition active:scale-95">
-                  {offers[currentOffer].cta}
-
-                  <FiArrowRight className="text-base" />
-                </button>
-              </div>
-
-              <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-3xl bg-white text-emerald-600 shadow-sm">
-                {offers[currentOffer].icon}
-              </div>
-            </div>
-
-            {/* Slider indicators */}
-            <div className="mt-4 flex items-center gap-2">
-              {offers.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() =>
-                    setCurrentOffer(index)
-                  }
-                  className={`h-1.5 rounded-full transition-all duration-500 ${
-                    index === currentOffer
-                      ? "w-8 bg-emerald-600"
-                      : "w-2 bg-emerald-200"
-                  }`}
-                  aria-label={`Go to offer ${
-                    index + 1
-                  }`}
-                />
-              ))}
-            </div>
+          <section className="mt-3 overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-emerald-100/70">
+            <img
+              src={banners[currentBanner]}
+              alt="Fresh grocery essentials banner"
+              className="block h-auto w-full object-cover"
+            />
           </section>
 
           {/* =================================================
@@ -517,14 +424,23 @@ const Home = () => {
                             key={product._id}
                             onClick={() =>
                               navigate(
-                                `/product/${product._id}`
+                                `/products?productId=${product._id}`
                               )
                             }
                             className="group cursor-pointer text-center"
                           >
 
                             {/* Product image */}
-                            <div className="mx-auto flex h-[78px] w-[78px] items-center justify-center overflow-hidden rounded-full border border-emerald-100 bg-[#f3faf5] transition duration-300 group-hover:scale-105 group-hover:border-emerald-200 group-hover:shadow-sm">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                navigate(
+                                  `/products?productId=${product._id}`
+                                )
+                              }
+                              className="mx-auto flex h-19.5 w-19.5 items-center justify-center overflow-hidden rounded-full border border-emerald-100 bg-[#f3faf5] transition duration-300 group-hover:scale-105 group-hover:border-emerald-200 group-hover:shadow-sm"
+                              aria-label={`Open ${product.name} details`}
+                            >
 
                               <img
                                 src={image}
@@ -532,7 +448,7 @@ const Home = () => {
                                 className="h-full w-full object-contain p-2"
                               />
 
-                            </div>
+                            </button>
 
                             {/* Weight */}
                             {weight && (
@@ -542,7 +458,7 @@ const Home = () => {
                             )}
 
                             {/* Product name */}
-                            <p className="mt-1 line-clamp-2 min-h-[28px] px-1 text-[11px] font-semibold leading-[14px] text-gray-700">
+                            <p className="mt-1 line-clamp-2 min-h-7 px-1 text-[11px] font-semibold leading-3.5 text-gray-700">
                               {product.name}
                             </p>
 

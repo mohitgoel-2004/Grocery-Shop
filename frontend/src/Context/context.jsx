@@ -53,13 +53,22 @@ const normalizeCart = (cart) => {
   return cart.items.map(normalizeCartItem);
 };
 
+const extractServerCart = (response) =>
+  response?.data?.cart || response?.data?.data?.cart || null;
+
+const getCustomerToken = () =>
+  localStorage.getItem("customerToken") ||
+  sessionStorage.getItem("customerToken") ||
+  localStorage.getItem("token") ||
+  sessionStorage.getItem("token");
+
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
   const [isLoadingCart, setIsLoadingCart] = useState(false);
     const [deliverySettings, setDeliverySettings] = useState(null);
 
   const syncCartFromServer = async () => {
-    const token = localStorage.getItem("token");
+      const token = getCustomerToken();
 
     if (!token) {
       setCart([]);
@@ -70,7 +79,7 @@ export const CartProvider = ({ children }) => {
 
     try {
       const response = await fetchCart();
-      setCart(normalizeCart(response.data.cart));
+      setCart(normalizeCart(extractServerCart(response)));
     } catch (error) {
       setCart([]);
     } finally {
@@ -122,7 +131,7 @@ export const CartProvider = ({ children }) => {
   }, [isLoadingCart]);
 
   const applyCartResponse = (response) => {
-    const serverCart = response?.data?.cart;
+    const serverCart = extractServerCart(response);
     setCart(normalizeCart(serverCart));
     return serverCart;
   };

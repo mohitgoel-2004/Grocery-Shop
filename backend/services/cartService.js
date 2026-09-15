@@ -14,11 +14,35 @@ const getProductId = (product) => {
   if (!product) return "";
 
   if (typeof product === "object") {
-    return String(product._id);
+    const id = product._id || product.id;
+
+    return id ? String(id) : "";
   }
 
   return String(product);
 };
+
+const sanitizeCartItems = (items = []) =>
+  items
+    .map((item) => {
+      const productValue = item?.product || item?.productId || item?._id || item?.id;
+      const productId = getProductId(productValue);
+
+      if (!productId) {
+        return null;
+      }
+
+      return {
+        product: productId,
+        name: item.name || item.product?.name || "",
+        image: item.image || item.product?.image || "",
+        price: Number(item.price ?? item.product?.price ?? 0),
+        quantity: Number(item.quantity ?? item.qty ?? 1),
+        weight: item.weight || item.product?.weight || "0",
+      };
+    })
+    .filter(Boolean)
+    .filter((item) => item.product && item.name && item.price >= 0 && item.quantity >= 1);
 
 const getOrCreateCart = async (userId) => {
   let cart = await Cart.findOne({ user: userId }).populate(
@@ -34,10 +58,23 @@ const getOrCreateCart = async (userId) => {
     );
   }
 
+  const sanitizedItems = sanitizeCartItems(cart.items);
+
+  if (sanitizedItems.length !== cart.items.length) {
+    cart.items = sanitizedItems;
+    await cart.save();
+    cart = await Cart.findById(cart._id).populate(
+      "items.product",
+      "name slug image price weight"
+    );
+  }
+
   return cart;
 };
 
 const syncCartTotals = async (cart) => {
+  cart.items = sanitizeCartItems(cart.items);
+
   const { subtotal, total } = calculateCartTotals(cart.items);
   cart.subtotal = subtotal;
   cart.total = total;
