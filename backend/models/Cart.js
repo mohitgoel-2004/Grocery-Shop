@@ -12,6 +12,7 @@ const cartItemSchema = new mongoose.Schema(
 		price: { type: Number, required: true },
 		quantity: { type: Number, required: true, min: 1, default: 1 },
 		weight: { type: String, default: "0" },
+		unit: { type: String, default: "" },
 	},
 	{ _id: false }
 );

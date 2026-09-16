@@ -460,7 +460,7 @@ export const CustomerDetailsPage = () => {
     selectedCustomer,
     loading,
   } = useCustomers();
-  const [customer, setCustomer] = useState(null);
+  // const [customer, setCustomer] = useState(null);
 
  useEffect(() => {
   getCustomerById(id);
@@ -473,7 +473,8 @@ export const CustomerDetailsPage = () => {
       <Link to="/admin/customers" className="text-emerald-600 hover:underline">Back to Customers</Link>
     </div>
   );
-
+    
+    const customer = selectedCustomer;
   return (
     <div className="p-4 sm:p-6 max-w-5xl mx-auto">
       <Link to="/admin/customers" className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 mb-6">
@@ -582,21 +583,40 @@ export const CustomerDetailsPage = () => {
               <h3 className="font-semibold text-gray-800 dark:text-white flex items-center gap-2 mb-4">
                 <FiPackage className="text-emerald-500" /> Recent Orders
               </h3>
-              {customer.orders && customer.orders.length > 0 ? (
-                <div className="space-y-2">
-                  {customer.orders.slice(0, 3).map((order) => (
-                    <div key={order.id} className="flex justify-between items-center text-sm border-b border-gray-100 dark:border-gray-700 pb-2 last:border-0">
-                      <div>
-                        <p className="font-medium text-gray-800 dark:text-white">{order.orderNumber}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">{new Date(order.date).toLocaleDateString()}</p>
-                      </div>
-                      <span className="font-bold">₹{order.total}</span>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-gray-500 dark:text-gray-400 text-sm">No orders.</p>
-              )}
+             {customer.orders && customer.orders.length > 0 ? (
+  <div className="space-y-2">
+    {customer.orders.slice(0, 3).map((order) => (
+      <div
+        key={order._id}
+        className="flex justify-between items-center text-sm border-b border-gray-100 dark:border-gray-700 pb-2 last:border-0"
+      >
+        <div>
+          <p className="font-medium text-gray-800 dark:text-white">
+            {order.orderNumber}
+          </p>
+
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            {order.createdAt
+              ? new Date(order.createdAt).toLocaleDateString("en-IN")
+              : "N/A"}
+          </p>
+
+          <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">
+            {order.status}
+          </p>
+        </div>
+
+        <span className="font-bold text-gray-800 dark:text-white">
+          ₹{Number(order.total || 0).toLocaleString("en-IN")}
+        </span>
+      </div>
+    ))}
+  </div>
+) : (
+  <p className="text-gray-500 dark:text-gray-400 text-sm">
+    No orders.
+  </p>
+)}
             </div>
 
             <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-100/80 dark:border-gray-700/80 p-6">

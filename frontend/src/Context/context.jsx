@@ -41,6 +41,7 @@ const normalizeCartItem = (item) => {
     image: item.image || product.image || "",
     price: Number(item.price ?? product.price ?? 0),
     weight: item.weight || product.weight || "",
+    unit: item.unit || product.unit || "",
     qty: Number(item.quantity ?? item.qty ?? 1),
   };
 };

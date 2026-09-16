@@ -7,6 +7,20 @@ import { getDeliverySettings } from "../services/deliverySettingsService";
 
 const formatPrice = (value) => `₹${Number(value || 0).toFixed(2)}`;
 
+const formatWeight = (weight, unit) => {
+  if (weight === undefined || weight === null || weight === "") {
+    return "";
+  }
+
+  const weightText = String(weight).trim();
+
+  if (/[a-zA-Z]/.test(weightText)) {
+    return weightText;
+  }
+
+  return unit ? `${weightText} ${unit}` : weightText;
+};
+
 const Cart = () => {
   const [activeTab, setActiveTab] = useState("cart");
   const [promoCode, setPromoCode] = useState("");
@@ -170,8 +184,10 @@ const Cart = () => {
                           <h4 className="truncate text-[15px] font-semibold leading-tight text-gray-900">
                             {item.name}
                           </h4>
-                          {item.weight && (
-                            <p className="mt-0.5 text-xs text-gray-400">{item.weight}</p>
+                          {formatWeight(item.weight, item.unit) && (
+                            <p className="mt-0.5 text-xs text-gray-400">
+                              {formatWeight(item.weight, item.unit)}
+                            </p>
                           )}
                           <p className="mt-1.5 text-lg font-bold text-emerald-600">
                             {formatPrice(item.price)}

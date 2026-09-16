@@ -37,6 +37,22 @@ const getCategoryLabel = (product) => {
   return categoryName || "All";
 };
 
+const normalizeCategoryValue = (value) =>
+  String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+const customCategoryFilters = {
+  "atta-rice-dal": ["atta-flour", "rice", "dal-pulses"],
+  "snacks-munchies": ["snacks"],
+  "beverages": ["beverages"],
+  "chocolate--confectionery": ["chocolate-confectionery"],
+  "home-cleaning": ["home-cleaning", "kitchen-essentials"],
+  "dairy-milk": ["dairy-milk", "breakfast-cereals"],
+};
+
 const ProductDetails = () => {
   const [activeTab, setActiveTab] = useState("products");
   const [activeCategory, setActiveCategory] = useState("All");
@@ -78,6 +94,16 @@ const ProductDetails = () => {
 
     loadCatalog();
   }, []);
+
+  useEffect(() => {
+    const categoryFromQuery = searchParams.get("category");
+
+    if (categoryFromQuery) {
+      setActiveCategory(categoryFromQuery);
+    } else {
+      setActiveCategory("All");
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (isLoading || products.length === 0) {
@@ -135,10 +161,20 @@ const ProductDetails = () => {
 
   const filteredProducts = products.filter((product) => {
     const categoryName = getCategoryLabel(product);
+    const categorySlug = product.category?.slug || "";
+    const categoryKeywords = customCategoryFilters[activeCategory] || [];
+    const normalizedCategoryName = normalizeCategoryValue(categoryName);
+    const normalizedCategorySlug = normalizeCategoryValue(categorySlug);
     const matchesCategory =
       activeCategory === "All" ||
-      categoryName === activeCategory ||
-      product.category?.slug === activeCategory;
+      normalizeCategoryValue(categoryName) === normalizeCategoryValue(activeCategory) ||
+      normalizedCategorySlug === normalizeCategoryValue(activeCategory) ||
+      (categoryKeywords.length > 0 &&
+        categoryKeywords.some(
+          (keyword) =>
+            normalizedCategoryName === keyword ||
+            normalizedCategorySlug === keyword,
+        ));
     const matchesSearch = (product.name || "")
       .toLowerCase()
       .includes(searchQuery.toLowerCase());

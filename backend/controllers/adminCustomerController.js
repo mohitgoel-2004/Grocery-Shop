@@ -121,11 +121,7 @@ const users = await User.find(query)
 
 exports.getCustomerById = async (req, res) => {
   try {
-    // console.log("ID =", req.params.id);
-
-    const customer = await User.findById(req.params.id);
-
-    // console.log("CUSTOMER =", customer);
+    const customer = await User.findById(req.params.id).lean();
 
     if (!customer) {
       return res.status(404).json({
@@ -134,30 +130,69 @@ exports.getCustomerById = async (req, res) => {
       });
     }
 
-    const orders = await Order.find({ user: customer._id });
+    // ============================
+    // GET CUSTOMER ORDERS
+    // ============================
+
+    const orders = await Order.find({
+      user: customer._id,
+    })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    // ============================
+    // CUSTOMER STATS
+    // ============================
 
     const totalOrders = orders.length;
 
     const totalSpent = orders.reduce(
-      (sum, order) => sum + (order.total || 0),
+      (sum, order) => sum + Number(order.total || 0),
       0
     );
 
-    res.json({
-      success: true,
-      customer,
+    // ============================
+    // RECENT ACTIVITY
+    // Derived from REAL orders
+    // ============================
+
+    const activities = orders.slice(0, 10).map((order) => ({
+      _id: order._id,
+      type: "order",
+      title: `Order ${order.orderNumber}`,
+      description: `Order status: ${order.status}`,
+      status: order.status,
+      orderNumber: order.orderNumber,
+      amount: order.total,
+      createdAt: order.createdAt,
+    }));
+
+    // ============================
+    // FINAL CUSTOMER RESPONSE
+    // ============================
+
+    const customerDetails = {
+      ...customer,
+
+      totalOrders,
+      totalSpent,
+
       orders,
-      stats: {
-        totalOrders,
-        totalSpent,
-      },
+      activities,
+    };
+
+    res.status(200).json({
+      success: true,
+      customer: customerDetails,
     });
-  } catch (err) {
-    console.error("GET CUSTOMER ERROR:", err);
+
+  } catch (error) {
+    console.error("GET CUSTOMER ERROR:", error);
 
     res.status(500).json({
       success: false,
-      message: err.message,
+      message: "Failed to fetch customer details",
+      error: error.message,
     });
   }
 };

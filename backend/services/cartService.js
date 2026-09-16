@@ -39,6 +39,7 @@ const sanitizeCartItems = (items = []) =>
         price: Number(item.price ?? item.product?.price ?? 0),
         quantity: Number(item.quantity ?? item.qty ?? 1),
         weight: item.weight || item.product?.weight || "0",
+        unit: item.unit || item.product?.unit || "",
       };
     })
     .filter(Boolean)
@@ -47,14 +48,14 @@ const sanitizeCartItems = (items = []) =>
 const getOrCreateCart = async (userId) => {
   let cart = await Cart.findOne({ user: userId }).populate(
     "items.product",
-    "name slug image price weight"
+    "name slug image price weight unit"
   );
 
   if (!cart) {
     cart = await Cart.create({ user: userId, items: [] });
     cart = await Cart.findById(cart._id).populate(
       "items.product",
-      "name slug image price weight"
+      "name slug image price weight unit"
     );
   }
 
@@ -65,7 +66,7 @@ const getOrCreateCart = async (userId) => {
     await cart.save();
     cart = await Cart.findById(cart._id).populate(
       "items.product",
-      "name slug image price weight"
+      "name slug image price weight unit"
     );
   }
 
@@ -80,7 +81,7 @@ const syncCartTotals = async (cart) => {
   cart.total = total;
   await cart.save();
 
-  return cart.populate("items.product", "name slug image price weight");
+  return cart.populate("items.product", "name slug image price weight unit");
 };
 
 const getCart = async (userId) => {
@@ -115,6 +116,7 @@ const existingItem = cart.items.find(
       price: product.price,
       quantity,
       weight: product.weight,
+        unit: product.unit,
     });
   }
 

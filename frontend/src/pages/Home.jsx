@@ -1,8 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
   FiBell,
+  FiClock,
   FiMapPin,
+  FiPackage,
+  FiPercent,
   FiSearch,
+  FiShield,
 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 
@@ -14,7 +18,10 @@ import HomeBanner2 from "../assets/HomeBanner2.jpeg";
 import HomeBanner3 from "../assets/HomeBanner3.jpeg";
 
 import { useAddress } from "../Context/AddressContext";
-import { fetchProducts } from "../services/productService";
+import {
+  fetchCategories,
+  fetchProducts,
+} from "../services/productService";
 import { useNotification } from "../Context/NotificationContext";
 
 const Home = () => {
@@ -23,7 +30,9 @@ const Home = () => {
   const [highlightSearch, setHighlightSearch] = useState(false);
   const [currentBanner, setCurrentBanner] = useState(0);
   const [products, setProducts] = useState([]);
+  const [sectionProducts, setSectionProducts] = useState({});
   const [isLoadingProducts, setIsLoadingProducts] = useState(false);
+  const [isLoadingCategorySections, setIsLoadingCategorySections] = useState(false);
   const [activeTab, setActiveTab] = useState("home");
 
   const searchRef = useRef(null);
@@ -165,6 +174,160 @@ const Home = () => {
   // First 12 products will be shown
   // in horizontally swipeable 2x3 grids.
   const bestsellerProducts = products.slice(0, 12);
+  const lateDealProducts = products.slice(12, 17);
+  const dealProducts =
+    lateDealProducts.length > 0
+      ? lateDealProducts
+      : products.slice(0, 5);
+  const bundleProducts = products.slice(0, 4);
+
+  const trustHighlights = [
+    {
+      id: "delivery",
+      title: "10 - 15 min Delivery",
+      subtitle: "Fast delivery at your doorstep",
+      icon: FiClock,
+    },
+    {
+      id: "price",
+      title: "Best Price",
+      subtitle: "Quality products, always",
+      icon: FiPercent,
+    },
+    {
+      id: "range",
+      title: "Wide Product Range",
+      subtitle: "Everything in one place",
+      icon: FiPackage,
+    },
+    {
+      id: "secure",
+      title: "Secure Payments",
+      subtitle: "Pay safely and confidently",
+      icon: FiShield,
+    },
+  ];
+
+  const normalizeCategoryValue = (value) =>
+    String(value || "")
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+
+  const categorySections = [
+    {
+      key: "atta-rice-dal",
+      title: "Atta, Rice & Dal",
+      subtitle: "Everyday kitchen essentials",
+      categoryMatches: [
+        "atta-flour",
+        "rice",
+        "dal-pulses",
+        "atta-rice-dal",
+      ],
+    },
+    {
+      key: "snacks-munchies",
+      title: "Snacks & Munchies",
+      subtitle: "Perfect for every craving",
+      categoryMatches: ["snacks", "snacks-munchies"],
+    },
+    {
+      key: "beverages",
+      title: "Drinks & Beverages",
+      subtitle: "Cool drinks for every mood",
+      categoryMatches: ["beverages", "drinks-beverages"],
+    },
+    {
+      key: "chocolate--confectionery",
+      title: "Chocolates & Confectionery",
+      subtitle: "Something sweet for everyone",
+      categoryMatches: [
+        "chocolate-confectionery",
+        "chocolate--confectionery",
+        "chocolates-confectionery",
+      ],
+    },
+    {
+      key: "home-cleaning",
+      title: "Kitchen & Cleaning Essentials",
+      subtitle: "Keep your home fresh",
+      categoryMatches: [
+        "home-cleaning",
+        "kitchen-essentials",
+        "kitchen-cleaning-essentials",
+      ],
+    },
+    {
+      key: "dairy-milk",
+      title: "Dairy & Breakfast",
+      subtitle: "Start your day right",
+      categoryMatches: [
+        "dairy-milk",
+        "breakfast-cereals",
+        "dairy-breakfast",
+      ],
+    },
+  ];
+
+  useEffect(() => {
+    const loadCategorySections = async () => {
+      setIsLoadingCategorySections(true);
+
+      try {
+        const [categoriesResult, productsResult] = await Promise.allSettled([
+          fetchCategories(),
+          fetchProducts(),
+        ]);
+
+        const categoryList =
+          categoriesResult.status === "fulfilled"
+            ? categoriesResult.value?.data?.categories || []
+            : [];
+
+        const productList =
+          productsResult.status === "fulfilled"
+            ? productsResult.value?.data?.products || []
+            : [];
+
+        const nextSectionProducts = {};
+
+        categorySections.forEach((section) => {
+          const matchedCategoryIds = new Set();
+
+          categoryList.forEach((category) => {
+            const categorySlug = normalizeCategoryValue(category.slug);
+            const categoryName = normalizeCategoryValue(category.name);
+
+            const matchesSectionCategory = section.categoryMatches.some((match) => {
+              const normalizedMatch = normalizeCategoryValue(match);
+              return categorySlug === normalizedMatch || categoryName === normalizedMatch;
+            });
+
+            if (matchesSectionCategory) {
+              matchedCategoryIds.add(String(category._id));
+            }
+          });
+
+          nextSectionProducts[section.key] = productList
+            .filter((product) => {
+              const productCategoryId = product.category?._id || product.category;
+              return matchedCategoryIds.has(String(productCategoryId));
+            })
+            .slice(0, 6);
+        });
+
+        setSectionProducts(nextSectionProducts);
+      } catch (error) {
+        console.error("Category section products failed to load:", error);
+      } finally {
+        setIsLoadingCategorySections(false);
+      }
+    };
+
+    loadCategorySections();
+  }, []);
 
   return (
     <div className="min-h-screen bg-white px-0 py-0 md:px-4 md:py-4 lg:px-6">
@@ -483,21 +646,79 @@ const Home = () => {
           </section>
 
           {/* =================================================
-              PRODUCT CARDS
-              NORMAL GRID - NO SWIPE
+              CATEGORY PRODUCT SECTIONS
           ================================================= */}
 
-          <section className="mt-9 pb-28 sm:pb-10">
+          <section className="mt-9 pb-6 sm:pb-4">
 
+            {categorySections.map((section) => {
+              const items = sectionProducts[section.key] || [];
+
+              return (
+                <div key={section.key} className="mt-9 first:mt-0">
+
+                  <div className="mb-4 flex items-center justify-between">
+
+                    <div>
+                      <h2 className="text-[23px] font-extrabold tracking-tight text-gray-900">
+                        {section.title}
+                      </h2>
+
+                      <p className="mt-0.5 text-xs text-gray-500">
+                        {section.subtitle}
+                      </p>
+                    </div>
+
+                    <button
+                      onClick={() =>
+                        navigate(`/products?category=${encodeURIComponent(section.key)}`)
+                      }
+                      className="shrink-0 whitespace-nowrap text-sm font-bold text-emerald-600"
+                    >
+                      See all
+                    </button>
+                  </div>
+
+                  {isLoadingCategorySections ? (
+                    <div className="py-8 text-center text-sm text-gray-500">
+                      Loading products...
+                    </div>
+                  ) : items.length > 0 ? (
+                    <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto scrollbar-hide pb-1">
+                      {items.map((item) => (
+                        <div
+                          key={item._id}
+                          className="w-[160px] min-w-[160px] snap-start sm:w-[180px] sm:min-w-[180px]"
+                        >
+                          <ProductCard product={item} />
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="py-8 text-center text-sm text-gray-500">
+                      No products available
+                    </div>
+                  )}
+
+                </div>
+              );
+            })}
+
+          </section>
+
+          {/* =================================================
+              TODAY'S DEALS
+          ================================================= */}
+
+          <section className="mt-3 rounded-3xl bg-linear-to-r from-emerald-50 via-lime-50 to-emerald-100 px-4 py-4 shadow-sm ring-1 ring-emerald-100/80">
             <div className="mb-4 flex items-center justify-between">
-
               <div>
                 <h2 className="text-[23px] font-extrabold tracking-tight text-gray-900">
-                  Fresh Picks
+                  Today&apos;s Deals
                 </h2>
 
                 <p className="mt-0.5 text-xs text-gray-500">
-                  Handpicked products for you
+                  Grab the best offers before they&apos;re gone!
                 </p>
               </div>
 
@@ -507,46 +728,176 @@ const Home = () => {
               >
                 See all
               </button>
-
             </div>
 
-            {isLoadingProducts ? (
+            {dealProducts.length > 0 ? (
+              <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-1 scrollbar-hide">
+                {dealProducts.map((item, index) => {
+                  const discount = 8 + index;
+                  const originalPrice = Math.max(
+                    Number(item.price || 0),
+                    Number(item.price || 0) + Math.ceil(Number(item.price || 0) * (discount / 100))
+                  );
 
-              <div className="py-10 text-center text-gray-500">
-                Loading products...
+                  return (
+                    <button
+                      key={item._id}
+                      type="button"
+                      onClick={() => navigate(`/products?productId=${item._id}`)}
+                      className="w-45 min-w-45 snap-start rounded-2xl bg-white p-2.5 text-left shadow-sm ring-1 ring-emerald-100 transition hover:-translate-y-0.5 hover:shadow"
+                    >
+                      <div className="mb-2 inline-flex rounded-full bg-emerald-500 px-2 py-0.5 text-[9px] font-bold text-white">
+                        {discount}% OFF
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <img
+                          src={item.image || item.img || "https://via.placeholder.com/90"}
+                          alt={item.name}
+                          className="h-12 w-12 rounded-xl bg-emerald-50 object-contain p-1"
+                        />
+
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-[12px] font-semibold text-gray-800">
+                            {item.name}
+                          </p>
+
+                          <div className="mt-1 flex items-center gap-1.5">
+                            <span className="text-[13px] font-bold text-gray-900">
+                              ₹{item.price}
+                            </span>
+
+                            <span className="text-[10px] text-gray-400 line-through">
+                              ₹{originalPrice}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
-
-            ) : products.length > 0 ? (
-
-              /*
-               * IMPORTANT:
-               *
-               * No overflow-x-auto here.
-               * No swipe.
-               *
-               * Products will appear as normal
-               * 2-column cards.
-               */
-
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
-
-                {products.map((item) => (
-                  <ProductCard
-                    key={item._id}
-                    product={item}
-                  />
-                ))}
-
-              </div>
-
             ) : (
+              <div className="rounded-2xl bg-white/80 px-3 py-6 text-center text-sm text-gray-500">
+                Deals will appear once products are available
+              </div>
+            )}
+          </section>
 
-              <div className="py-10 text-center text-gray-500">
-                No products available
+          {/* =================================================
+              FREQUENTLY BOUGHT TOGETHER
+          ================================================= */}
+
+          <section className="mt-6 rounded-3xl bg-linear-to-r from-emerald-50 via-white to-emerald-50 px-4 py-4 shadow-sm ring-1 ring-emerald-100/80">
+            <div className="mb-4 flex items-center justify-between">
+              <div>
+                <h2 className="text-[21px] font-extrabold tracking-tight text-gray-900">
+                  Frequently Bought Together
+                </h2>
+
+                <p className="mt-0.5 text-xs text-gray-500">
+                  Save more when you buy together
+                </p>
               </div>
 
-            )}
+              <button
+                onClick={() => navigate("/products")}
+                className="text-sm font-bold text-emerald-600"
+              >
+                See all
+              </button>
+            </div>
 
+            {bundleProducts.length > 0 ? (
+              <div className="rounded-2xl bg-white p-3 shadow-sm ring-1 ring-emerald-100">
+                <div className="flex items-center justify-between gap-2 overflow-x-auto pb-1">
+                  {bundleProducts.map((product, idx) => (
+                    <React.Fragment key={product._id}>
+                      <button
+                        type="button"
+                        onClick={() => navigate(`/products?productId=${product._id}`)}
+                        className="min-w-0 text-center"
+                      >
+                        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 p-1.5">
+                          <img
+                            src={product.image || product.img || "https://via.placeholder.com/90"}
+                            alt={product.name}
+                            className="h-full w-full object-contain"
+                          />
+                        </div>
+
+                        <p className="mt-1 max-w-16 truncate text-[10px] font-medium text-gray-600">
+                          {product.name}
+                        </p>
+                      </button>
+
+                      {idx < bundleProducts.length - 1 && (
+                        <span className="text-sm font-bold text-emerald-500">+</span>
+                      )}
+                    </React.Fragment>
+                  ))}
+                </div>
+
+                <div className="mt-3 flex items-center justify-between rounded-xl bg-emerald-50 px-3 py-2">
+                  <div>
+                    <p className="text-xs text-gray-500">Bundle & Save</p>
+                    <p className="text-lg font-extrabold text-emerald-700">
+                      ₹
+                      {bundleProducts
+                        .reduce((sum, item) => sum + Number(item.price || 0), 0)
+                        .toFixed(0)}
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => navigate("/cart")}
+                    className="rounded-full bg-emerald-600 px-4 py-2 text-xs font-bold text-white transition hover:bg-emerald-700"
+                  >
+                    View Bundle
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="rounded-2xl bg-white/80 px-3 py-6 text-center text-sm text-gray-500">
+                Bundle suggestions will appear soon
+              </div>
+            )}
+          </section>
+
+          {/* =================================================
+              WHY SHOP WITH US
+          ================================================= */}
+
+          <section className="mt-6 mb-6">
+            <h2 className="text-[23px] font-extrabold tracking-tight text-gray-900">
+              Why Shop With Us?
+            </h2>
+
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              {trustHighlights.map((item) => {
+                const Icon = item.icon;
+
+                return (
+                  <div
+                    key={item.id}
+                    className="rounded-2xl border border-emerald-100 bg-white p-3 shadow-sm"
+                  >
+                    <div className="mb-2 inline-grid h-8 w-8 place-items-center rounded-full bg-emerald-100 text-emerald-600">
+                      <Icon className="text-[15px]" />
+                    </div>
+
+                    <h3 className="text-[12px] font-bold text-gray-900">
+                      {item.title}
+                    </h3>
+
+                    <p className="mt-1 text-[10px] leading-4 text-gray-500">
+                      {item.subtitle}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
           </section>
 
         </div>

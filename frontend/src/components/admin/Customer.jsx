@@ -678,7 +678,7 @@ export const CustomerProfileModal = ({ isOpen, onClose, customer }) => {
                   Total Spent
                 </p>
                 <p className="font-medium text-gray-800 dark:text-white">
-                  ₹{customer.totalSpent}
+                   ₹{Number(customer.totalSpent || 0).toLocaleString("en-IN")}
                 </p>
               </div>
             </div>
@@ -812,7 +812,7 @@ export const CustomerOrderHistory = ({ orders }) => {
     <div className="space-y-3">
       {orders.map((order) => (
         <div
-          key={order.id}
+          key={order._id}
           className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-4"
         >
           <div className="flex justify-between items-start">
@@ -937,30 +937,53 @@ export const CustomerActivity = ({ activities }) => {
       </p>
     );
   }
+
   return (
     <div className="space-y-3">
-      {activities.map((activity, idx) => (
-        <div key={idx} className="flex items-start gap-3 text-sm">
+      {activities.map((activity) => (
+        <div
+          key={activity._id || activity.orderNumber}
+          className="flex items-start gap-3 text-sm"
+        >
           <div className="mt-1">
             {activity.type === "order" && (
-              <FiShoppingBag className="text-emerald-500" size={16} />
+              <FiShoppingBag
+                className="text-emerald-500"
+                size={16}
+              />
             )}
+
             {activity.type === "login" && (
-              <FiUser className="text-blue-500" size={16} />
+              <FiUser
+                className="text-blue-500"
+                size={16}
+              />
             )}
+
             {activity.type === "review" && (
-              <FiStar className="text-amber-500" size={16} />
+              <FiStar
+                className="text-amber-500"
+                size={16}
+              />
             )}
+
             {activity.type === "wishlist" && (
-              <FiHeart className="text-red-500" size={16} />
+              <FiHeart
+                className="text-red-500"
+                size={16}
+              />
             )}
           </div>
+
           <div className="flex-1">
             <p className="text-gray-700 dark:text-gray-200">
               {activity.description}
             </p>
+
             <span className="text-xs text-gray-400 dark:text-gray-500">
-              {new Date(activity.timestamp).toLocaleString()}
+              {activity.createdAt
+                ? new Date(activity.createdAt).toLocaleString("en-IN")
+                : "Date unavailable"}
             </span>
           </div>
         </div>
