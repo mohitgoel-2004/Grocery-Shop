@@ -1,47 +1,11 @@
-// CustomerComponents.jsx
-// ============================================================
-// Combines all customer-related UI components into one file.
-// Components: CustomerCard, CustomerTable, CustomerForm,
-// CustomerFilters, CustomerSearch, CustomerStats, CustomerPagination,
-// CustomerStatusBadge, CustomerProfileModal, DeleteCustomerModal,
-// CustomerAddressCard, CustomerOrderHistory, CustomerWishlist,
-// CustomerReviews, CustomerActivity, CustomerNotes.
-// Dependencies: React, React Router, Framer Motion, React Icons.
-// ============================================================
+
 
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  FiUser,
-  FiMail,
-  FiPhone,
-  FiCalendar,
-  FiDollarSign,
-  FiShoppingBag,
-  FiMapPin,
-  FiStar,
-  FiHeart,
-  FiMessageCircle,
-  FiActivity,
-  FiEdit2,
-  FiTrash2,
-  FiSearch,
-  FiRefreshCw,
-  FiChevronLeft,
-  FiChevronRight,
-  FiX,
-  FiPlus,
-  FiClock,
-  FiCheckCircle,
-  FiAlertCircle,
-  FiMoreHorizontal,
-  FiArrowRight,
-  FiEye,
-  FiLock,
-  FiRotateCcw,
-  FiUnlock,
-} from "react-icons/fi";
+import { FiUser, FiMail, FiPhone, FiCalendar,  FiDollarSign, FiShoppingBag, FiMapPin, FiStar, FiHeart, FiMessageCircle,
+  FiActivity, FiEdit2, FiTrash2, FiSearch, FiRefreshCw, FiChevronLeft, FiChevronRight, FiX, FiPlus, FiClock, FiCheckCircle,
+  FiAlertCircle, FiMoreHorizontal, FiArrowRight, FiEye, FiLock, FiRotateCcw, FiUnlock, } from "react-icons/fi";
 
 // ---------- STATUS CONFIGURATION ----------
 export const customerStatusConfig = {
@@ -79,15 +43,7 @@ export const CustomerStatusBadge = ({ status }) => {
 
 // ---------- 2. CustomerCard (grid view) ----------
 export const CustomerCard = ({
-  customer,
-  onViewDetails,
-  onEdit,
-  onBlock,
-  onUnblock,
-  onPremium,
-  onDelete,
-  onRestore,
-  onPermanentDelete,
+  customer, onViewDetails, onEdit, onBlock, onUnblock, onPremium, onDelete, onRestore, onPermanentDelete,
 }) => {
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100/80 overflow-hidden hover:shadow-xl transition-all duration-300 group">
