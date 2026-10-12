@@ -11,7 +11,7 @@ import {
 import { useNavigate } from "react-router-dom";
 
 import Navbar from "../components/Navbar";
-import CategoryList from "../components/CategoryList";
+import CategoryList from "../components/categoryList.jsx";
 import ProductCard from "../components/ProductCard";
 import HomeBanner from "../assets/HomeBanner.jpeg";
 import HomeBanner2 from "../assets/HomeBanner2.jpeg";

@@ -5,7 +5,7 @@ import React, {
   useState,
 } from "react";
 
-import * as customerService from "../services/customerService";
+import * as customerService from "../services/CustomerService.js";
 
 const CustomerContext = createContext();
 
