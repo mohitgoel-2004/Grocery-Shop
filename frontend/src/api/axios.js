@@ -1,7 +1,8 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://10.77.245.168:5000/api",
+  // baseURL: "http://10.77.245.168:5000/api",
+  baseURL: "https://groceryhub-backend-qknk.onrender.com/api",
   withCredentials: true,
   headers: {
     Accept: "application/json",
