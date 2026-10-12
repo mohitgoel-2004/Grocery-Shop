@@ -7,7 +7,7 @@ import {
   markAdminNotificationAsRead,
 } from "../../services/notificationService";
 
-import { fetchCustomers } from "../../services/customerService";
+import { fetchCustomers } from "../../services/CustomerService.js";
 
 import {
   FiBell,
