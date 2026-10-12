@@ -53,6 +53,7 @@ app.use(
     origin: [
       "http://localhost:5173",
       "http://10.77.245.168:5173",
+       "https://grocery-shop-4p91-nu.vercel.app",
     ],
     credentials: true,
   })
