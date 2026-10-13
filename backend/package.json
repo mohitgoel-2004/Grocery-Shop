@@ -11,19 +11,20 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "abort-controller": "^3.0.0",
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "express-validator": "^7.2.1",
+    "firebase-admin": "^14.5.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^9.7.2",
     "multer": "^2.2.0",
-    "razorpay": "^2.9.8",
-    "xlsx": "^0.18.5",
     "node-fetch": "^2.6.7",
-    "abort-controller": "^3.0.0"
+    "razorpay": "^2.9.8",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"

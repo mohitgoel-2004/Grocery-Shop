@@ -16,10 +16,17 @@ const otpValidator = body("otp")
   .matches(/^\d{6}$/)
   .withMessage("OTP must contain only numbers");
 
+const firebaseIdTokenValidator = body("idToken")
+  .trim()
+  .notEmpty()
+  .withMessage("Firebase ID token is required");
+
 const sendOtpValidation = [mobileValidator];
 const verifyOtpValidation = [mobileValidator, otpValidator];
+const firebaseLoginValidation = [firebaseIdTokenValidator];
 
 module.exports = {
   sendOtpValidation,
   verifyOtpValidation,
+  firebaseLoginValidation,
 };

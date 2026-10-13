@@ -3,7 +3,9 @@ class OtpService {
     const provider = (process.env.OTP_PROVIDER || "development").toLowerCase();
 
     if (provider === "development") {
-      console.log(`[OTP] ${mobile}: ${otp}`);
+      if (process.env.NODE_ENV !== "production") {
+        console.log(`[OTP] ${mobile}: ${otp}`);
+      }
 
       return {
         provider,
