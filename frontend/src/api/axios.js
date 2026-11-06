@@ -1,8 +1,10 @@
+
 import axios from "axios";
 
 const api = axios.create({
-  // baseURL: "http://10.77.245.168:5000/api",
-  baseURL: "https://groceryhub-backend-qknk.onrender.com/api",
+  baseURL:
+    import.meta.env.VITE_API_BASE_URL ||
+    "http://localhost:5000/api",
   withCredentials: true,
   headers: {
     Accept: "application/json",
@@ -11,72 +13,52 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    let token;
+    const url = config.url || "";
 
-    // =====================================================
-    // 1. If request already has Authorization header,
-    //    DO NOT overwrite it
-    // =====================================================
+    // Public authentication APIs do not need an old login token.
+    const publicAuthRoutes = [
+      "/auth/send-email-otp",
+      "/auth/verify-email-otp",
+      "/auth/firebase-login",
+      "/auth/send-otp",
+      "/auth/verify-otp",
+    ];
 
-    if (
-      config.headers?.Authorization ||
-      config.headers?.authorization
-    ) {
-      // Important:
-      // Don't force Content-Type here.
-      // Axios/browser will handle FormData automatically.
+    const isPublicAuthRoute = publicAuthRoutes.some((route) =>
+      url.includes(route)
+    );
+
+    if (isPublicAuthRoute) {
+      delete config.headers.Authorization;
+      delete config.headers.authorization;
       return config;
     }
 
-    // =====================================================
-    // 2. Admin routes
-    // =====================================================
+    let token;
 
     if (
-      config.url?.includes("/admin") ||
-      config.url?.includes("/notifications/send") ||
-      config.url?.includes("/inventory")
+      url.includes("/admin") ||
+      url.includes("/notifications/send") ||
+      url.includes("/inventory")
     ) {
       token =
         localStorage.getItem("adminToken") ||
         sessionStorage.getItem("adminToken");
+    } else {
+      token =
+        localStorage.getItem("customerToken") ||
+        sessionStorage.getItem("customerToken") ||
+        localStorage.getItem("token") ||
+        sessionStorage.getItem("token");
     }
-
-    // =====================================================
-    // 3. Customer routes
-    // =====================================================
-
-    else {
-  token =
-    localStorage.getItem("customerToken") ||
-    sessionStorage.getItem("customerToken") ||
-    localStorage.getItem("token") ||
-    sessionStorage.getItem("token");
-}
-
-if (token) {
-  config.headers.Authorization = `Bearer ${token}`;
-}
-
-    // =====================================================
-    // 4. Attach token
-    // =====================================================
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
 
-    // =====================================================
-    // 5. IMPORTANT:
-    //    Do NOT set Content-Type globally.
-    //    Axios handles FormData automatically.
-    // =====================================================
-
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
 export default api;

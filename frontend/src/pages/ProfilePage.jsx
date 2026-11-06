@@ -74,6 +74,15 @@ const Profile = () => {
   pincode: user.pincode || "",
 });
       } catch (err) {
+        if (err?.response?.status === 401) {
+          localStorage.removeItem("customerToken");
+          sessionStorage.removeItem("customerToken");
+          localStorage.removeItem("token");
+          sessionStorage.removeItem("token");
+          navigate("/auth", { replace: true });
+          return;
+        }
+
         toast.error("Failed to load profile");
       } finally {
         setIsLoading(false);
@@ -95,12 +104,14 @@ const handleSaveProfile = async () => {
     const payload = {
       fullName: profile.fullName.trim(),
       email: profile.email.trim(),
-      phone: profile.phone.trim(),
-
-      address: defaultAddress?.address || "",
-      city: defaultAddress?.city || "",
-      pincode: defaultAddress?.pincode || "",
+      address: defaultAddress?.address ?? profile.address,
+      city: defaultAddress?.city ?? profile.city,
+      pincode: defaultAddress?.pincode ?? profile.pincode,
     };
+
+    if (profile.phone.trim()) {
+      payload.phone = profile.phone.trim();
+    }
 
     console.log("PROFILE PAYLOAD:", payload);
 
@@ -130,6 +141,16 @@ const handleSaveProfile = async () => {
   } catch (error) {
     console.error("PROFILE SAVE ERROR:", error);
     console.error("SERVER:", error?.response?.data);
+
+    if (error?.response?.status === 401) {
+      localStorage.removeItem("customerToken");
+      sessionStorage.removeItem("customerToken");
+      localStorage.removeItem("token");
+      sessionStorage.removeItem("token");
+      toast.error("Your session expired. Please log in again.");
+      navigate("/auth");
+      return;
+    }
 
     toast.error(
       error?.response?.data?.message ||

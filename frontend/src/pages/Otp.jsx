@@ -4,6 +4,8 @@ import {
   confirmFirebaseOtp,
   firebaseLogin,
   sendFirebaseOtp,
+  sendEmailOtp,
+  verifyEmailOtp,
 } from "../services/authService";
 import { clearFirebasePhoneAuth } from "../services/firebasePhoneAuth";
 import { ShieldCheck } from "lucide-react";
@@ -14,12 +16,20 @@ const OtpPage = () => {
   const location = useLocation();
 
   const mobile = location.state?.mobile;
+  const email = location.state?.email;
+  const method = location.state?.method || "mobile";
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [timer, setTimer] = useState(30);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
   const inputRefs = useRef([]);
+
+  useEffect(() => {
+    if ((method === "mobile" && !mobile) || (method === "email" && !email)) {
+      navigate("/auth", { replace: true });
+    }
+  }, [email, method, mobile, navigate]);
 
   useEffect(() => {
     if (timer === 0) return;
@@ -64,9 +74,14 @@ const OtpPage = () => {
 try {
  setLoading(true);
  setErrorMessage("");
- const firebaseUser = await confirmFirebaseOtp(code);
- const idToken = await firebaseUser.getIdToken();
- const response = await firebaseLogin(idToken);
+ let response;
+ if (method === "mobile") {
+   const firebaseUser = await confirmFirebaseOtp(code);
+   const idToken = await firebaseUser.getIdToken();
+   response = await firebaseLogin(idToken);
+ } else {
+   response = await verifyEmailOtp(email, code);
+ }
 
  if (!response?.success || !response?.data?.accessToken) {
    throw new Error(response?.message || "Backend authentication failed.");
@@ -76,7 +91,7 @@ try {
  localStorage.setItem("user", JSON.stringify(response.data.user));
  clearFirebasePhoneAuth();
 
- navigate("/location");
+ navigate(method === "email" ? "/home" : "/location");
 } catch (err) {
  setErrorMessage(
    err?.response?.data?.message ||
@@ -89,17 +104,25 @@ try {
 };
 
  const resendOtp = async () => {
-   if (loading || timer > 0 || !mobile) return;
+   if (loading || timer > 0 || (method === "mobile" ? !mobile : !email)) return;
 
    try {
    setLoading(true);
    setErrorMessage("");
-   await sendFirebaseOtp(mobile);
+   if (method === "mobile") {
+     await sendFirebaseOtp(mobile);
+   } else {
+     await sendEmailOtp(email);
+   }
    setTimer(30);
    setOtp(["", "", "", "", "", ""]);
    inputRefs.current[0]?.focus();
    } catch (error) {
-     setErrorMessage(error.message || "Unable to resend OTP. Please try again.");
+     setErrorMessage(
+       error?.response?.data?.message ||
+         error.message ||
+         "Unable to resend OTP. Please try again."
+     );
    } finally {
      setLoading(false);
    }
@@ -137,7 +160,8 @@ try {
         </h1>
 
         <p className="text-center text-gray-500 mt-3 leading-6">
-          Enter the 6-digit verification code sent to your mobile number.
+          Enter the 6-digit verification code sent to your{" "}
+          {method === "mobile" ? "mobile number" : "email address"}.
         </p>
 
         {/* OTP Boxes */}

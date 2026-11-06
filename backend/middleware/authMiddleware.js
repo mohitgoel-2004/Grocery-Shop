@@ -19,7 +19,11 @@ const protect = asyncHandler(async (req, res, next) => {
   try {
     decoded = jwt.verify(token, process.env.JWT_SECRET);
   } catch (err) {
-    throw new ApiError(401, err.message);
+    if (err.name === "JsonWebTokenError" || err.name === "TokenExpiredError") {
+      throw new ApiError(401, "Your session is invalid or expired. Please log in again.");
+    }
+
+    throw new ApiError(401, "Authentication failed. Please log in again.");
   }
 
   const user = await User.findById(decoded.id).select(

@@ -4,8 +4,9 @@ const userSchema = new mongoose.Schema(
 {
     mobile: {
         type: String,
-        required: true,
+        required: false,
         unique: true,
+        sparse: true,
         trim: true,
         match: [/^[6-9]\d{9}$/, "Enter valid mobile"],
     },
@@ -18,7 +19,7 @@ const userSchema = new mongoose.Schema(
 
     email: {
         type: String,
-        default: "",
+        default: undefined,
         lowercase: true,
         trim: true,
     },
@@ -79,5 +80,13 @@ deleted: {
 {
     timestamps: true,
 });
+
+userSchema.index(
+    { email: 1 },
+    {
+        unique: true,
+        partialFilterExpression: { email: { $gt: "" } },
+    }
+);
 
 module.exports = mongoose.model("User", userSchema);

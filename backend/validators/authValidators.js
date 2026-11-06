@@ -21,12 +21,24 @@ const firebaseIdTokenValidator = body("idToken")
   .notEmpty()
   .withMessage("Firebase ID token is required");
 
+const emailValidator = body("email")
+  .trim()
+  .notEmpty()
+  .withMessage("Email is required")
+  .isEmail()
+  .withMessage("Enter a valid email address")
+  .normalizeEmail();
+
 const sendOtpValidation = [mobileValidator];
 const verifyOtpValidation = [mobileValidator, otpValidator];
+const sendEmailOtpValidation = [emailValidator];
+const verifyEmailOtpValidation = [emailValidator, otpValidator];
 const firebaseLoginValidation = [firebaseIdTokenValidator];
 
 module.exports = {
   sendOtpValidation,
   verifyOtpValidation,
+  sendEmailOtpValidation,
+  verifyEmailOtpValidation,
   firebaseLoginValidation,
 };

@@ -15,4 +15,14 @@ export const firebaseLogin = async (idToken) => {
   return response.data;
 };
 
+export const sendEmailOtp = async (email) => {
+  const response = await api.post("/auth/send-email-otp", { email });
+  return response.data;
+};
+
+export const verifyEmailOtp = async (email, otp) => {
+  const response = await api.post("/auth/verify-email-otp", { email, otp });
+  return response.data;
+};
+
 export { sendFirebaseOtp, confirmFirebaseOtp } from "./firebasePhoneAuth";
