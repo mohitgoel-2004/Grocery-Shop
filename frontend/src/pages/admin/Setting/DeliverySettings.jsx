@@ -1,6 +1,6 @@
 // DeliverySettings.jsx
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../../../api/axios";
 import { 
     FiTruck, 
     FiDollarSign, 
@@ -13,9 +13,9 @@ import {
     FiLoader
 } from "react-icons/fi";
 
-const API_BASE_URL =
-    import.meta.env.VITE_API_BASE_URL ||
-    "http://localhost:5000/api";
+// const API_BASE_URL =
+//     import.meta.env.VITE_API_BASE_URL ||
+//     "http://localhost:5000/api";
 
 const DeliverySettings = () => {
     const [settings, setSettings] = useState({
@@ -43,14 +43,10 @@ const DeliverySettings = () => {
                 localStorage.getItem("adminToken") ||
                 sessionStorage.getItem("adminToken");
 
-            const response = await axios.get(
-                `${API_BASE_URL}/admin/delivery-settings`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
+           const response = await api.put(
+  "/admin/delivery-settings",
+  settings
+);
             const data =
                 response.data?.data?.settings ||
                 response.data?.settings;

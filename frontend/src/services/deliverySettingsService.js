@@ -1,28 +1,23 @@
-import axios from "axios";
 
-const API_BASE_URL =
-    import.meta.env.VITE_API_BASE_URL ||
-    "http://localhost:5000/api";
+import api from "../api/axios";
 
 export const getDeliverySettings = async () => {
-    const response = await axios.get(
-        `${API_BASE_URL}/admin/delivery-settings`
-    );
+  const response = await api.get("/admin/delivery-settings");
 
-    return (
-        response.data?.data?.settings ||
-        response.data?.settings
-    );
+  return (
+    response.data?.data?.settings ||
+    response.data?.settings
+  );
 };
 
 export const updateDeliverySettings = async (data) => {
-    const response = await axios.put(
-        `${API_BASE_URL}/admin/delivery-settings`,
-        data
-    );
+  const response = await api.put(
+    "/admin/delivery-settings",
+    data
+  );
 
-    return (
-        response.data?.data?.settings ||
-        response.data?.settings
-    );
+  return (
+    response.data?.data?.settings ||
+    response.data?.settings
+  );
 };
