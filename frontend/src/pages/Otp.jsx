@@ -1,16 +1,23 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate  } from "react-router-dom";
-import { verifyOtp } from "../services/authService";
+import {
+  confirmFirebaseOtp,
+  firebaseLogin,
+  sendFirebaseOtp,
+} from "../services/authService";
+import { clearFirebasePhoneAuth } from "../services/firebasePhoneAuth";
 import { ShieldCheck } from "lucide-react";
 import grocery from "../assets/grocery.jpeg";
 
 const OtpPage = () => {
   const navigate = useNavigate();
-      const location = useLocation();
+  const location = useLocation();
 
-const mobile = location.state?.mobile;
+  const mobile = location.state?.mobile;
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [timer, setTimer] = useState(30);
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const inputRefs = useRef([]);
 
@@ -23,6 +30,8 @@ const mobile = location.state?.mobile;
 
     return () => clearInterval(interval);
   }, [timer]);
+
+ 
 
   const handleChange = (value, index) => {
     if (!/^\d?$/.test(value)) return;
@@ -43,38 +52,58 @@ const mobile = location.state?.mobile;
   };
 
  const handleVerify = async () => {
-  const code = otp.join("");
+ if (loading) return;
 
-  if (code.length !== 6) {
-    alert("Enter complete OTP");
-    return;
-  }
+ const code = otp.join("");
 
- try {
-  const response = await verifyOtp(mobile, code);
+ if (code.length !== 6) {
+   setErrorMessage("Enter the complete 6-digit OTP.");
+   return;
+ }
 
-  // console.log("STEP 1", response);
+try {
+ setLoading(true);
+ setErrorMessage("");
+ const firebaseUser = await confirmFirebaseOtp(code);
+ const idToken = await firebaseUser.getIdToken();
+ const response = await firebaseLogin(idToken);
 
-  // const token = response?.data?.accessToken;
+ if (!response?.success || !response?.data?.accessToken) {
+   throw new Error(response?.message || "Backend authentication failed.");
+ }
 
-  localStorage.setItem("customerToken", response.data.accessToken);
-
- // console.log("STEP 3");
+ localStorage.setItem("customerToken", response.data.accessToken);
  localStorage.setItem("user", JSON.stringify(response.data.user));
+ clearFirebasePhoneAuth();
 
-  console.log(localStorage.getItem("customerToken"));
-
-  navigate("/location");
+ navigate("/location");
 } catch (err) {
-  console.error("VERIFY ERROR:", err);
+ setErrorMessage(
+   err?.response?.data?.message ||
+     err.message ||
+     "Unable to verify OTP. Please try again."
+ );
+} finally {
+ setLoading(false);
 }
- };
+};
 
-  const resendOtp = () => {
-    setTimer(30);
-    setOtp(["", "", "", "", "", ""]);
-    inputRefs.current[0]?.focus();
-  };
+ const resendOtp = async () => {
+   if (loading || timer > 0 || !mobile) return;
+
+   try {
+   setLoading(true);
+   setErrorMessage("");
+   await sendFirebaseOtp(mobile);
+   setTimer(30);
+   setOtp(["", "", "", "", "", ""]);
+   inputRefs.current[0]?.focus();
+   } catch (error) {
+     setErrorMessage(error.message || "Unable to resend OTP. Please try again.");
+   } finally {
+     setLoading(false);
+   }
+ };
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#f7f7f7]">
@@ -131,13 +160,21 @@ const mobile = location.state?.mobile;
 
         </div>
 
+        <div id="recaptcha-container" />
+        {errorMessage && (
+        <p className="mt-3 text-sm text-red-600" role="alert">
+          {errorMessage}
+        </p>
+        )}
+
         {/* Verify Button */}
 
         <button
-          onClick={handleVerify}
-          className="w-full mt-8 rounded-full bg-gradient-to-r from-[#145A41] to-[#2D9A72] py-4 text-lg font-semibold text-white shadow-xl hover:scale-[1.02] active:scale-95 transition-all duration-300"
+        onClick={handleVerify}
+        disabled={loading}
+        className="w-full mt-8 rounded-full bg-gradient-to-r from-[#145A41] to-[#2D9A72] py-4 text-lg font-semibold text-white shadow-xl hover:scale-[1.02] active:scale-95 transition-all duration-300"
         >
-          Verify OTP
+        {loading ? "Verifying..." : "Verify OTP"}
         </button>
 
         {/* Timer */}
@@ -154,9 +191,10 @@ const mobile = location.state?.mobile;
           ) : (
             <button
               onClick={resendOtp}
+              disabled={loading}
               className="font-semibold text-[#145A41] hover:underline"
             >
-              Resend OTP
+              {loading ? "Sending..." : "Resend OTP"}
             </button>
           )}
 

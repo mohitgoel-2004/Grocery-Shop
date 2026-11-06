@@ -22,18 +22,6 @@ api.interceptors.request.use(
       config.headers?.Authorization ||
       config.headers?.authorization
     ) {
-      console.log(
-        "🔐 Using Authorization header provided by request"
-      );
-
-      console.log("REQUEST URL:", config.url);
-
-      console.log(
-        "AUTH HEADER:",
-        config.headers.Authorization ||
-          config.headers.authorization
-      );
-
       // Important:
       // Don't force Content-Type here.
       // Axios/browser will handle FormData automatically.
@@ -65,9 +53,6 @@ api.interceptors.request.use(
     localStorage.getItem("token") ||
     sessionStorage.getItem("token");
 }
-
-console.log("REQUEST URL:", config.url);
-console.log("CUSTOMER TOKEN:", token);
 
 if (token) {
   config.headers.Authorization = `Bearer ${token}`;

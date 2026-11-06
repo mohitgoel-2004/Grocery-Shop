@@ -2,23 +2,27 @@ import React, { useState } from "react";
 import { FaGoogle } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import grocery from "../assets/grocery.jpeg";
-import {sendOtp} from "../services/authService";
+import { sendFirebaseOtp } from "../services/authService";
 
 const AuthPage = () => {
   const navigate = useNavigate();
 
   const [phone, setPhone] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
  const handleContinue = async () => {
-  if (phone.length !== 10) {
-    alert("Please enter a valid mobile number");
+  if (loading) return;
+
+  if (!/^[6-9]\d{9}$/.test(phone)) {
+    setErrorMessage("Please enter a valid 10-digit Indian mobile number.");
     return;
   }
 
   try {
-    const response = await sendOtp(phone);
-
-    console.log("OTP Response:", response);
+    setLoading(true);
+    setErrorMessage("");
+    await sendFirebaseOtp(phone);
 
     navigate("/otp", {
       state: {
@@ -26,11 +30,9 @@ const AuthPage = () => {
       },
     });
   } catch (error) {
-    console.log("Full Error:", error);
-    console.log("Response:", error.response);
-    console.log("Data:", error.response?.data);
-
-    alert("OTP Failed");
+    setErrorMessage(error.message || "Unable to send OTP. Please try again.");
+  } finally {
+    setLoading(false);
   }
 };
  
@@ -87,7 +89,7 @@ const AuthPage = () => {
               maxLength={10}
               value={phone}
               onChange={(e) =>
-                setPhone(e.target.value.replace(/\D/g, ""))
+                setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))
               }
               placeholder="Enter Mobile Number"
               className="flex-1 bg-transparent py-4 pr-4 outline-none text-lg"
@@ -95,12 +97,20 @@ const AuthPage = () => {
 
           </div>
 
+          <div id="recaptcha-container" />
+          {errorMessage && (
+            <p className="mt-3 text-sm text-red-600" role="alert">
+              {errorMessage}
+            </p>
+          )}
+
           {/* Continue Button */}
           <button
             onClick={handleContinue}
+            disabled={loading}
             className="w-full mt-7 rounded-full bg-gradient-to-r from-[#145A41] to-[#2D9A72] py-4 text-white text-lg font-semibold shadow-xl hover:scale-[1.02] active:scale-95 transition-all duration-300"
           >
-            Continue
+            {loading ? "Sending OTP..." : "Continue"}
           </button>
 
         </div>
@@ -119,12 +129,17 @@ const AuthPage = () => {
         </div>
 
         {/* Google Button */}
-        <button className="w-full rounded-full border border-gray-200 bg-white py-4 flex items-center justify-center gap-3 shadow-md hover:bg-gray-50 transition">
+        <button
+          type="button"
+          disabled
+          title="Google login is not available yet"
+          className="w-full rounded-full border border-gray-200 bg-white py-4 flex items-center justify-center gap-3 shadow-md opacity-60 cursor-not-allowed"
+        >
 
           <FaGoogle className="text-red-500 text-xl" />
 
           <span className="font-semibold text-gray-700">
-            Continue with Google
+            Google login unavailable
           </span>
 
         </button>

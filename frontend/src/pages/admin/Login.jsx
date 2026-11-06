@@ -82,16 +82,8 @@ const Login = () => {
 
     const response = await loginAdmin(formData.email, formData.password);
 
-console.log(response);
-console.log(response.success);
-console.log(response.message);
-console.log(response.data);
-
 const token = response?.data?.accessToken;
 const admin = response?.data?.admin;
-
-console.log("Token:", token);
-console.log("Admin:", admin);
 
 if (!token) {
   throw new Error("Token not found in response");
@@ -99,8 +91,6 @@ if (!token) {
 
 localStorage.setItem("adminToken", token);
 localStorage.setItem("adminInfo", JSON.stringify(admin));
-
-console.log("Saved Token:", localStorage.getItem("adminToken"));
 
 toast.success("Login Successful");
 
